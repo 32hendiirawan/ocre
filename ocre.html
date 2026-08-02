@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O'Cre - Platform Game & Aplikasi Edukasi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0d1117;
+            color: #e6edf3;
+            min-height: 100vh;
+        }
+
+        /* Top Navigation Bar */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background-color: #161b22;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 4%;
+            z-index: 1000;
+        }
+
+        .brand {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #58a6ff;
+            text-decoration: none;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-grow: 1;
+            max-width: 500px;
+            margin: 0 1.5rem;
+        }
+
+        /* Dropdown Kategori Filter */
+        .category-select {
+            background-color: #0d1117;
+            color: #e6edf3;
+            border: 1px solid #30363d;
+            padding: 0.5rem 0.8rem;
+            border-radius: 8px;
+            outline: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .category-select:focus {
+            border-color: #58a6ff;
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.5rem 1rem 0.5rem 2.3rem;
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            color: #e6edf3;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-box input:focus {
+            border-color: #58a6ff;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8b949e;
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: #c9d1d9;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .nav-link:hover {
+            background-color: #21262d;
+            color: #58a6ff;
+        }
+
+        /* Main Grid Content (6 Kolom Desktop, 2 Kolom Mobile) */
+        main {
+            margin-top: 85px;
+            padding: 1.5rem 3%;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1rem;
+        }
+
+        .card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: #58a6ff;
+        }
+
+        .card-img-wrapper {
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            background-color: #21262d;
+            overflow: hidden;
+        }
+
+        .card-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .card:hover .card-img-wrapper img {
+            transform: scale(1.05);
+        }
+
+        .card-content {
+            padding: 0.6rem 0.8rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .card-tag {
+            align-self: flex-start;
+            font-size: 0.65rem;
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            background-color: #21262d;
+            color: #58a6ff;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+        }
+
+        .card-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #f0f6fc;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Modal Player Screen Fullscreen Overlay */
+        .player-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0d1117;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .player-header {
+            height: 45px;
+            background-color: #161b22;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+        }
+
+        .player-title {
+            font-weight: 600;
+            color: #58a6ff;
+            font-size: 0.95rem;
+        }
+
+        .player-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .player-btn {
+            background: none;
+            border: none;
+            color: #c9d1d9;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        .player-btn:hover {
+            color: #58a6ff;
+        }
+
+        .player-frame {
+            width: 100%;
+            height: calc(100% - 45px);
+            border: none;
+        }
+
+        /* Modal Full About Me */
+        .dev-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(13, 17, 23, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 1500;
+            display: none;
+            overflow-y: auto;
+            padding: 3rem 1rem;
+        }
+
+        .dev-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 16px;
+            padding: 2.5rem;
+            position: relative;
+        }
+
+        .close-dev {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #8b949e;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .close-dev:hover {
+            color: #58a6ff;
+        }
+
+        .dev-profile {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dev-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #1f6feb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .dev-contacts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 0.8rem;
+            margin: 1.5rem 0;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            color: #c9d1d9;
+            text-decoration: none;
+            padding: 0.7rem 1rem;
+            background-color: #0d1117;
+            border-radius: 8px;
+            border: 1px solid #30363d;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .contact-item:hover {
+            border-color: #58a6ff;
+            color: #58a6ff;
+        }
+
+        .map-container {
+            margin-top: 1.5rem;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #30363d;
+        }
+
+        .map-container iframe {
+            width: 100%;
+            height: 200px;
+            border: 0;
+        }
+
+        .support-box {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(46, 160, 67, 0.1), transparent);
+            border: 1px solid #2ea043;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .btn-donate {
+            display: inline-block;
+            margin-top: 1rem;
+            background: linear-gradient(135deg, #2ea043, #238636);
+            color: #ffffff;
+            text-decoration: none;
+            padding: 0.7rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(46, 160, 67, 0.3);
+        }
+
+        /* Responsive Layar Ponsel (2 Kolom) */
+        @media (max-width: 768px) {
+            header {
+                flex-wrap: wrap;
+                height: auto;
+                padding: 0.8rem 1rem;
+                gap: 0.8rem;
+            }
+            .search-container {
+                order: 3;
+                max-width: 100%;
+                margin: 0;
+            }
+            main {
+                margin-top: 130px;
+            }
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.8rem;
+            }
+            .dev-profile {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Bar Atas Navigasi -->
+    <header>
+        <a href="#" class="brand" onclick="resetFilter(); return false;">O'Cre</a>
+        
+        <div class="search-container">
+            <!-- Dropdown Penggabung Kategori -->
+            <select class="category-select" id="categorySelect" onchange="filterItems()">
+                <option value="all">Semua</option>
+                <option value="game">Game</option>
+                <option value="aplikasi">Aplikasi</option>
+            </select>
+
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="searchInput" placeholder="Cari..." onkeyup="filterItems()">
+            </div>
+        </div>
+
+        <ul class="nav-menu">
+            <li><a class="nav-link" onclick="toggleDevModal(true)">About Me</a></li>
+        </ul>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main>
+        <div class="grid-container" id="contentGrid">
+            <!-- Items generated by JavaScript -->
+        </div>
+    </main>
+
+    <!-- Player Overlay / Iframe (dengan Fitur Fullscreen Ditambahkan) -->
+    <div class="player-modal" id="playerModal">
+        <div class="player-header">
+            <span class="player-title" id="playerTitle">Judul Item</span>
+            <div class="player-actions">
+                <button class="player-btn" title="Buka di Tab Baru Mandiri" onclick="openIndependentTab()"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+                <button class="player-btn" title="Tutup" onclick="closePlayer()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+        <!-- Properti allow="fullscreen" memastikan tombol layar penuh di dalam iframe bekerja -->
+        <iframe class="player-frame" id="appIframe" src="" allow="fullscreen; autoplay; encrypted-media"></iframe>
+    </div>
+
+    <!-- Modal About Me Penuh -->
+    <div class="dev-modal" id="devModal">
+        <div class="dev-container">
+            <button class="close-dev" onclick="toggleDevModal(false)"><i class="fa-solid fa-xmark"></i></button>
+            
+            <div class="dev-profile">
+                <div class="dev-avatar">Dev</div>
+                <div>
+                    <h2 style="color: #58a6ff;">Pengembang O'Cre</h2>
+                    <p style="color: #8b949e; font-size: 0.95rem; margin-top: 0.3rem;">
+                        Pengembang media interaktif berbasis gim dan aplikasi edukasi modern. Berkomitmen menghadirkan pengalaman belajar yang menyenangkan dan mudah diakses.
+                    </p>
+                </div>
+            </div>
+
+            <h3 style="color: #f0f6fc; font-size: 1.1rem; margin-bottom: 0.8rem;">Kontak & Media Sosial</h3>
+            <div class="dev-contacts">
+                <a href="https://instagram.com/username" target="_blank" class="contact-item">
+                    <i class="fa-brands fa-instagram" style="color: #e1306c;"></i>
+                    <span>Instagram</span>
+                </a>
+                <a href="https://youtube.com/@username" target="_blank" class="contact-item">
+                    <i class="fa-brands fa-youtube" style="color: #ff0000;"></i>
+                    <span>YouTube</span>
+                </a>
+                <a href="https://tiktok.com/@username" target="_blank" class="contact-item">
+                    <i class="fa-brands fa-tiktok"></i>
+                    <span>TikTok</span>
+                </a>
+                <a href="mailto:ocre.edugame@gmail.com" class="contact-item">
+                    <i class="fa-solid fa-envelope" style="color: #ea4335;"></i>
+                    <span>ocre.edugame@gmail.com</span>
+                </a>
+                <a href="https://wa.me/6281234567890" target="_blank" class="contact-item">
+                    <i class="fa-brands fa-whatsapp" style="color: #25d366;"></i>
+                    <span>WhatsApp Kami</span>
+                </a>
+                <a href="https://maps.google.com" target="_blank" class="contact-item">
+                    <i class="fa-solid fa-location-dot" style="color: #4285f4;"></i>
+                    <span>Lokasi Alamat</span>
+                </a>
+            </div>
+
+            <!-- Google Maps -->
+            <div class="map-container">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d127116.89201509176!2d105.22818648896005!3d-5.385412574441334!2m3!1f0!0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e40da423a238615%3A0x3039d80b220cc40!2sBandar%20Lampung%2C%20Kota%20Bandar%20Lampung%2C%20Lampung!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid" loading="lazy"></iframe>
+            </div>
+
+            <!-- Section Support / Donate Terintegrasi -->
+            <div class="support-box">
+                <h3 style="color: #2ea043; margin-bottom: 0.5rem;">Dukung O'Cre ❤️</h3>
+                <p style="color: #8b949e; font-size: 0.9rem;">
+                    Bantu kami untuk terus memperbarui konten game dan aplikasi edukasi ini agar tetap dapat diakses secara gratis.
+                </p>
+                <a href="https://saweria.co" target="_blank" class="btn-donate">Support / Donasi</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Game dan Aplikasi Menggunakan Gambar/Tangkapan Layar
+        const itemsData = [
+            { id: 'budi', title: 'Buku Pelajaran Digital', category: 'aplikasi', image: 'https://i.pinimg.com/736x/02/b6/70/02b67056aca2a3876968179ea3f981b7.jpg', url: 'https://budi-sd.my.id' },
+            { id: 'cross-river', title: 'Game Logika : Penyeberangan Sungai', category: 'game', image: 'https://i.pinimg.com/736x/3f/02/f7/3f02f79ddd8c3ffee60ac4912a7f9ade.jpg', url: 'https://ocre-crossriver.vercel.app' },
+            { id: 'make-ten', title: 'Puzzle : Make Ten', category: 'game', image: 'https://i.pinimg.com/736x/d7/e0/5a/d7e05ae33243abed9cf435040a685285.jpg', url: 'https://ocre-make10.vercel.app' },
+            { id: 'sort-ball', title: 'Puzzle : Ball Sort (Pecahan Senilai)', category: 'game', image: 'https://i.pinimg.com/736x/7f/cd/aa/7fcdaa8bfd7511307771637ee9d44015.jpg', url: 'https://ocre-ballsort.vercel.app' },
+            { id: 'padlock-cracker', title: 'Padlock Cracker', category: 'game', image: 'https://i.pinimg.com/736x/02/ef/b8/02efb8362c2b461186aab9c07c3248d3.jpg', url: 'https://ocre-padlock.vercel.app' },
+            { id: 'math-labirin', title: 'Labirin Matematika', category: 'game', image: 'https://i.pinimg.com/1200x/66/65/2e/66652ee5e0ae22a1292342e33f5ce82b.jpg', url: 'https://ocre-labirin.netlify.app' }
+        ];
+
+        let currentItem = null;
+
+        // Render Card Grid
+        function renderGrid(data) {
+            const grid = document.getElementById('contentGrid');
+            grid.innerHTML = '';
+            
+            data.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.onclick = () => openPlayer(item);
+                card.innerHTML = `
+                    <div class="card-img-wrapper">
+                        <img src="${item.image}" alt="${item.title}" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-tag">${item.category}</span>
+                        <h3 class="card-title" title="${item.title}">${item.title}</h3>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Filter Kombo (Pencarian & Dropdown)
+        function filterItems() {
+            const category = document.getElementById('categorySelect').value;
+            const query = document.getElementById('searchInput').value.toLowerCase();
+
+            const filtered = itemsData.filter(item => {
+                const matchesCat = (category === 'all' || item.category === category);
+                const matchesQuery = item.title.toLowerCase().includes(query);
+                return matchesCat && matchesQuery;
+            });
+
+            renderGrid(filtered);
+        }
+
+        function resetFilter() {
+            document.getElementById('categorySelect').value = 'all';
+            document.getElementById('searchInput').value = '';
+            renderGrid(itemsData);
+        }
+
+        // Buka Player & Update Address Bar
+        function openPlayer(item) {
+            currentItem = item;
+            document.getElementById('playerTitle').innerText = item.title;
+            document.getElementById('appIframe').src = item.url;
+            document.getElementById('playerModal').style.display = 'flex';
+            
+            history.pushState({ itemId: item.id }, item.title, '/' + item.id);
+        }
+
+        // Tutup Player
+        function closePlayer() {
+            document.getElementById('playerModal').style.display = 'none';
+            document.getElementById('appIframe').src = '';
+            currentItem = null;
+            
+            history.pushState(null, 'O\'Cre', '/');
+        }
+
+        // Pembukaan Tab Mandiri Menggunakan URL Asli (Mencegah "Cannot GET" error)
+        function openIndependentTab() {
+            if (currentItem && currentItem.url) {
+                window.open(currentItem.url, '_blank');
+            }
+        }
+
+        // Toggle Modal About Me
+        function toggleDevModal(show) {
+            document.getElementById('devModal').style.display = show ? 'block' : 'none';
+        }
+
+        // Perbaikan Tombol Back/Forward Browser
+        window.onpopstate = function(event) {
+            if (event.state && event.state.itemId) {
+                const item = itemsData.find(i => i.id === event.state.itemId);
+                if (item) openPlayer(item);
+            } else {
+                closePlayer();
+            }
+        };
+
+        // Inisialisasi awal
+        renderGrid(itemsData);
+    </script>
+</body>
+</html>
