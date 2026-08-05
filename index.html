@@ -8,16 +8,39 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" href="icon.png" type="image/png">
     <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --border-color: #30363d;
+            --text-color: #e6edf3;
+            --text-muted: #8b949e;
+            --primary-color: #58a6ff;
+            --hover-bg: #21262d;
+            --heart-color: #ff7b72;
+        }
+
+        /* Variabel Tema Terang */
+        body.light-theme {
+            --bg-color: #f6f8fa;
+            --card-bg: #ffffff;
+            --border-color: #d0d7de;
+            --text-color: #1f2328;
+            --text-muted: #656d76;
+            --primary-color: #0969da;
+            --hover-bg: #f3f4f6;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
         body {
-            background-color: #0d1117;
-            color: #e6edf3;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             min-height: 100vh;
         }
 
@@ -28,8 +51,8 @@
             left: 0;
             width: 100%;
             height: 70px;
-            background-color: #161b22;
-            border-bottom: 1px solid #30363d;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -40,7 +63,7 @@
         .brand {
             font-size: 1.8rem;
             font-weight: 800;
-            color: #58a6ff;
+            color: var(--primary-color);
             text-decoration: none;
         }
 
@@ -54,9 +77,9 @@
         }
 
         .category-select {
-            background-color: #0d1117;
-            color: #e6edf3;
-            border: 1px solid #30363d;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
             padding: 0.5rem 0.8rem;
             border-radius: 8px;
             outline: none;
@@ -65,7 +88,7 @@
         }
 
         .category-select:focus {
-            border-color: #58a6ff;
+            border-color: var(--primary-color);
         }
 
         .search-box {
@@ -76,16 +99,15 @@
         .search-box input {
             width: 100%;
             padding: 0.5rem 1rem 0.5rem 2.3rem;
-            background-color: #0d1117;
-            border: 1px solid #30363d;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            color: #e6edf3;
+            color: var(--text-color);
             outline: none;
-            transition: border-color 0.3s;
         }
 
         .search-box input:focus {
-            border-color: #58a6ff;
+            border-color: var(--primary-color);
         }
 
         .search-box i {
@@ -93,28 +115,47 @@
             left: 10px;
             top: 50%;
             transform: translateY(-50%);
-            color: #8b949e;
+            color: var(--text-muted);
         }
 
         .nav-menu {
             display: flex;
             align-items: center;
             list-style: none;
+            gap: 0.5rem;
         }
 
         .nav-link {
-            color: #c9d1d9;
+            color: var(--text-color);
             text-decoration: none;
             font-weight: 600;
             cursor: pointer;
             padding: 0.5rem 1rem;
             border-radius: 6px;
-            transition: background 0.3s, color 0.3s;
         }
 
         .nav-link:hover {
-            background-color: #21262d;
-            color: #58a6ff;
+            background-color: var(--hover-bg);
+            color: var(--primary-color);
+        }
+
+        .theme-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .theme-btn:hover {
+            background-color: var(--hover-bg);
+            color: var(--primary-color);
         }
 
         /* Main Grid Content */
@@ -130,25 +171,26 @@
         }
 
         .card {
-            background-color: #161b22;
-            border: 1px solid #30363d;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 10px;
             overflow: hidden;
             cursor: pointer;
             transition: transform 0.2s, border-color 0.2s;
             display: flex;
             flex-direction: column;
+            position: relative;
         }
 
         .card:hover {
             transform: translateY(-4px);
-            border-color: #58a6ff;
+            border-color: var(--primary-color);
         }
 
         .card-img-wrapper {
             width: 100%;
             aspect-ratio: 16 / 10;
-            background-color: #21262d;
+            background-color: var(--hover-bg);
             overflow: hidden;
         }
 
@@ -181,25 +223,34 @@
             font-size: 0.65rem;
             padding: 0.1rem 0.4rem;
             border-radius: 4px;
-            background-color: #21262d;
-            color: #58a6ff;
+            background-color: var(--hover-bg);
+            color: var(--primary-color);
             text-transform: uppercase;
             font-weight: bold;
         }
 
-        /* Style Counter Gameplay */
-        .card-views {
-            font-size: 0.7rem;
-            color: #8b949e;
-            display: flex;
-            align-items: center;
-            gap: 4px;
+        .fav-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 2px 4px;
+            transition: transform 0.2s, color 0.2s;
+        }
+
+        .fav-btn.active {
+            color: var(--heart-color);
+        }
+
+        .fav-btn:hover {
+            transform: scale(1.2);
         }
 
         .card-title {
             font-size: 0.85rem;
             font-weight: 600;
-            color: #f0f6fc;
+            color: var(--text-color);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -272,8 +323,8 @@
         .dev-container {
             max-width: 800px;
             margin: 0 auto;
-            background-color: #161b22;
-            border: 1px solid #30363d;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 16px;
             padding: 2.5rem;
             position: relative;
@@ -285,13 +336,13 @@
             right: 20px;
             background: none;
             border: none;
-            color: #8b949e;
+            color: var(--text-muted);
             font-size: 1.5rem;
             cursor: pointer;
         }
 
         .close-dev:hover {
-            color: #58a6ff;
+            color: var(--primary-color);
         }
 
         .dev-profile {
@@ -326,26 +377,25 @@
             display: flex;
             align-items: center;
             gap: 0.8rem;
-            color: #c9d1d9;
+            color: var(--text-color);
             text-decoration: none;
             padding: 0.7rem 1rem;
-            background-color: #0d1117;
+            background-color: var(--bg-color);
             border-radius: 8px;
-            border: 1px solid #30363d;
-            transition: all 0.2s;
+            border: 1px solid var(--border-color);
             font-size: 0.9rem;
         }
 
         .contact-item:hover {
-            border-color: #58a6ff;
-            color: #58a6ff;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
         }
 
         .map-container {
             margin-top: 1.5rem;
             border-radius: 10px;
             overflow: hidden;
-            border: 1px solid #30363d;
+            border: 1px solid var(--border-color);
         }
 
         .map-container iframe {
@@ -373,6 +423,14 @@
             border-radius: 50px;
             font-weight: 600;
             box-shadow: 0 4px 12px rgba(46, 160, 67, 0.3);
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+            font-size: 1.1rem;
         }
 
         @media (max-width: 768px) {
@@ -411,6 +469,7 @@
                 <option value="all">Semua</option>
                 <option value="game">Game</option>
                 <option value="aplikasi">Aplikasi</option>
+                <option value="favorite">❤️ Favorit Saya</option>
             </select>
 
             <div class="search-box">
@@ -420,6 +479,7 @@
         </div>
 
         <ul class="nav-menu">
+            <li><button class="theme-btn" id="themeToggle" onclick="toggleTheme()" title="Ganti Tema"><i class="fa-solid fa-sun"></i></button></li>
             <li><a class="nav-link" onclick="toggleDevModal(true)">About Me</a></li>
         </ul>
     </header>
@@ -443,14 +503,14 @@
             <div class="dev-profile">
                 <div class="dev-avatar">Dev</div>
                 <div>
-                    <h2 style="color: #58a6ff;">O'Cre Studio</h2>
-                    <p style="color: #8b949e; font-size: 0.95rem; margin-top: 0.3rem;">
+                    <h2 style="color: var(--primary-color);">O'Cre Studio</h2>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.3rem;">
                         Web ini dibangun dan dikembangkan secara mandiri oleh <b>O'Cre Studio</b>...
                     </p>
                 </div>
             </div>
 
-            <h3 style="color: #f0f6fc; font-size: 1.1rem; margin-bottom: 0.8rem;">Kontak & Media Sosial</h3>
+            <h3 style="color: var(--text-color); font-size: 1.1rem; margin-bottom: 0.8rem;">Kontak & Media Sosial</h3>
             <div class="dev-contacts">
                 <a href="https://instagram.com/username" target="_blank" class="contact-item">
                     <i class="fa-brands fa-instagram" style="color: #e1306c;"></i>
@@ -484,7 +544,7 @@
 
             <div class="support-box">
                 <h3 style="color: #2ea043; margin-bottom: 0.5rem;">Dukung O'Cre ❤️</h3>
-                <p style="color: #8b949e; font-size: 0.9rem;">
+                <p style="color: var(--text-muted); font-size: 0.9rem;">
                     Bantu kami untuk terus memperbarui konten game dan aplikasi edukasi ini agar tetap dapat diakses secara gratis.
                 </p>
                 <a href="https://saweria.co/32hendiirawan" target="_blank" class="btn-donate">Support / Donasi</a>
@@ -493,9 +553,6 @@
     </div>
 
     <script>
-        // Workspace ID unik untuk CounterAPI.dev
-        const WORKSPACE_ID = "ocre_studio";
-
         const itemsData = [
             { id: 'budi', title: 'Buku Pelajaran Digital', category: 'aplikasi', image: 'https://i.pinimg.com/736x/02/b6/70/02b67056aca2a3876968179ea3f981b7.jpg', url: 'https://budi-sd.my.id' },
             { id: 'aksara-lampung', title: 'Aksara Lampung', category: 'aplikasi', image: 'https://i.pinimg.com/736x/e5/6e/36/e56e360fc490e242cab421a934d84e8e.jpg', url: 'https://32hendiirawan.github.io/aksaralampung/' },
@@ -528,10 +585,36 @@
         ];
 
         let currentItem = null;
+        let favorites = JSON.parse(localStorage.getItem('ocre_favorites')) || [];
 
-        // Clean ID agar aman dalam URL API
-        function formatCleanId(id) {
-            return id.toLowerCase().replace(/[^a-z0-9_-]/g, '_');
+        // Toggle Favorit
+        function toggleFavorite(event, id) {
+            event.stopPropagation();
+            if (favorites.includes(id)) {
+                favorites = favorites.filter(favId => favId !== id);
+            } else {
+                favorites.push(id);
+            }
+            localStorage.setItem('ocre_favorites', JSON.stringify(favorites));
+            filterItems();
+        }
+
+        // Mode Gelap/Terang
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            localStorage.setItem('ocre_theme', isLight ? 'light' : 'dark');
+            
+            const btnIcon = document.querySelector('#themeToggle i');
+            btnIcon.className = isLight ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+        }
+
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('ocre_theme');
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-theme');
+                document.querySelector('#themeToggle i').className = 'fa-solid fa-moon';
+            }
         }
 
         // Render Card Grid
@@ -539,12 +622,16 @@
             const grid = document.getElementById('contentGrid');
             grid.innerHTML = '';
             
+            if (data.length === 0) {
+                grid.innerHTML = `<div class="empty-state">Tidak ada item yang ditemukan.</div>`;
+                return;
+            }
+
             data.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.onclick = () => openPlayer(item);
-                
-                const cleanId = formatCleanId(item.id);
+                const isFav = favorites.includes(item.id);
 
                 card.innerHTML = `
                     <div class="card-img-wrapper">
@@ -553,53 +640,15 @@
                     <div class="card-content">
                         <div class="card-meta">
                             <span class="card-tag">${item.category}</span>
-                            <span class="card-views">
-                                <i class="fa-solid fa-gamepad"></i>
-                                <span id="count-${cleanId}">...</span>
-                            </span>
+                            <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(event, '${item.id}')" title="Simpan Favorit">
+                                <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                            </button>
                         </div>
                         <h3 class="card-title" title="${item.title}">${item.title}</h3>
                     </div>
                 `;
                 grid.appendChild(card);
-                
-                // Ambil nilai terkini
-                fetchViews(cleanId);
             });
-        }
-
-        // Ambil data tayangan dari CounterAPI.dev
-        function fetchViews(cleanId) {
-            fetch(`https://counterapi.dev/api/${WORKSPACE_ID}/${cleanId}`)
-                .then(res => res.json())
-                .then(data => {
-                    const el = document.getElementById(`count-${cleanId}`);
-                    if (el) el.innerText = data.count !== undefined ? data.count : 0;
-                })
-                .catch(() => {
-                    const el = document.getElementById(`count-${cleanId}`);
-                    if (el) el.innerText = '0';
-                });
-        }
-
-        // Tambah hitungan +1 saat game dimainkan
-        function incrementViews(cleanId) {
-            // Update UI secara instan (Optimistic UI Update)
-            const el = document.getElementById(`count-${cleanId}`);
-            if (el) {
-                let currentVal = parseInt(el.innerText) || 0;
-                el.innerText = currentVal + 1;
-            }
-
-            // Kirim request increment ke server
-            fetch(`https://counterapi.dev/api/${WORKSPACE_ID}/${cleanId}/up`)
-                .then(res => res.json())
-                .then(data => {
-                    if (el && data.count !== undefined) {
-                        el.innerText = data.count;
-                    }
-                })
-                .catch(err => console.error("Counter API Error:", err));
         }
 
         function filterItems() {
@@ -607,7 +656,15 @@
             const query = document.getElementById('searchInput').value.toLowerCase();
 
             const filtered = itemsData.filter(item => {
-                const matchesCat = (category === 'all' || item.category === category);
+                let matchesCat = false;
+                if (category === 'all') {
+                    matchesCat = true;
+                } else if (category === 'favorite') {
+                    matchesCat = favorites.includes(item.id);
+                } else {
+                    matchesCat = (item.category === category);
+                }
+
                 const matchesQuery = item.title.toLowerCase().includes(query);
                 return matchesCat && matchesQuery;
             });
@@ -621,14 +678,11 @@
             renderGrid(itemsData);
         }
 
-        // Buka Player & Tambah Hit Counter
+        // Buka Player
         function openPlayer(item) {
             currentItem = item;
             document.getElementById('appIframe').src = item.url;
             document.getElementById('playerModal').style.display = 'block';
-            
-            const cleanId = formatCleanId(item.id);
-            incrementViews(cleanId);
             
             history.pushState({ itemId: item.id }, item.title, '/' + item.id);
         }
@@ -689,6 +743,8 @@
             }
         };
 
+        // Inisialisasi Halaman
+        loadTheme();
         renderGrid(itemsData);
 
         (function() {
