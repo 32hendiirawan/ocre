@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sudoku Master</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --cell-bg: #334155;
+            --primary: #38bdf8;
+            --primary-hover: #0284c7;
+            --accent: #f59e0b;
+            --border-bold: #0f172a;
+            --border-light: #475569;
+            --selected-bg: #0284c7;
+            --highlight-bg: #273549;
+            --same-num-bg: #166534;
+            --same-num-border: #22c55e;
+            --error-bg: #991b1b;
+            --text-main: #f8fafc;
+            --text-given: #ffffff;
+            --text-user: #38bdf8;
+            --text-note: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            height: 100%;
+            max-height: 100dvh;
+            aspect-ratio: 9 / 16;
+            background: var(--card-bg);
+            padding: clamp(8px, 1.8vh, 16px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (min-aspect-ratio: 9/16) {
+            .app-container {
+                height: 100dvh;
+                width: auto;
+            }
+        }
+        @media (max-aspect-ratio: 9/16) {
+            .app-container {
+                width: 100vw;
+                height: auto;
+            }
+        }
+
+        /* Header Bar */
+        .header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-main);
+        }
+
+        h1 {
+            font-size: clamp(1.2rem, 2.8vh, 1.7rem);
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--primary);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Stats & Timer Container */
+        .stats-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--bg-color);
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            font-size: clamp(0.7rem, 1.5vh, 0.85rem);
+            color: var(--text-main);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-note);
+            font-size: 0.8em;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: var(--primary);
+        }
+
+        .stat-value.best {
+            color: var(--accent);
+        }
+
+        .hearts-container {
+            display: flex;
+            gap: 3px;
+            font-size: 1rem;
+        }
+
+        .heart {
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .heart.lost {
+            opacity: 0.25;
+            filter: grayscale(100%);
+            transform: scale(0.8);
+        }
+
+        /* Controls Top */
+        .controls-top {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+
+        select {
+            flex: 1;
+            padding: clamp(6px, 1.2vh, 10px);
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            background-color: var(--cell-bg);
+            font-size: clamp(0.75rem, 1.8vh, 0.9rem);
+            font-weight: 600;
+            color: var(--text-main);
+            outline: none;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: clamp(6px, 1.2vh, 10px) clamp(10px, 2vw, 14px);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: clamp(0.75rem, 1.8vh, 0.9rem);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .btn-primary { background-color: var(--primary); color: #0f172a; }
+        .btn-primary:active { background-color: var(--primary-hover); transform: scale(0.98); }
+
+        .btn-secondary { background-color: var(--cell-bg); color: var(--text-main); border: 1px solid var(--border-light); }
+        .btn-secondary:active { background-color: var(--border-light); transform: scale(0.98); }
+
+        .btn-active {
+            background-color: var(--accent) !important;
+            color: #0f172a !important;
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+        }
+
+        /* Board Wrapper */
+        .board-wrapper {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .sudoku-board {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            grid-template-rows: repeat(9, 1fr);
+            width: 100%;
+            height: 100%;
+            border: 3px solid var(--border-bold);
+            border-radius: 8px;
+            background-color: var(--border-bold);
+            gap: 1px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .cell {
+            background-color: var(--cell-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1rem, 2.8vh, 1.5rem);
+            font-weight: 700;
+            cursor: pointer;
+            position: relative;
+            transition: background-color 0.1s ease;
+        }
+
+        .cell:nth-child(3n) { border-right: 2px solid var(--border-bold); }
+        .cell:nth-child(9n) { border-right: none; }
+        .cell:nth-child(n+19):nth-child(-n+27),
+        .cell:nth-child(n+46):nth-child(-n+54) {
+            border-bottom: 2px solid var(--border-bold);
+        }
+
+        .cell.given { color: var(--text-given); font-weight: 800; }
+        .cell.user { color: var(--text-user); }
+        .cell.highlight { background-color: var(--highlight-bg); }
+        .cell.same-number { 
+            background-color: var(--same-num-bg) !important; 
+            color: #ffffff !important;
+        }
+        .cell.selected { 
+            background-color: var(--selected-bg) !important; 
+            color: #ffffff !important;
+            box-shadow: inset 0 0 0 2px #60a5fa;
+        }
+        .cell.error { background-color: var(--error-bg) !important; color: #ffffff !important; animation: shake 0.3s ease; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-4px); }
+            40%, 80% { transform: translateX(4px); }
+        }
+
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            width: 100%;
+            height: 100%;
+            padding: 1px;
+        }
+
+        .note-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(0.45rem, 1.1vh, 0.65rem);
+            font-weight: 600;
+            color: var(--text-note);
+            line-height: 1;
+        }
+
+        .actions-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            width: 100%;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 4px;
+            width: 100%;
+        }
+
+        .key {
+            aspect-ratio: 1 / 1.1;
+            border-radius: 6px;
+            border: 1px solid var(--border-light);
+            background: var(--cell-bg);
+            font-size: clamp(1rem, 2.5vh, 1.3rem);
+            font-weight: 700;
+            color: var(--primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+
+        .key:active:not(:disabled) {
+            background-color: var(--primary);
+            color: #0f172a;
+            transform: scale(0.95);
+        }
+
+        .key:disabled {
+            background-color: #1e293b;
+            color: #475569;
+            border-color: #334155;
+            cursor: not-allowed;
+            opacity: 0.35;
+            text-decoration: line-through;
+        }
+
+        /* Modal Overlay (Victory / Game Over) */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .victory-card {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 2px solid var(--primary);
+            border-radius: 20px;
+            padding: 24px;
+            width: 85%;
+            max-width: 320px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.3), inset 0 0 15px rgba(56, 189, 248, 0.1);
+            transform: scale(0.7) translateY(20px);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .victory-card.game-over-card {
+            border-color: #ef4444;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.3), inset 0 0 15px rgba(239, 68, 68, 0.1);
+        }
+
+        .modal-overlay.active .victory-card {
+            transform: scale(1) translateY(0);
+        }
+
+        .trophy-icon {
+            font-size: 3.5rem;
+            animation: bounceTrophy 1.2s infinite ease-in-out alternate;
+            filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.6));
+        }
+
+        @keyframes bounceTrophy {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-10px) scale(1.1); }
+        }
+
+        .victory-title {
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            background: linear-gradient(to right, #38bdf8, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .game-over-title {
+            background: linear-gradient(to right, #ef4444, #f97316) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+        }
+
+        .victory-badge {
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .victory-stats {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 4px 0;
+        }
+
+        .v-stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .v-stat-label { color: var(--text-note); }
+        .v-stat-value { color: #ffffff; font-weight: 700; }
+        .v-stat-value.highlight { color: var(--accent); }
+
+        .new-best-badge {
+            background: #f59e0b;
+            color: #0f172a;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.7; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1.05); }
+        }
+
+        /* Canvas Confetti */
+        #confetti-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 101;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>SUDOKU</h1>
+        <div class="stat-item">
+            <span class="stat-label">Terbaik:</span>
+            <span class="stat-value best" id="best-time">--:--</span>
+        </div>
+    </div>
+
+    <!-- Stats & Timer Bar -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <span class="stat-label">Waktu:</span>
+            <span class="stat-value" id="timer">00:00</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Nyawa:</span>
+            <div class="hearts-container" id="hearts-container">
+                <span class="heart">❤️</span>
+                <span class="heart">❤️</span>
+                <span class="heart">❤️</span>
+            </div>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Level:</span>
+            <span class="stat-value" id="current-diff-label" style="text-transform: capitalize;">Sedang</span>
+        </div>
+    </div>
+
+    <!-- Controls Top -->
+    <div class="controls-top">
+        <select id="difficulty">
+            <option value="very_easy">Sangat Mudah</option>
+            <option value="easy">Mudah</option>
+            <option value="medium" selected>Sedang</option>
+            <option value="hard">Sulit</option>
+            <option value="very_hard">Sangat Sulit</option>
+        </select>
+        <button class="btn btn-primary" id="btn-new">Game Baru</button>
+    </div>
+
+    <!-- Board -->
+    <div class="board-wrapper">
+        <div class="sudoku-board" id="board"></div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="actions-bar">
+        <button class="btn btn-secondary" id="btn-pencil">✏️ Pensil</button>
+        <button class="btn btn-secondary" id="btn-clear">🗑️ Hapus</button>
+        <button class="btn btn-secondary" id="btn-reset">🔄 Reset</button>
+    </div>
+
+    <!-- Keypad -->
+    <div class="keypad" id="keypad">
+        <button class="key" data-value="1">1</button>
+        <button class="key" data-value="2">2</button>
+        <button class="key" data-value="3">3</button>
+        <button class="key" data-value="4">4</button>
+        <button class="key" data-value="5">5</button>
+        <button class="key" data-value="6">6</button>
+        <button class="key" data-value="7">7</button>
+        <button class="key" data-value="8">8</button>
+        <button class="key" data-value="9">9</button>
+    </div>
+
+    <!-- Modal (Victory & Game Over) -->
+    <div class="modal-overlay" id="victory-modal">
+        <div class="victory-card" id="modal-card">
+            <div class="trophy-icon" id="modal-icon">🏆</div>
+            <div class="victory-title" id="modal-title">LUAR BIASA!</div>
+            <div class="victory-badge" id="modal-diff">SEDANG</div>
+            
+            <div class="victory-stats">
+                <div class="v-stat-row">
+                    <span class="v-stat-label">Waktu Penyelesaian</span>
+                    <span class="v-stat-value" id="modal-time">00:00</span>
+                </div>
+                <div class="v-stat-row" id="best-time-row">
+                    <span class="v-stat-label">Rekor Terbaik</span>
+                    <span class="v-stat-value highlight" id="modal-best">00:00 <span id="new-best-tag" class="new-best-badge" style="display:none;">REKOR BARU!</span></span>
+                </div>
+                <div class="v-stat-row" id="mistakes-row" style="display:none;">
+                    <span class="v-stat-label">Kesalahan</span>
+                    <span class="v-stat-value" style="color: #ef4444;">3 / 3 (Gagal)</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="btn-modal-new" style="width: 100%; padding: 12px; margin-top: 4px; font-size: 1rem;">
+                🎮 Main Lagi
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let solution = [];
+    let initialBoard = [];
+    let currentBoard = [];
+    let notesBoard = [];
+    let selectedCell = null;
+    let isPencilMode = false;
+    let mistakes = 0;
+    const maxMistakes = 3;
+    const diffNames = {
+        very_easy: 'Sangat Mudah',
+        easy: 'Mudah',
+        medium: 'Sedang',
+        hard: 'Sulit',
+        very_hard: 'Sangat Sulit'
+    };
+
+    // Timer state
+    let timerInterval = null;
+    let secondsElapsed = 0;
+    let isGameActive = false;
+
+    // DOM Elements
+    const boardEl = document.getElementById('board');
+    const keypadEl = document.getElementById('keypad');
+    const pencilBtn = document.getElementById('btn-pencil');
+    const clearBtn = document.getElementById('btn-clear');
+    const resetBtn = document.getElementById('btn-reset');
+    const newBtn = document.getElementById('btn-new');
+    const diffSelect = document.getElementById('difficulty');
+    const timerEl = document.getElementById('timer');
+    const bestTimeEl = document.getElementById('best-time');
+    const currentDiffLabel = document.getElementById('current-diff-label');
+    const heartsContainer = document.getElementById('hearts-container');
+
+    // Modal DOM Elements
+    const victoryModal = document.getElementById('victory-modal');
+    const modalCard = document.getElementById('modal-card');
+    const modalIcon = document.getElementById('modal-icon');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDiff = document.getElementById('modal-diff');
+    const modalTime = document.getElementById('modal-time');
+    const modalBest = document.getElementById('modal-best');
+    const bestTimeRow = document.getElementById('best-time-row');
+    const mistakesRow = document.getElementById('mistakes-row');
+    const newBestTag = document.getElementById('new-best-tag');
+    const btnModalNew = document.getElementById('btn-modal-new');
+    const confettiCanvas = document.getElementById('confetti-canvas');
+
+    // --- TIMER & LOCAL STORAGE FUNCTIONS ---
+    function formatTime(sec) {
+        if (sec === null || sec === undefined || isNaN(sec)) return '--:--';
+        const mins = Math.floor(sec / 60);
+        const secs = sec % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function startTimer() {
+        stopTimer();
+        secondsElapsed = 0;
+        timerEl.textContent = '00:00';
+        isGameActive = true;
+        timerInterval = setInterval(() => {
+            if (isGameActive) {
+                secondsElapsed++;
+                timerEl.textContent = formatTime(secondsElapsed);
+            }
+        }, 1000);
+    }
+
+    function stopTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        isGameActive = false;
+    }
+
+    function getBestTime(difficulty) {
+        const saved = localStorage.getItem(`sudoku_best_${difficulty}`);
+        return saved ? parseInt(saved, 10) : null;
+    }
+
+    function saveBestTime(difficulty, timeInSeconds) {
+        const currentBest = getBestTime(difficulty);
+        if (currentBest === null || timeInSeconds < currentBest) {
+            localStorage.setItem(`sudoku_best_${difficulty}`, timeInSeconds);
+            return true; // New record
+        }
+        return false;
+    }
+
+    function updateBestTimeDisplay() {
+        const diff = diffSelect.value;
+        const best = getBestTime(diff);
+        bestTimeEl.textContent = formatTime(best);
+        currentDiffLabel.textContent = diffNames[diff] || diff;
+    }
+
+    function renderHearts() {
+        const hearts = heartsContainer.querySelectorAll('.heart');
+        hearts.forEach((heart, index) => {
+            if (index < maxMistakes - mistakes) {
+                heart.classList.remove('lost');
+            } else {
+                heart.classList.add('lost');
+            }
+        });
+    }
+
+    // --- SUDOKU GENERATOR ---
+    function generateSudoku(difficulty) {
+        const base = [
+            [5,3,4,6,7,8,9,1,2],
+            [6,7,2,1,9,5,3,4,8],
+            [1,9,8,3,4,2,5,6,7],
+            [8,5,9,7,6,1,4,2,3],
+            [4,2,6,8,5,3,7,9,1],
+            [7,1,3,9,2,4,8,5,6],
+            [9,6,1,5,3,7,2,8,4],
+            [2,8,7,4,1,9,6,3,5],
+            [3,4,5,2,8,6,1,7,9]
+        ];
+
+        const nums = [1,2,3,4,5,6,7,8,9].sort(() => Math.random() - 0.5);
+        const sol = base.map(row => row.map(val => nums[val - 1]));
+
+        let removeCount = 36; // Sangat Mudah (45 terisi)
+        if (difficulty === 'easy') removeCount = 41; // Mudah (40 terisi)
+        if (difficulty === 'medium') removeCount = 46; // Sedang (35 terisi)
+        if (difficulty === 'hard') removeCount = 51; // Sulit (30 terisi)
+        if (difficulty === 'very_hard') removeCount = 56; // Sangat Sulit (25 terisi)
+
+        const init = sol.map(row => [...row]);
+        let removed = 0;
+        while (removed < removeCount) {
+            const r = Math.floor(Math.random() * 9);
+            const c = Math.floor(Math.random() * 9);
+            if (init[r][c] !== 0) {
+                init[r][c] = 0;
+                removed++;
+            }
+        }
+        return { solution: sol, initial: init };
+    }
+
+    function initGame() {
+        victoryModal.classList.remove('active');
+        stopConfetti();
+
+        mistakes = 0;
+        renderHearts();
+
+        const diff = diffSelect.value;
+        const generated = generateSudoku(diff);
+        solution = generated.solution;
+        initialBoard = generated.initial;
+        currentBoard = initialBoard.map(row => [...row]);
+        notesBoard = Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set()));
+        selectedCell = null;
+        
+        updateBestTimeDisplay();
+        startTimer();
+        renderBoard();
+        updateKeypadState();
+    }
+
+    function renderBoard() {
+        boardEl.innerHTML = '';
+        const [selR, selC] = selectedCell || [-1, -1];
+        const selectedValue = (selR !== -1 && selC !== -1) ? currentBoard[selR][selC] : 0;
+
+        for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+
+                const val = currentBoard[r][c];
+                const isGiven = initialBoard[r][c] !== 0;
+
+                if (isGiven) cell.classList.add('given');
+                else if (val !== 0) cell.classList.add('user');
+
+                if (selectedCell && (r === selR || c === selC || isSameBlock(r, c, selR, selC))) {
+                    cell.classList.add('highlight');
+                }
+
+                if (selectedValue !== 0 && val === selectedValue) {
+                    cell.classList.add('same-number');
+                }
+
+                if (r === selR && c === selC) {
+                    cell.classList.add('selected');
+                }
+
+                if (val !== 0 && !isGiven && val !== solution[r][c]) {
+                    cell.classList.add('error');
+                }
+
+                if (val !== 0) {
+                    cell.textContent = val;
+                } else if (notesBoard[r][c].size > 0) {
+                    const notesGrid = document.createElement('div');
+                    notesGrid.classList.add('notes-grid');
+                    for (let i = 1; i <= 9; i++) {
+                        const noteNum = document.createElement('div');
+                        noteNum.classList.add('note-number');
+                        noteNum.textContent = notesBoard[r][c].has(i) ? i : '';
+                        notesGrid.appendChild(noteNum);
+                    }
+                    cell.appendChild(notesGrid);
+                }
+
+                cell.addEventListener('click', () => {
+                    selectedCell = [r, c];
+                    renderBoard();
+                });
+
+                boardEl.appendChild(cell);
+            }
+        }
+    }
+
+    function updateKeypadState() {
+        const counts = Array(10).fill(0);
+
+        for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+                const val = currentBoard[r][c];
+                if (val !== 0 && val === solution[r][c]) {
+                    counts[val]++;
+                }
+            }
+        }
+
+        const keys = keypadEl.querySelectorAll('.key');
+        keys.forEach(key => {
+            const num = parseInt(key.dataset.value);
+            key.disabled = (counts[num] === 9);
+        });
+    }
+
+    function isSameBlock(r1, c1, r2, c2) {
+        return Math.floor(r1 / 3) === Math.floor(r2 / 3) && Math.floor(c1 / 3) === Math.floor(c2 / 3);
+    }
+
+    function inputNumber(num) {
+        if (!selectedCell || !isGameActive) return;
+        const [r, c] = selectedCell;
+        if (initialBoard[r][c] !== 0) return;
+
+        if (isPencilMode) {
+            currentBoard[r][c] = 0;
+            if (notesBoard[r][c].has(num)) {
+                notesBoard[r][c].delete(num);
+            } else {
+                notesBoard[r][c].add(num);
+            }
+        } else {
+            // Check if correct placement according to actual solution
+            if (num !== solution[r][c]) {
+                mistakes++;
+                renderHearts();
+                currentBoard[r][c] = num;
+                notesBoard[r][c].clear();
+
+                if (mistakes >= maxMistakes) {
+                    renderBoard();
+                    triggerGameOver();
+                    return;
+                }
+            } else {
+                currentBoard[r][c] = num;
+                notesBoard[r][c].clear();
+                checkWin();
+            }
+        }
+        renderBoard();
+        updateKeypadState();
+    }
+
+    function triggerGameOver() {
+        stopTimer();
+        modalCard.classList.add('game-over-card');
+        modalIcon.textContent = '💔';
+        modalTitle.textContent = 'GAME OVER';
+        modalTitle.classList.add('game-over-title');
+        
+        const diff = diffSelect.value;
+        modalDiff.textContent = (diffNames[diff] || diff).toUpperCase();
+        modalTime.textContent = formatTime(secondsElapsed);
+        
+        bestTimeRow.style.display = 'none';
+        mistakesRow.style.display = 'flex';
+
+        setTimeout(() => {
+            victoryModal.classList.add('active');
+        }, 300);
+    }
+
+    function clearCell() {
+        if (!selectedCell || !isGameActive) return;
+        const [r, c] = selectedCell;
+        if (initialBoard[r][c] !== 0) return;
+        currentBoard[r][c] = 0;
+        notesBoard[r][c].clear();
+        renderBoard();
+        updateKeypadState();
+    }
+
+    function resetBoard() {
+        currentBoard = initialBoard.map(row => [...row]);
+        notesBoard = Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set()));
+        mistakes = 0;
+        renderHearts();
+        startTimer();
+        renderBoard();
+        updateKeypadState();
+    }
+
+    function checkWin() {
+        for (let r = 0; r < 9; r++) {
+            for (let c = 0; c < 9; c++) {
+                if (currentBoard[r][c] !== solution[r][c]) return;
+            }
+        }
+        
+        // WIN EVENT
+        stopTimer();
+        const diff = diffSelect.value;
+        const isNewBest = saveBestTime(diff, secondsElapsed);
+        updateBestTimeDisplay();
+
+        // Populate Victory Modal
+        modalCard.classList.remove('game-over-card');
+        modalIcon.textContent = '🏆';
+        modalTitle.textContent = 'LUAR BIASA!';
+        modalTitle.classList.remove('game-over-title');
+        
+        modalDiff.textContent = (diffNames[diff] || diff).toUpperCase();
+        modalTime.textContent = formatTime(secondsElapsed);
+        modalBest.textContent = formatTime(getBestTime(diff));
+        
+        bestTimeRow.style.display = 'flex';
+        mistakesRow.style.display = 'none';
+        newBestTag.style.display = isNewBest ? 'inline-block' : 'none';
+
+        // Show Modal & Trigger Confetti
+        setTimeout(() => {
+            victoryModal.classList.add('active');
+            startConfetti();
+        }, 300);
+    }
+
+    // --- ANIMASI CONFETTI EFFECT ---
+    let confettiAnimationId = null;
+    let particles = [];
+
+    function startConfetti() {
+        const ctx = confettiCanvas.getContext('2d');
+        confettiCanvas.width = confettiCanvas.offsetWidth;
+        confettiCanvas.height = confettiCanvas.offsetHeight;
+
+        const colors = ['#38bdf8', '#f59e0b', '#22c55e', '#ec4899', '#a855f7'];
+        particles = Array.from({ length: 80 }, () => ({
+            x: Math.random() * confettiCanvas.width,
+            y: Math.random() * confettiCanvas.height - confettiCanvas.height,
+            size: Math.random() * 8 + 4,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            speedY: Math.random() * 3 + 2,
+            speedX: Math.random() * 2 - 1,
+            rotation: Math.random() * 360,
+            rotSpeed: Math.random() * 10 - 5
+        }));
+
+        function animate() {
+            ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            particles.forEach(p => {
+                p.y += p.speedY;
+                p.x += p.speedX;
+                p.rotation += p.rotSpeed;
+
+                if (p.y > confettiCanvas.height) {
+                    p.y = -10;
+                    p.x = Math.random() * confettiCanvas.width;
+                }
+
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate((p.rotation * Math.PI) / 180);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                ctx.restore();
+            });
+
+            confettiAnimationId = requestAnimationFrame(animate);
+        }
+
+        animate();
+    }
+
+    function stopConfetti() {
+        if (confettiAnimationId) {
+            cancelAnimationFrame(confettiAnimationId);
+            confettiAnimationId = null;
+        }
+        const ctx = confettiCanvas.getContext('2d');
+        ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    }
+
+    // --- EVENT LISTENERS ---
+    keypadEl.addEventListener('click', (e) => {
+        const key = e.target.closest('.key');
+        if (key && !key.disabled) inputNumber(parseInt(key.dataset.value));
+    });
+
+    pencilBtn.addEventListener('click', () => {
+        isPencilMode = !isPencilMode;
+        pencilBtn.classList.toggle('btn-active', isPencilMode);
+    });
+
+    clearBtn.addEventListener('click', clearCell);
+    resetBtn.addEventListener('click', resetBoard);
+    newBtn.addEventListener('click', initGame);
+    btnModalNew.addEventListener('click', initGame);
+
+    diffSelect.addEventListener('change', initGame);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key >= '1' && e.key <= '9') {
+            const num = parseInt(e.key);
+            const keyBtn = keypadEl.querySelector(`.key[data-value="${num}"]`);
+            if (keyBtn && !keyBtn.disabled) inputNumber(num);
+        } else if (e.key === 'Backspace' || e.key === 'Delete') {
+            clearCell();
+        } else if (e.key.toLowerCase() === 'n') {
+            pencilBtn.click();
+        }
+    });
+
+    // Start
+    initGame();
+
+    (function() {
+        window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+        }, true);
+    })();    
+</script>
+
+</body>
+</html>

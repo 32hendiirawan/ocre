@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Neon Nonogram Puzzle</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Mengunci tampilan setinggi 100vh tanpa scrollbar */
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #0d0e15;
+      color: #e2e8f0;
+      user-select: none;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: clamp(8px, 2vh, 16px);
+    }
+
+    h1 {
+      color: #00f3ff;
+      text-shadow: 0 0 10px rgba(0, 243, 255, 0.6);
+      letter-spacing: 2px;
+      font-size: clamp(1.2rem, 3.5vh, 2rem);
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    /* Status Bar (Timer, Best Time, Hearts) */
+    .status-bar {
+      display: flex;
+      gap: clamp(10px, 3vw, 25px);
+      background-color: #121420;
+      padding: clamp(4px, 1vh, 8px) clamp(12px, 2vw, 20px);
+      border-radius: 8px;
+      border: 1px solid rgba(0, 243, 255, 0.3);
+      box-shadow: 0 0 10px rgba(0, 243, 255, 0.1);
+      flex-shrink: 0;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: clamp(12px, 1.8vh, 15px);
+      font-weight: bold;
+    }
+
+    .lives-display {
+      color: #ff0055;
+      text-shadow: 0 0 8px rgba(255, 0, 85, 0.8);
+      letter-spacing: 2px;
+    }
+
+    .timer-display, .best-time-display {
+      color: #00f3ff;
+      text-shadow: 0 0 8px rgba(0, 243, 255, 0.6);
+    }
+
+    /* Panel Kontrol & Mode Toggle */
+    .controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    select, button {
+      padding: clamp(4px, 1vh, 8px) clamp(8px, 1.5vw, 14px);
+      font-size: clamp(11px, 1.6vh, 14px);
+      font-weight: bold;
+      border-radius: 6px;
+      border: 1px solid #00f3ff;
+      background-color: #161925;
+      color: #00f3ff;
+      cursor: pointer;
+      outline: none;
+      box-shadow: 0 0 8px rgba(0, 243, 255, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    select:hover, button:hover {
+      background-color: #00f3ff;
+      color: #0d0e15;
+      box-shadow: 0 0 15px rgba(0, 243, 255, 0.8);
+    }
+
+    .mode-container {
+      display: flex;
+      gap: 4px;
+      background-color: #161925;
+      padding: 3px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .mode-btn {
+      border: none;
+      box-shadow: none;
+      color: #94a3b8;
+      background: transparent;
+      padding: clamp(4px, 1vh, 8px) clamp(8px, 1.5vw, 12px);
+    }
+
+    .mode-btn.active-fill {
+      background-color: #00f3ff;
+      color: #0d0e15;
+      box-shadow: 0 0 12px rgba(0, 243, 255, 0.8);
+    }
+
+    .mode-btn.active-cross {
+      background-color: #ff0055;
+      color: #ffffff;
+      box-shadow: 0 0 12px rgba(255, 0, 85, 0.8);
+    }
+
+    /* Area Utama Papan Permainan */
+    .board-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 0; /* Penting agar flex item dapat mengecil */
+    }
+
+    .nonogram-container {
+      display: inline-grid;
+      gap: 1px;
+      padding: 4px;
+      border-radius: 8px;
+      background-color: #1a1d2d;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 243, 255, 0.1);
+      border: 1px solid rgba(0, 243, 255, 0.2);
+      max-height: 100%;
+      max-width: 100%;
+    }
+
+    .corner {
+      background-color: #121420;
+      border-radius: 4px 0 0 0;
+    }
+
+    .col-clues-header {
+      display: flex;
+      background-color: #121420;
+    }
+
+    .col-clue {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 2px 1px;
+      border-right: 1px solid #1a1d2d;
+      font-size: var(--clue-font-size, 11px);
+      font-weight: bold;
+      color: #00f3ff;
+      text-shadow: 0 0 5px rgba(0, 243, 255, 0.5);
+      transition: color 0.3s, opacity 0.3s;
+    }
+
+    .row-clues-header {
+      display: flex;
+      flex-direction: column;
+      background-color: #121420;
+    }
+
+    .row-clue {
+      flex: 1;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 1px 6px;
+      border-bottom: 1px solid #1a1d2d;
+      font-size: var(--clue-font-size, 11px);
+      font-weight: bold;
+      color: #00f3ff;
+      text-shadow: 0 0 5px rgba(0, 243, 255, 0.5);
+      gap: 4px;
+      transition: color 0.3s, opacity 0.3s;
+    }
+
+    .clue-completed {
+      color: #475569 !important;
+      text-shadow: none !important;
+      opacity: 0.5;
+    }
+
+    .board {
+      display: grid;
+      gap: 1px;
+      background-color: #262a3d;
+    }
+
+    .cell {
+      width: var(--cell-size, 30px);
+      height: var(--cell-size, 30px);
+      background-color: #121420;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: calc(var(--cell-size, 30px) * 0.5);
+      transition: background-color 0.15s, box-shadow 0.15s;
+    }
+
+    .cell:hover {
+      border: 1px solid #00f3ff;
+    }
+
+    .cell.filled {
+      background-color: #00f3ff;
+      box-shadow: inset 0 0 8px #ffffff, 0 0 8px rgba(0, 243, 255, 0.8);
+    }
+
+    .cell.crossed {
+      color: #ff0055;
+      text-shadow: 0 0 8px rgba(255, 0, 85, 0.8);
+      background-color: #121420;
+    }
+
+    .cell.error {
+      background-color: #ff0055 !important;
+      color: #ffffff !important;
+      animation: pulse 0.4s ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    .message {
+      font-size: clamp(14px, 2.2vh, 18px);
+      font-weight: bold;
+      text-align: center;
+      min-height: 25px;
+      flex-shrink: 0;
+    }
+
+    .message.win {
+      color: #00ff66;
+      text-shadow: 0 0 10px rgba(0, 255, 102, 0.6);
+    }
+
+    .message.lose {
+      color: #ff0055;
+      text-shadow: 0 0 10px rgba(255, 0, 85, 0.6);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>NEON NONOGRAM</h1>
+
+  <div class="status-bar">
+    <div class="status-item">
+      <span>Nyawa:</span>
+      <span id="lives-display" class="lives-display">❤️❤️❤️</span>
+    </div>
+    <div class="status-item">
+      <span>Waktu:</span>
+      <span id="timer-display" class="timer-display">00:00</span>
+    </div>
+    <div class="status-item">
+      <span>Terbaik:</span>
+      <span id="best-time-display" class="best-time-display">--:--</span>
+    </div>
+  </div>
+
+  <div class="controls">
+    <select id="level" onchange="initGame()">
+      <option value="easy">Mudah (5x5)</option>
+      <option value="medium">Sedang (10x10)</option>
+      <option value="hard">Sulit (15x15)</option>
+    </select>
+
+    <div class="mode-container">
+      <button id="btn-mode-fill" class="mode-btn active-fill" onclick="setMode('fill')">Isi (■)</button>
+      <button id="btn-mode-cross" class="mode-btn" onclick="setMode('cross')">Silang (✕)</button>
+    </div>
+
+    <button onclick="initGame()">Reset</button>
+  </div>
+
+  <div class="board-wrapper">
+    <div id="game-container" class="nonogram-container"></div>
+  </div>
+  
+  <div id="message" class="message"></div>
+
+  <script>
+    let currentSize = 5;
+    let solution = [];
+    let playerBoard = [];
+    let currentMode = 'fill';
+    
+    let lives = 3;
+    let timerInterval = null;
+    let secondsElapsed = 0;
+    let isGameOver = false;
+
+    let isMouseDown = false;
+    let dragTargetValue = 0;
+
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('mouseup', () => { isMouseDown = false; });
+    window.addEventListener('resize', calculateDynamicSizes);
+
+    function setMode(mode) {
+      currentMode = mode;
+      document.getElementById('btn-mode-fill').className = mode === 'fill' ? 'mode-btn active-fill' : 'mode-btn';
+      document.getElementById('btn-mode-cross').className = mode === 'cross' ? 'mode-btn active-cross' : 'mode-btn';
+    }
+
+    function generateSolution(size) {
+      const grid = [];
+      for (let r = 0; r < size; r++) {
+        const row = [];
+        for (let c = 0; c < size; c++) {
+          row.push(Math.random() < 0.55 ? 1 : 0);
+        }
+        grid.push(row);
+      }
+      return grid;
+    }
+
+    function calculateClues(grid, size) {
+      const rowClues = [], colClues = [];
+
+      for (let r = 0; r < size; r++) {
+        const clues = [];
+        let count = 0;
+        for (let c = 0; c < size; c++) {
+          if (grid[r][c] === 1) count++;
+          else if (count > 0) { clues.push(count); count = 0; }
+        }
+        if (count > 0) clues.push(count);
+        rowClues.push(clues.length ? clues : [0]);
+      }
+
+      for (let c = 0; c < size; c++) {
+        const clues = [];
+        let count = 0;
+        for (let r = 0; r < size; r++) {
+          if (grid[r][c] === 1) count++;
+          else if (count > 0) { clues.push(count); count = 0; }
+        }
+        if (count > 0) clues.push(count);
+        colClues.push(clues.length ? clues : [0]);
+      }
+
+      return { rowClues, colClues };
+    }
+
+    // Menghitung ukuran sel & teks secara dinamis berdasarkan tinggi & lebar layar
+    function calculateDynamicSizes() {
+      const wrapper = document.querySelector('.board-wrapper');
+      if (!wrapper) return;
+
+      const availHeight = wrapper.clientHeight - 20;
+      const availWidth = wrapper.clientWidth - 20;
+
+      // Estimasi porsi grid (clues + cells)
+      const clueRatio = currentSize === 15 ? 0.35 : (currentSize === 10 ? 0.3 : 0.25);
+      const totalUnits = currentSize * (1 + clueRatio);
+
+      const maxCellH = availHeight / totalUnits;
+      const maxCellW = availWidth / totalUnits;
+      
+      let cellSize = Math.floor(Math.min(maxCellH, maxCellW));
+      cellSize = Math.max(14, Math.min(cellSize, 42)); // Batas min 14px & max 42px
+
+      let fontClue = Math.floor(cellSize * 0.4);
+      fontClue = Math.max(9, Math.min(fontClue, 13));
+
+      document.documentElement.style.setProperty('--cell-size', `${cellSize}px`);
+      document.documentElement.style.setProperty('--clue-font-size', `${fontClue}px`);
+    }
+
+    function startTimer() {
+      stopTimer();
+      secondsElapsed = 0;
+      updateTimerDisplay();
+      timerInterval = setInterval(() => {
+        secondsElapsed++;
+        updateTimerDisplay();
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+    }
+
+    function updateTimerDisplay() {
+      const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+      const secs = String(secondsElapsed % 60).padStart(2, '0');
+      document.getElementById('timer-display').innerText = `${mins}:${secs}`;
+    }
+
+    function loadBestTime() {
+      const levelSelect = document.getElementById('level').value;
+      const best = localStorage.getItem(`nonogram_best_${levelSelect}`);
+      if (best) {
+        const mins = String(Math.floor(best / 60)).padStart(2, '0');
+        const secs = String(best % 60).padStart(2, '0');
+        document.getElementById('best-time-display').innerText = `${mins}:${secs}`;
+      } else {
+        document.getElementById('best-time-display').innerText = '--:--';
+      }
+    }
+
+    function saveBestTime() {
+      const levelSelect = document.getElementById('level').value;
+      const best = localStorage.getItem(`nonogram_best_${levelSelect}`);
+      if (!best || secondsElapsed < parseInt(best)) {
+        localStorage.setItem(`nonogram_best_${levelSelect}`, secondsElapsed);
+        loadBestTime();
+      }
+    }
+
+    function updateLivesDisplay() {
+      const hearts = '❤️'.repeat(lives) + '🖤'.repeat(3 - lives);
+      document.getElementById('lives-display').innerText = hearts;
+    }
+
+    function initGame() {
+      const levelSelect = document.getElementById('level').value;
+      if (levelSelect === 'easy') currentSize = 5;
+      else if (levelSelect === 'medium') currentSize = 10;
+      else if (levelSelect === 'hard') currentSize = 15;
+
+      isGameOver = false;
+      lives = 3;
+      updateLivesDisplay();
+      loadBestTime();
+      startTimer();
+
+      const msgElem = document.getElementById('message');
+      msgElem.innerText = '';
+      msgElem.className = 'message';
+
+      solution = generateSolution(currentSize);
+      playerBoard = Array.from({ length: currentSize }, () => Array(currentSize).fill(0));
+
+      calculateDynamicSizes();
+      renderBoard();
+    }
+
+    function renderBoard() {
+      const container = document.getElementById('game-container');
+      container.innerHTML = '';
+
+      const { rowClues, colClues } = calculateClues(solution, currentSize);
+
+      container.style.gridTemplateColumns = `auto repeat(${currentSize}, var(--cell-size, 30px))`;
+      container.style.gridTemplateRows = `auto repeat(${currentSize}, var(--cell-size, 30px))`;
+
+      const corner = document.createElement('div');
+      corner.className = 'corner';
+      container.appendChild(corner);
+
+      const colCluesHeader = document.createElement('div');
+      colCluesHeader.className = 'col-clues-header';
+      colCluesHeader.style.gridColumn = `2 / span ${currentSize}`;
+
+      colClues.forEach((clues, colIdx) => {
+        const colDiv = document.createElement('div');
+        colDiv.className = 'col-clue';
+        colDiv.id = `col-clue-${colIdx}`;
+        colDiv.innerHTML = clues.join('<br>');
+        colCluesHeader.appendChild(colDiv);
+      });
+      container.appendChild(colCluesHeader);
+
+      const rowCluesHeader = document.createElement('div');
+      rowCluesHeader.className = 'row-clues-header';
+      rowCluesHeader.style.gridRow = `2 / span ${currentSize}`;
+
+      rowClues.forEach((clues, rowIdx) => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'row-clue';
+        rowDiv.id = `row-clue-${rowIdx}`;
+        rowDiv.innerText = clues.join(' ');
+        rowCluesHeader.appendChild(rowDiv);
+      });
+      container.appendChild(rowCluesHeader);
+
+      const board = document.createElement('div');
+      board.className = 'board';
+      board.style.gridColumn = `2 / span ${currentSize}`;
+      board.style.gridRow = `2 / span ${currentSize}`;
+      board.style.display = 'grid';
+      board.style.gridTemplateColumns = `repeat(${currentSize}, var(--cell-size, 30px))`;
+      board.style.gridTemplateRows = `repeat(${currentSize}, var(--cell-size, 30px))`;
+
+      for (let r = 0; r < currentSize; r++) {
+        for (let c = 0; c < currentSize; c++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          cell.id = `cell-${r}-${c}`;
+
+          cell.addEventListener('mousedown', (e) => {
+            if (e.button !== 0 || isGameOver) return;
+            isMouseDown = true;
+            if (currentMode === 'fill') {
+              dragTargetValue = playerBoard[r][c] === 1 ? 0 : 1;
+            } else {
+              dragTargetValue = playerBoard[r][c] === 2 ? 0 : 2;
+            }
+            applyCellAction(r, c);
+          });
+
+          cell.addEventListener('mouseenter', () => {
+            if (isMouseDown && !isGameOver) {
+              applyCellAction(r, c);
+            }
+          });
+
+          board.appendChild(cell);
+        }
+      }
+      container.appendChild(board);
+
+      updateClueStatus();
+    }
+
+    function applyCellAction(r, c) {
+      if (playerBoard[r][c] === dragTargetValue) return;
+
+      const cell = document.getElementById(`cell-${r}-${c}`);
+
+      if (dragTargetValue === 1 && solution[r][c] === 0) {
+        lives--;
+        updateLivesDisplay();
+        playerBoard[r][c] = 2;
+        cell.classList.remove('filled');
+        cell.classList.add('crossed', 'error');
+        cell.innerText = '✕';
+
+        if (lives <= 0) {
+          gameOver(false);
+          return;
+        }
+      } else {
+        playerBoard[r][c] = dragTargetValue;
+        cell.classList.remove('filled', 'crossed', 'error');
+        cell.innerText = '';
+
+        if (dragTargetValue === 1) {
+          cell.classList.add('filled');
+        } else if (dragTargetValue === 2) {
+          cell.classList.add('crossed');
+          cell.innerText = '✕';
+        }
+      }
+
+      checkProgress();
+    }
+
+    function updateClueStatus() {
+      for (let r = 0; r < currentSize; r++) {
+        let isRowComplete = true;
+        for (let c = 0; c < currentSize; c++) {
+          if ((solution[r][c] === 1) !== (playerBoard[r][c] === 1)) {
+            isRowComplete = false;
+            break;
+          }
+        }
+        const rowClueElem = document.getElementById(`row-clue-${r}`);
+        if (isRowComplete) rowClueElem.classList.add('clue-completed');
+        else rowClueElem.classList.remove('clue-completed');
+      }
+
+      for (let c = 0; c < currentSize; c++) {
+        let isColComplete = true;
+        for (let r = 0; r < currentSize; r++) {
+          if ((solution[r][c] === 1) !== (playerBoard[r][c] === 1)) {
+            isColComplete = false;
+            break;
+          }
+        }
+        const colClueElem = document.getElementById(`col-clue-${c}`);
+        if (isColComplete) colClueElem.classList.add('clue-completed');
+        else colClueElem.classList.remove('clue-completed');
+      }
+    }
+
+    function checkProgress() {
+      updateClueStatus();
+
+      let isWin = true;
+      for (let r = 0; r < currentSize; r++) {
+        for (let c = 0; c < currentSize; c++) {
+          if ((solution[r][c] === 1) !== (playerBoard[r][c] === 1)) {
+            isWin = false;
+            break;
+          }
+        }
+      }
+
+      if (isWin) {
+        gameOver(true);
+      }
+    }
+
+    function gameOver(isWin) {
+      isGameOver = true;
+      stopTimer();
+      const msgElem = document.getElementById('message');
+
+      if (isWin) {
+        saveBestTime();
+        msgElem.innerText = 'SYSTEM CLEARED! PUZZLE COMPLETED!';
+        msgElem.className = 'message win';
+      } else {
+        msgElem.innerText = 'SYSTEM FAILURE! OUT OF LIVES!';
+        msgElem.className = 'message lose';
+      }
+    }
+
+    window.onload = initGame;
+  </script>
+</body>
+</html>
