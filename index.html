@@ -533,7 +533,6 @@
                 </a>
             </div>
 
-
             <div class="support-box">
                 <h3 style="color: #2ea043; margin-bottom: 0.5rem;">Dukung Kami</h3>
                 <p style="color: var(--text-muted); font-size: 0.9rem;">
@@ -679,17 +678,20 @@
             document.getElementById('categorySelect').value = 'all';
             document.getElementById('searchInput').value = '';
             renderGrid(itemsData);
+            closePlayer();
         }
 
-        // Buka Player
+        // Buka Player dengan update Hash URL
         function openPlayer(item) {
             currentItem = item;
             document.getElementById('appIframe').src = item.url;
             document.getElementById('playerModal').style.display = 'block';
             
-            history.pushState({ itemId: item.id }, item.title, '/' + item.id);
+            // Set URL hash untuk kemudahan berbagi link
+            window.location.hash = item.id;
         }
 
+        // Tutup Player & bersihkan Hash URL
         function closePlayer() {
             if (document.fullscreenElement) {
                 document.exitFullscreen().catch(err => console.log(err));
@@ -698,7 +700,10 @@
             document.getElementById('appIframe').src = '';
             currentItem = null;
             
-            history.pushState(null, 'O\'Cre', '/');
+            // Bersihkan hash dari URL jika ada
+            if (window.location.hash) {
+                history.pushState("", document.title, window.location.pathname + window.location.search);
+            }
         }
 
         function toggleFullscreen() {
@@ -737,18 +742,26 @@
             document.getElementById('devModal').style.display = show ? 'block' : 'none';
         }
 
-        window.onpopstate = function(event) {
-            if (event.state && event.state.itemId) {
-                const item = itemsData.find(i => i.id === event.state.itemId);
-                if (item) openPlayer(item);
+        // Fungsi Memeriksa Hash URL
+        function checkUrlHash() {
+            const hash = decodeURIComponent(window.location.hash.replace('#', ''));
+            if (hash) {
+                const item = itemsData.find(i => i.id === hash);
+                if (item) {
+                    openPlayer(item);
+                }
             } else {
                 closePlayer();
             }
-        };
+        }
+
+        // Event Listener Tombol Back/Forward Browser & Perubahan Hash
+        window.addEventListener('hashchange', checkUrlHash);
 
         // Inisialisasi Halaman
         loadTheme();
         renderGrid(itemsData);
+        checkUrlHash();
 
         (function() {
             window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
