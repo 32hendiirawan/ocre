@@ -19,6 +19,8 @@
             --primary-color: #58a6ff;
             --hover-bg: #21262d;
             --heart-color: #ff7b72;
+            --ad-tag-bg: #ee4d2d; /* Warna khas Shopee / Promo */
+            --ad-tag-color: #ffffff;
         }
 
         /* Variabel Tema Terang */
@@ -182,11 +184,16 @@
             display: flex;
             flex-direction: column;
             position: relative;
+            text-decoration: none;
         }
 
         .card:hover {
             transform: translateY(-4px);
             border-color: var(--primary-color);
+        }
+
+        .card.ad-card:hover {
+            border-color: #ee4d2d;
         }
 
         .card-img-wrapper {
@@ -231,6 +238,11 @@
             font-weight: bold;
         }
 
+        .card-tag.ad-tag {
+            background-color: var(--ad-tag-bg);
+            color: var(--ad-tag-color);
+        }
+
         .fav-btn {
             background: none;
             border: none;
@@ -256,6 +268,12 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+
+        .card-sub {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.1rem;
         }
 
         /* Modal Player Screen Fullscreen Overlay */
@@ -586,6 +604,16 @@
             { id: 'top_7_quiz', title: 'Top 7 Quiz', category: 'game', image: 'https://i.pinimg.com/1200x/a2/ae/8d/a2ae8d71428c7b1191b614c31a5a9e72.jpg', url: 'https://ocre-quiztop7.netlify.app' }
         ];
 
+        // Daftar Produk Afiliasi / Shopee (Bisa disesuaikan link, gambar, dan judulnya)
+        const adsData = [
+            { title: 'Atlas Geografi', store: 'Shopee', image: 'https://down-bs-id.img.susercontent.com/id-11134207-7r990-lovxt9mxd4el73.webp', url: 'https://s.shopee.co.id/7VFqHjma7L' },
+            { title: 'Doa Harian Lengkap', store: 'Shopee', image: 'https://down-bs-id.img.susercontent.com/sg-11134201-7rdw8-mdd6gp7pk1toc8.webp', url: 'https://s.shopee.co.id/6VNJ66Xavn' },
+            { title: 'Pen Gel Murah <1000', store: 'Shopee', image: 'https://down-bs-id.img.susercontent.com/id-11134207-7r98t-ly33ufvyzl0e5e.webp', url: 'https://s.shopee.co.id/6L3su4XPYp' },
+            { title: 'Pensil Joyko 2B', store: 'Shopee', image: 'https://down-bs-id.img.susercontent.com/id-11134207-7rbk2-m901fue8d6hd0d.webp', url: 'https://s.shopee.co.id/2VrALB3COC' },
+            { title: 'Gantungan Kunci Nama', store: 'Shopee', image: 'https://down-bs-id.img.susercontent.com/id-11134207-7ra0k-mb7fo8oh4vrt23.webp', url: 'https://s.shopee.co.id/6VNJ6n7hT0' },
+            { title: 'Penghapus Pensil', store: 'Shopee', image: 'https://down-bs-id.img.susercontent.com/id-11134207-7rasg-m5wistuusaio15.webp', url: 'https://s.shopee.co.id/9AO4HssQU4' },
+        ];
+
         let currentItem = null;
         let favorites = JSON.parse(localStorage.getItem('ocre_favorites')) || [];
 
@@ -619,7 +647,15 @@
             }
         }
 
-        // Render Card Grid
+        // Mendapatkan jumlah kolom grid secara dinamis sesuai ukuran layar
+        function getGridColumnsCount() {
+            if (window.innerWidth <= 768) {
+                return 2; // Mobile (2 kolom/baris)
+            }
+            return 6; // Desktop (6 kolom/baris)
+        }
+
+        // Render Card Grid dengan Penyisipan Iklan
         function renderGrid(data) {
             const grid = document.getElementById('contentGrid');
             grid.innerHTML = '';
@@ -629,7 +665,12 @@
                 return;
             }
 
-            data.forEach(item => {
+            const cols = getGridColumnsCount();
+            const itemsPerRow = cols * 2; // Setiap 2 baris (12 item di desktop, 4 item di mobile)
+            let adIndex = 0;
+
+            data.forEach((item, index) => {
+                // 1. Render Kartu Game / Aplikasi
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.onclick = () => openPlayer(item);
@@ -650,6 +691,34 @@
                     </div>
                 `;
                 grid.appendChild(card);
+
+                // 2. Disisipkan 1 BARIS iklan secara otomatis setelah kelipatan 2 baris game
+                if ((index + 1) % itemsPerRow === 0 && (index + 1) < data.length) {
+                    for (let i = 0; i < cols; i++) {
+                        const ad = adsData[adIndex % adsData.length];
+                        adIndex++;
+
+                        const adCard = document.createElement('a');
+                        adCard.className = 'card ad-card';
+                        adCard.href = ad.url;
+                        adCard.target = '_blank';
+                        adCard.rel = 'noopener noreferrer';
+
+                        adCard.innerHTML = `
+                            <div class="card-img-wrapper">
+                                <img src="${ad.image}" alt="${ad.title}" loading="lazy">
+                            </div>
+                            <div class="card-content">
+                                <div class="card-meta">
+                                    <span class="card-tag ad-tag"><i class="fa-solid fa-bag-shopping"></i> Shopee</span>
+                                </div>
+                                <h3 class="card-title" title="${ad.title}">${ad.title}</h3>
+                                <span class="card-sub">Produk Sponsor</span>
+                            </div>
+                        `;
+                        grid.appendChild(adCard);
+                    }
+                }
             });
         }
 
@@ -757,6 +826,11 @@
 
         // Event Listener Tombol Back/Forward Browser & Perubahan Hash
         window.addEventListener('hashchange', checkUrlHash);
+
+        // Re-render saat layar di-resize agar jumlah kolom iklan menyesuaikan (Desktop: 6, Mobile: 2)
+        window.addEventListener('resize', () => {
+            filterItems();
+        });
 
         // Inisialisasi Halaman
         loadTheme();

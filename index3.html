@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="O'Cre : Platform Game & Aplikasi Edukasi. Temukan berbagai game edukatif dan aplikasi pembelajaran interaktif untuk anak-anak dan pelajar.">
+    <meta name="keywords" content="O'Cre, Game Edukasi, Aplikasi Edukasi, Platform Game, Pembelajaran Interaktif, Game Anak, Aplikasi Pembelajaran, Edukasi Digital">
+    <meta name="google-site-verification" content="_6zmdWP-9Fw6Hd_4OPjDOcyMq5RJ6fdC0d2UcTfxJXg" />    
+    <title>O'Cre : Platform Game & Aplikasi Edukasi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="icon.png" type="image/png">
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --border-color: #30363d;
+            --text-color: #e6edf3;
+            --text-muted: #8b949e;
+            --primary-color: #58a6ff;
+            --hover-bg: #21262d;
+            --heart-color: #ff7b72;
+        }
+
+        /* Variabel Tema Terang */
+        body.light-theme {
+            --bg-color: #f6f8fa;
+            --card-bg: #ffffff;
+            --border-color: #d0d7de;
+            --text-color: #1f2328;
+            --text-muted: #656d76;
+            --primary-color: #0969da;
+            --hover-bg: #f3f4f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+
+        /* Top Navigation Bar */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 4%;
+            z-index: 1000;
+        }
+
+        .brand {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-grow: 1;
+            max-width: 500px;
+            margin: 0 1.5rem;
+        }
+
+        .category-select {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 0.8rem;
+            border-radius: 8px;
+            outline: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .category-select:focus {
+            border-color: var(--primary-color);
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.5rem 1rem 0.5rem 2.3rem;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            outline: none;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            list-style: none;
+            gap: 0.5rem;
+        }
+
+        .nav-link {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+        }
+
+        .nav-link:hover {
+            background-color: var(--hover-bg);
+            color: var(--primary-color);
+        }
+
+        .theme-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .theme-btn:hover {
+            background-color: var(--hover-bg);
+            color: var(--primary-color);
+        }
+
+        /* Main Grid Content */
+        main {
+            margin-top: 85px;
+            padding: 1.5rem 3%;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary-color);
+        }
+
+        .card-img-wrapper {
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            background-color: var(--hover-bg);
+            overflow: hidden;
+        }
+
+        .card-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .card:hover .card-img-wrapper img {
+            transform: scale(1.05);
+        }
+
+        .card-content {
+            padding: 0.6rem 0.8rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.3rem;
+        }
+
+        .card-tag {
+            font-size: 0.65rem;
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            background-color: var(--hover-bg);
+            color: var(--primary-color);
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .fav-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 2px 4px;
+            transition: transform 0.2s, color 0.2s;
+        }
+
+        .fav-btn.active {
+            color: var(--heart-color);
+        }
+
+        .fav-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .card-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Modal Player Screen Fullscreen Overlay */
+        .player-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0d1117;
+            z-index: 2000;
+            display: none;
+        }
+
+        .floating-controls {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            display: flex;
+            gap: 12px;
+            z-index: 2010;
+        }
+
+        .floating-btn {
+            background: rgba(0, 0, 0, 0.3);
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.4rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .floating-btn:hover {
+            color: #58a6ff;
+            background: rgba(0, 0, 0, 0.6);
+            transform: scale(1.1);
+        }
+
+        .player-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Modal Full About Me */
+        .dev-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(13, 17, 23, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 1500;
+            display: none;
+            overflow-y: auto;
+            padding: 3rem 1rem;
+        }
+
+        .dev-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2.5rem;
+            position: relative;
+        }
+
+        .close-dev {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .close-dev:hover {
+            color: var(--primary-color);
+        }
+
+        .dev-profile {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dev-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-image: url('icon.png');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-shrink: 0;
+        }
+
+        .dev-contacts {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 0.8rem;
+            margin: 1.5rem 0;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 0.7rem 1rem;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        .contact-item:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .map-container {
+            margin-top: 1.5rem;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .map-container iframe {
+            width: 100%;
+            height: 200px;
+            border: 0;
+        }
+
+        .support-box {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(46, 160, 67, 0.1), transparent);
+            border: 1px solid #2ea043;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .btn-donate {
+            display: inline-block;
+            margin-top: 1rem;
+            background: linear-gradient(135deg, #2ea043, #238636);
+            color: #ffffff;
+            text-decoration: none;
+            padding: 0.7rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(46, 160, 67, 0.3);
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-wrap: wrap;
+                height: auto;
+                padding: 0.8rem 1rem;
+                gap: 0.8rem;
+            }
+            .search-container {
+                order: 3;
+                max-width: 100%;
+                margin: 0;
+            }
+            main {
+                margin-top: 130px;
+            }
+            .grid-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.8rem;
+            }
+            .dev-profile {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="#" class="brand" onclick="resetFilter(); return false;">ocre.my.id</a>
+        
+        <div class="search-container">
+            <select class="category-select" id="categorySelect" onchange="filterItems()">
+                <option value="all">Semua</option>
+                <option value="game">Game</option>
+                <option value="aplikasi">Aplikasi</option>
+                <option value="favorite">❤️ Favorit Saya</option>
+            </select>
+
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="searchInput" placeholder="Cari..." onkeyup="filterItems()">
+            </div>
+        </div>
+
+        <ul class="nav-menu">
+            <li><button class="theme-btn" id="themeToggle" onclick="toggleTheme()" title="Ganti Tema"><i class="fa-solid fa-sun"></i></button></li>
+            <li><a class="nav-link" onclick="toggleDevModal(true)">About Me</a></li>
+        </ul>
+    </header>
+
+    <main>
+        <div class="grid-container" id="contentGrid"></div>
+    </main>
+
+    <div class="player-modal" id="playerModal">
+        <div class="floating-controls">
+            <button class="floating-btn" title="Toggle Fullscreen" onclick="toggleFullscreen()"><i class="fa-solid fa-expand" id="fullscreenIcon"></i></button>
+            <button class="floating-btn" title="Tutup" onclick="closePlayer()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <iframe class="player-frame" id="appIframe" src="" allow="fullscreen; autoplay; encrypted-media"></iframe>
+    </div>
+
+    <div class="dev-modal" id="devModal">
+        <div class="dev-container">
+            <button class="close-dev" onclick="toggleDevModal(false)"><i class="fa-solid fa-xmark"></i></button>
+            
+            <div class="dev-profile">
+                <div class="dev-avatar"></div>
+                <div>
+                    <h2 style="color: var(--primary-color);">O'Cre Studio</h2>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.3rem;">
+                        Web ini dibangun dan dikembangkan secara mandiri oleh <b>O'Cre Studio</b> tanpa terafiliasi dengan perusahaan atau organisasi mana pun.
+                    </p>
+                </div>
+            </div>
+
+            <h3 style="color: var(--text-color); font-size: 1.1rem; margin-bottom: 0.8rem;">Kontak & Media Sosial</h3>
+            <div class="dev-contacts">
+                <a href="https://www.instagram.com/ocre4869" target="_blank" class="contact-item">
+                    <i class="fa-brands fa-instagram" style="color: #e1306c;"></i>
+                    <span>Instagram</span>
+                </a>
+                <a href="https://youtube.com/@ocre-4869" target="_blank" class="contact-item">
+                    <i class="fa-brands fa-youtube" style="color: #ff0000;"></i>
+                    <span>YouTube</span>
+                </a>
+                <a href="https://tiktok.com/@o_cre4869" target="_blank" class="contact-item">
+                    <i class="fa-brands fa-tiktok"></i>
+                    <span>TikTok</span>
+                </a>
+                <a href="mailto:32hendiirawan@gmail.com" class="contact-item">
+                    <i class="fa-solid fa-envelope" style="color: #ea4335;"></i>
+                    <span>Email</span>
+                </a>
+                <a href="https://wa.me/6282289015759" target="_blank" class="contact-item">
+                    <i class="fa-brands fa-whatsapp" style="color: #25d366;"></i>
+                    <span>WhatsApp</span>
+                </a>
+            </div>
+
+            <div class="support-box">
+                <h3 style="color: #2ea043; margin-bottom: 0.5rem;">Dukung Kami</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">
+                    Bagikan web ini kepada teman-teman Anda dan dukung kami untuk terus memperbarui konten game dan aplikasi ini agar tetap dapat diakses secara gratis dan memberi manfaat ke banyak orang.
+                </p>
+                <a href="https://saweria.co/32hendiirawan" target="_blank" class="btn-donate">Saweria</a>
+                <a href="https://link.dana.id/minta?full_url=https://qr.dana.id/v1/281012012021050224513837" target="_blank" class="btn-donate">Dana</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const itemsData = [
+            { id: 'budi', title: 'Buku Pelajaran Digital', category: 'aplikasi', image: 'https://i.pinimg.com/736x/02/b6/70/02b67056aca2a3876968179ea3f981b7.jpg', url: 'https://budi-sd.my.id' },
+            { id: 'aksara-lampung', title: 'Aksara Lampung', category: 'aplikasi', image: 'https://i.pinimg.com/736x/e5/6e/36/e56e360fc490e242cab421a934d84e8e.jpg', url: 'https://32hendiirawan.github.io/aksaralampung/' },
+            { id: 'aksara-jawa', title: 'Aksara Jawa', category: 'aplikasi', image: 'https://i.pinimg.com/736x/00/24/bf/0024bfa64803d24792584c49ef7a349d.jpg', url: 'https://32hendiirawan.github.io/aksarajawa/' },
+            { id: 'kamus-bergambar', title: 'Kamus Bergambar', category: 'aplikasi', image: 'https://i.pinimg.com/736x/84/fd/c3/84fdc3b788b5ed41d1bc3c22da067a22.jpg', url: 'https://gjls-bgt.github.io/kms/' },
+            { id: 'porogapit', title: 'Matematika : Pembagian Porogapit', category: 'aplikasi', image: 'https://i.pinimg.com/736x/5a/06/8f/5a068fb4d5524dce1f4d7623b29fa778.jpg', url: 'https://gjls-bgt.github.io/pg/' },
+            { id: 'bangun_ruang', title: 'Matematika : Bangun Ruang', category: 'aplikasi', image: 'https://i.pinimg.com/736x/33/ef/4c/33ef4c51a1f9cc563d8ba8ca0b471cd5.jpg', url: 'https://32hendiirawan.github.io/bangun-ruang/index.html' },
+            { id: 'pecahan', title: 'Matematika : Pecahan', category: 'aplikasi', image: 'https://i.pinimg.com/736x/6b/69/e6/6b69e63832baecf520bd2b64eadfd0d5.jpg', url: 'https://32hendiirawan.github.io/pecahan/' },
+            { id: 'pemfaktoran', title: 'Matematika : FPB & KPK', category: 'aplikasi', image: 'https://lh3.googleusercontent.com/d/1TX3lM3ctNlD1cpLIgHmhGrfHo0kBB2yv', url: 'https://32hendiirawan.github.io/pemfaktoran-fpb-kpk/' },
+            { id: 'doa', title: 'Doa Harian Anak Muslim', category: 'aplikasi', image: 'https://i.pinimg.com/736x/a1/c0/24/a1c0242920163c5ae88ee9113dce53f5.jpg', url: 'https://gjls-bgt.github.io/doa/' },
+            { id: 'sandi', title: 'Sandi Pramuka', category: 'aplikasi', image: 'https://i.pinimg.com/736x/55/ff/0b/55ff0b5c3038eeae29f9827e479ce1eb.jpg', url: 'https://gjls-bgt.github.io/sandi/' },
+            { id: 'morse-bendera', title: 'Pramuka : Morse Bendera', category: 'game', image: 'https://i.pinimg.com/1200x/cc/01/ec/cc01eccdbb80b919e623f506405cb7a9.jpg', url: 'https://ocre-morse-bendera.vercel.app/' },
+            { id: 'semaphore', title: 'Pramuka : Semaphore', category: 'game', image: 'https://i.pinimg.com/1200x/aa/0f/e2/aa0fe2b718b3e120ea5048ba90c79f42.jpg', url: 'https://gjls-bgt.github.io/semaphore/' },
+            { id: 'sudoku', title: 'Sudoku', category: 'game', image: 'icon/sudoku.jpg', url: 'sudoku.html' },
+            { id: 'nonogram', title: 'Nonogram', category: 'game', image: 'icon/nonogram.jpg', url: 'nonogram.html' },
+            { id: 'cross-river', title: 'Game Logika : Penyeberangan Sungai', category: 'game', image: 'https://i.pinimg.com/736x/3f/02/f7/3f02f79ddd8c3ffee60ac4912a7f9ade.jpg', url: 'https://ocre-crossriver.vercel.app' },
+            { id: 'flag-color', title: 'World Flag Coloring', category: 'game', image: 'https://i.pinimg.com/736x/cb/01/9b/cb019b39a189d1cfa1274923a3bff401.jpg', url: 'https://32hendiirawan.github.io/flag-color/' },
+            { id: 'world-map', title: 'Geografi : Peta Dunia', category: 'game', image: 'https://i.pinimg.com/1200x/99/c3/e0/99c3e0e133990593d689edfa9bf3e749.jpg', url: 'https://32hendiirawan.github.io/world-map/' },
+            { id: 'peta-kabko', title: 'Geografi : Peta Kabupaten/Kota', category: 'game', image: 'https://i.pinimg.com/736x/d5/f0/2f/d5f02f2baf24d1840e7ccc28e82dad7f.jpg', url: 'https://ocre-peta-kabko.vercel.app' },
+            { id: 'make-ten', title: 'Puzzle : Make Ten', category: 'game', image: 'https://i.pinimg.com/736x/d7/e0/5a/d7e05ae33243abed9cf435040a685285.jpg', url: 'https://ocre-make10.vercel.app' },
+            { id: 'sort-ball', title: 'Puzzle : Ball Sort (Pecahan Senilai)', category: 'game', image: 'https://i.pinimg.com/736x/7f/cd/aa/7fcdaa8bfd7511307771637ee9d44015.jpg', url: 'https://ocre-ballsort.vercel.app' },
+            { id: 'padlock-cracker', title: 'Padlock Cracker', category: 'game', image: 'https://i.pinimg.com/736x/02/ef/b8/02efb8362c2b461186aab9c07c3248d3.jpg', url: 'https://ocre-padlock.vercel.app' },
+            { id: 'math-labirin', title: 'Labirin Matematika', category: 'game', image: 'https://i.pinimg.com/1200x/66/65/2e/66652ee5e0ae22a1292342e33f5ce82b.jpg', url: 'https://ocre-labirin.netlify.app' },
+            { id: 'bubble_shooter', title: 'Bubble Shooter', category: 'game', image: 'https://i.pinimg.com/736x/e1/f3/e9/e1f3e9ac86629ce4aa1e0a3bf3fd6cb3.jpg', url: 'https://ocre-bubbleshoot.vercel.app' },
+            { id: 'cari_kata_tematik', title: 'Cari Kata Tematik', category: 'game', image: 'https://i.pinimg.com/1200x/fd/22/a3/fd22a3b2009dd04dc75a21189163ad9f.jpg', url: 'https://gjls-bgt.github.io/cari-kata' },
+            { id: 'cari_peta_provinsi', title: 'Geografi : Peta Provinsi', category: 'game', image: 'https://i.pinimg.com/736x/e3/65/ca/e365ca1317917f877e548506039e2ad8.jpg', url: 'https://ocre-peta.netlify.app' },
+            { id: 'dam_daman', title: 'Dam Daman', category: 'game', image: 'https://i.pinimg.com/736x/09/c3/04/09c304bcd710b50990b47e1a021e8508.jpg', url: 'https://ocre-dam2an.netlify.app' },
+            { id: 'english_-_pairing', title: 'English - Pairing', category: 'game', image: 'https://i.pinimg.com/1200x/0d/37/42/0d37426afe457184b5d98f825eaa7f06.jpg', url: 'https://32hendiirawan.github.io/english-matching/' },
+            { id: 'fruit_in_english', title: 'Fruit in English', category: 'game', image: 'https://i.pinimg.com/1200x/4e/ad/5a/4ead5a8f195efb5e083f52b9664651b9.jpg', url: 'https://english-fruit.netlify.app/' },
+            { id: 'matematika_ceria', title: 'Matematika Ceria', category: 'game', image: 'https://i.pinimg.com/1200x/72/d9/d6/72d9d664593369247c337f671beb45c2.jpg', url: 'https://gjls-bgt.github.io/mat-ceria/' },
+            { id: 'math-jong_master', title: 'Math-Jong Master', category: 'game', image: 'https://i.pinimg.com/736x/05/85/bc/0585bc5bd5d30e7304451a5d2bbdd8ee.jpg', url: 'https://ocre-mathjong.netlify.app' },
+            { id: 'mengenal_jam_analog', title: 'Mengenal Jam Analog', category: 'game', image: 'https://i.pinimg.com/736x/40/68/04/40680466bc8de59a927a3109dedf8e4c.jpg', url: 'https://ocre-jam.netlify.app' },
+            { id: 'pattern_master_pro', title: 'Pattern Master Pro', category: 'game', image: 'https://i.pinimg.com/736x/ff/80/69/ff806953de0d69a7c5e596a91696777a.jpg', url: 'https://gjls-bgt.github.io/pattern/' },
+            { id: 'quiz_asean', title: 'Quiz Asean', category: 'game', image: 'https://i.pinimg.com/736x/3d/df/eb/3ddfeb7a08808bf4b5bb45dba3c590ef.jpg', url: 'https://ocre-asean.netlify.app' },
+            { id: 'roket_satuan_panjang', title: 'Roket Satuan Panjang', category: 'game', image: 'https://i.pinimg.com/736x/2f/fc/d5/2ffcd5fac7e57b1d4e8c42bb21f1603b.jpg', url: 'https://gjls-bgt.github.io/roket-panjang/' },
+            { id: 'seimbangkan_timbangan', title: 'Seimbangkan Timbangan', category: 'game', image: 'https://i.pinimg.com/736x/9d/33/b2/9d33b21ce06ef78b73ee9f5e640b02eb.jpg', url: 'https://gjls-bgt.github.io/timbangan/' },
+            { id: 'tebak_lambang_&_ibukota_provinsi', title: 'Geografi : Lambang & Ibukota Provinsi', category: 'game', image: 'https://i.pinimg.com/736x/78/80/40/7880404a260d202471b95e78619434bd.jpg', url: 'https://gjls-bgt.github.io/lamprov/' },
+            { id: 'teka_teki_silang_tematik', title: 'Teka Teki Silang Tematik', category: 'game', image: 'https://i.pinimg.com/1200x/05/41/01/054101d13d06638da4110d66b88a61bf.jpg', url: 'https://gjls-bgt.github.io/tts/' },
+            { id: 'top_7_quiz', title: 'Top 7 Quiz', category: 'game', image: 'https://i.pinimg.com/1200x/a2/ae/8d/a2ae8d71428c7b1191b614c31a5a9e72.jpg', url: 'https://ocre-quiztop7.netlify.app' }
+        ];
+
+        let currentItem = null;
+        let favorites = JSON.parse(localStorage.getItem('ocre_favorites')) || [];
+
+        // Toggle Favorit
+        function toggleFavorite(event, id) {
+            event.stopPropagation();
+            if (favorites.includes(id)) {
+                favorites = favorites.filter(favId => favId !== id);
+            } else {
+                favorites.push(id);
+            }
+            localStorage.setItem('ocre_favorites', JSON.stringify(favorites));
+            filterItems();
+        }
+
+        // Mode Gelap/Terang
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            localStorage.setItem('ocre_theme', isLight ? 'light' : 'dark');
+            
+            const btnIcon = document.querySelector('#themeToggle i');
+            btnIcon.className = isLight ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+        }
+
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('ocre_theme');
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-theme');
+                document.querySelector('#themeToggle i').className = 'fa-solid fa-moon';
+            }
+        }
+
+        // Render Card Grid
+        function renderGrid(data) {
+            const grid = document.getElementById('contentGrid');
+            grid.innerHTML = '';
+            
+            if (data.length === 0) {
+                grid.innerHTML = `<div class="empty-state">Tidak ada item yang ditemukan.</div>`;
+                return;
+            }
+
+            data.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.onclick = () => openPlayer(item);
+                const isFav = favorites.includes(item.id);
+
+                card.innerHTML = `
+                    <div class="card-img-wrapper">
+                        <img src="${item.image}" alt="${item.title}" loading="lazy">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-meta">
+                            <span class="card-tag">${item.category}</span>
+                            <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(event, '${item.id}')" title="Simpan Favorit">
+                                <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                            </button>
+                        </div>
+                        <h3 class="card-title" title="${item.title}">${item.title}</h3>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterItems() {
+            const category = document.getElementById('categorySelect').value;
+            const query = document.getElementById('searchInput').value.toLowerCase();
+
+            const filtered = itemsData.filter(item => {
+                let matchesCat = false;
+                if (category === 'all') {
+                    matchesCat = true;
+                } else if (category === 'favorite') {
+                    matchesCat = favorites.includes(item.id);
+                } else {
+                    matchesCat = (item.category === category);
+                }
+
+                const matchesQuery = item.title.toLowerCase().includes(query);
+                return matchesCat && matchesQuery;
+            });
+
+            renderGrid(filtered);
+        }
+
+        function resetFilter() {
+            document.getElementById('categorySelect').value = 'all';
+            document.getElementById('searchInput').value = '';
+            renderGrid(itemsData);
+            closePlayer();
+        }
+
+        // Buka Player dengan update Hash URL
+        function openPlayer(item) {
+            currentItem = item;
+            document.getElementById('appIframe').src = item.url;
+            document.getElementById('playerModal').style.display = 'block';
+            
+            // Set URL hash untuk kemudahan berbagi link
+            window.location.hash = item.id;
+        }
+
+        // Tutup Player & bersihkan Hash URL
+        function closePlayer() {
+            if (document.fullscreenElement) {
+                document.exitFullscreen().catch(err => console.log(err));
+            }
+            document.getElementById('playerModal').style.display = 'none';
+            document.getElementById('appIframe').src = '';
+            currentItem = null;
+            
+            // Bersihkan hash dari URL jika ada
+            if (window.location.hash) {
+                history.pushState("", document.title, window.location.pathname + window.location.search);
+            }
+        }
+
+        function toggleFullscreen() {
+            const modal = document.getElementById('playerModal');
+            const icon = document.getElementById('fullscreenIcon');
+            
+            if (!document.fullscreenElement) {
+                modal.requestFullscreen().then(() => {
+                    icon.classList.remove('fa-expand');
+                    icon.classList.add('fa-compress');
+                }).catch(err => {
+                    console.log(`Gagal masuk mode fullscreen: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen().then(() => {
+                    icon.classList.remove('fa-compress');
+                    icon.classList.add('fa-expand');
+                });
+            }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            const icon = document.getElementById('fullscreenIcon');
+            if (icon) {
+                if (document.fullscreenElement) {
+                    icon.classList.remove('fa-expand');
+                    icon.classList.add('fa-compress');
+                } else {
+                    icon.classList.remove('fa-compress');
+                    icon.classList.add('fa-expand');
+                }
+            }
+        });
+
+        function toggleDevModal(show) {
+            document.getElementById('devModal').style.display = show ? 'block' : 'none';
+        }
+
+        // Fungsi Memeriksa Hash URL
+        function checkUrlHash() {
+            const hash = decodeURIComponent(window.location.hash.replace('#', ''));
+            if (hash) {
+                const item = itemsData.find(i => i.id === hash);
+                if (item) {
+                    openPlayer(item);
+                }
+            } else {
+                closePlayer();
+            }
+        }
+
+        // Event Listener Tombol Back/Forward Browser & Perubahan Hash
+        window.addEventListener('hashchange', checkUrlHash);
+
+        // Inisialisasi Halaman
+        loadTheme();
+        renderGrid(itemsData);
+        checkUrlHash();
+
+        (function() {
+            window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+            window.addEventListener('keydown', function(e) {
+                if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            }, true);
+        })();
+    </script>
+</body>
+</html>
