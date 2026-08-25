@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Game Segi Empat - 55 Level</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      touch-action: none;
+      user-select: none;
+    }
+    .game-container {
+      height: 100dvh;
+      max-width: calc(100dvh * 9 / 16);
+    }
+    canvas {
+      touch-action: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 flex items-center justify-center overflow-hidden">
+
+  <!-- Container Utama Rasio 9:16 -->
+  <div class="game-container w-full flex flex-col justify-between p-4 bg-slate-900 shadow-2xl relative border-x border-slate-800/50">
+    
+    <!-- Header: Skor & Level -->
+    <header class="flex justify-between items-center bg-slate-800/60 backdrop-blur-md p-3.5 rounded-2xl border border-slate-700/50">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Skor</span>
+        <span id="score" class="text-xl font-extrabold text-indigo-400">0</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Level</span>
+        <span id="level" class="text-xl font-extrabold text-pink-500">1 / 55</span>
+      </div>
+    </header>
+
+    <!-- Kartu Target Soal -->
+    <section class="my-auto bg-slate-800/40 border border-slate-700/40 p-4 rounded-2xl text-center shadow-lg backdrop-blur-sm">
+      <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Buat Segi Empat</h2>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-slate-900/80 p-3 rounded-xl border border-indigo-500/20">
+          <p class="text-xs text-slate-400">Luas (L)</p>
+          <p class="text-2xl font-black text-indigo-400" id="target-area">0</p>
+        </div>
+        <div class="bg-slate-900/80 p-3 rounded-xl border border-pink-500/20">
+          <p class="text-xs text-slate-400">Keliling (K)</p>
+          <p class="text-2xl font-black text-pink-400" id="target-perimeter">0</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Area Canvas Papan Game (10x10) -->
+    <div class="relative w-full aspect-square my-auto flex items-center justify-center bg-slate-950 rounded-2xl p-2 border border-slate-800 shadow-inner">
+      <canvas id="gameBoard" class="w-full h-full rounded-lg cursor-crosshair"></canvas>
+    </div>
+
+    <!-- Info Ukuran yang Sedang Dibuat Pemain (Hanya P & L) -->
+    <footer class="mt-auto space-y-3">
+      <div class="flex justify-around bg-slate-800/30 py-3 px-6 rounded-xl text-base border border-slate-800">
+        <p>Panjang (P): <span id="current-w" class="font-extrabold text-amber-400">0</span></p>
+        <p>Lebar (L): <span id="current-h" class="font-extrabold text-amber-400">0</span></p>
+      </div>
+    </footer>
+
+    <!-- MODAL POPUP (BENAR / SALAH / SELESAI) -->
+    <div id="modalOverlay" class="hidden absolute inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-6 z-50">
+      <div id="modalCard" class="w-full max-w-xs bg-slate-900 border rounded-3xl p-6 text-center shadow-2xl flex flex-col items-center gap-4 transition-all scale-95 opacity-0">
+        
+        <!-- Icon Modal -->
+        <div id="modalIcon" class="w-20 h-20 rounded-full flex items-center justify-center text-4xl shadow-lg"></div>
+
+        <!-- Teks Modal -->
+        <div>
+          <h3 id="modalTitle" class="text-2xl font-black mb-1"></h3>
+          <p id="modalDesc" class="text-xs text-slate-400"></p>
+        </div>
+
+        <!-- Tombol Aksi Modal -->
+        <button id="modalBtn" class="w-full py-3.5 font-bold rounded-xl transition shadow-lg active:scale-95 text-white mt-2">
+        </button>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const GRID_SIZE = 10;
+    const canvas = document.getElementById('gameBoard');
+    const ctx = canvas.getContext('2d');
+
+    // Generasi 55 Kombinasi Unik (Dimulai dari P <= L agar tidak ada duplikasi permutasi simetris)
+    function generateLevels() {
+      const levels = [];
+      for (let p = 1; p <= 10; p++) {
+        for (let l = p; l <= 10; l++) {
+          levels.push({
+            p: p,
+            l: l,
+            area: p * l,
+            perimeter: 2 * (p + l)
+          });
+        }
+      }
+      // Urutkan berdasarkan Luas (terkecil ke terbesar), lalu Keliling
+      levels.sort((a, b) => {
+        if (a.area !== b.area) return a.area - b.area;
+        return a.perimeter - b.perimeter;
+      });
+      return levels;
+    }
+
+    const ALL_LEVELS = generateLevels();
+    let currentLevelIdx = 0;
+
+    let targetArea = 0, targetPerimeter = 0;
+    let score = 0;
+    let isDrawing = false;
+    let isChecked = false;
+    let isCorrect = false;
+
+    let startCell = null;
+    let currentCell = null;
+
+    function resizeCanvas() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      const size = Math.min(rect.width, rect.height) - 16;
+      canvas.width = size * window.devicePixelRatio;
+      canvas.height = size * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      drawGrid();
+    }
+
+    function loadLevel() {
+      isChecked = false;
+      isCorrect = false;
+      startCell = null;
+      currentCell = null;
+      closeModal();
+
+      const levelData = ALL_LEVELS[currentLevelIdx];
+      targetArea = levelData.area;
+      targetPerimeter = levelData.perimeter;
+
+      document.getElementById('target-area').innerText = targetArea;
+      document.getElementById('target-perimeter').innerText = targetPerimeter;
+      document.getElementById('level').innerText = `${currentLevelIdx + 1} / ${ALL_LEVELS.length}`;
+      updateCurrentInfo(0, 0);
+
+      drawGrid();
+    }
+
+    function retryQuestion() {
+      isChecked = false;
+      isCorrect = false;
+      startCell = null;
+      currentCell = null;
+      closeModal();
+      updateCurrentInfo(0, 0);
+      drawGrid();
+    }
+
+    function drawGrid() {
+      const w = canvas.width / window.devicePixelRatio;
+      const h = canvas.height / window.devicePixelRatio;
+      const cellSize = w / GRID_SIZE;
+
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 1;
+
+      for (let i = 0; i <= GRID_SIZE; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * cellSize, 0);
+        ctx.lineTo(i * cellSize, h);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(0, i * cellSize);
+        ctx.lineTo(w, i * cellSize);
+        ctx.stroke();
+      }
+
+      if (startCell && currentCell) {
+        const x = Math.min(startCell.x, currentCell.x);
+        const y = Math.min(startCell.y, currentCell.y);
+        const rectW = Math.abs(startCell.x - currentCell.x) + 1;
+        const rectH = Math.abs(startCell.y - currentCell.y) + 1;
+
+        let fillColor = 'rgba(99, 102, 241, 0.35)';
+        let strokeColor = '#818cf8';
+
+        if (isChecked) {
+          if (isCorrect) {
+            fillColor = 'rgba(34, 197, 94, 0.45)';
+            strokeColor = '#4ade80';
+          } else {
+            fillColor = 'rgba(239, 68, 68, 0.45)';
+            strokeColor = '#f87171';
+          }
+        }
+
+        ctx.fillStyle = fillColor;
+        ctx.fillRect(x * cellSize, y * cellSize, rectW * cellSize, rectH * cellSize);
+
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = 3;
+        ctx.strokeRect(x * cellSize, y * cellSize, rectW * cellSize, rectH * cellSize);
+
+        updateCurrentInfo(rectW, rectH);
+      }
+    }
+
+    function getCellFromPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      const x = clientX - rect.left;
+      const y = clientY - rect.top;
+
+      const cellSize = rect.width / GRID_SIZE;
+      
+      const cellX = Math.max(0, Math.min(GRID_SIZE - 1, Math.floor(x / cellSize)));
+      const cellY = Math.max(0, Math.min(GRID_SIZE - 1, Math.floor(y / cellSize)));
+
+      return { x: cellX, y: cellY };
+    }
+
+    function handleStart(e) {
+      if (isChecked) return;
+      isDrawing = true;
+      startCell = getCellFromPos(e);
+      currentCell = startCell;
+      drawGrid();
+    }
+
+    function handleMove(e) {
+      if (!isDrawing || isChecked) return;
+      currentCell = getCellFromPos(e);
+      drawGrid();
+    }
+
+    function handleEnd() {
+      if (!isDrawing || isChecked) return;
+      isDrawing = false;
+      isChecked = true;
+
+      const rectW = Math.abs(startCell.x - currentCell.x) + 1;
+      const rectH = Math.abs(startCell.y - currentCell.y) + 1;
+
+      const area = rectW * rectH;
+      const perimeter = 2 * (rectW + rectH);
+
+      isCorrect = (area === targetArea && perimeter === targetPerimeter);
+
+      if (isCorrect) {
+        score += 10;
+        document.getElementById('score').innerText = score;
+      }
+
+      drawGrid();
+      showModal(isCorrect);
+    }
+
+    function updateCurrentInfo(w, h) {
+      document.getElementById('current-w').innerText = w;
+      document.getElementById('current-h').innerText = h;
+    }
+
+    function nextLevel() {
+      currentLevelIdx++;
+      if (currentLevelIdx < ALL_LEVELS.length) {
+        loadLevel();
+      } else {
+        showGameCompleteModal();
+      }
+    }
+
+    function resetGame() {
+      currentLevelIdx = 0;
+      score = 0;
+      document.getElementById('score').innerText = score;
+      loadLevel();
+    }
+
+    // FUNGSI MODAL
+    function showModal(success) {
+      const overlay = document.getElementById('modalOverlay');
+      const card = document.getElementById('modalCard');
+      const icon = document.getElementById('modalIcon');
+      const title = document.getElementById('modalTitle');
+      const desc = document.getElementById('modalDesc');
+      const btn = document.getElementById('modalBtn');
+
+      if (success) {
+        card.className = "w-full max-w-xs bg-slate-900 border border-emerald-500/30 rounded-3xl p-6 text-center shadow-2xl flex flex-col items-center gap-4 transition-all duration-300 scale-95 opacity-0";
+        icon.className = "w-20 h-20 rounded-full flex items-center justify-center text-4xl shadow-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
+        icon.innerText = "✓";
+        title.innerText = "Luar Biasa!";
+        title.className = "text-2xl font-black mb-1 text-emerald-400";
+        desc.innerText = `Segi empat tepat! Level ${currentLevelIdx + 1} Selesai.`;
+        
+        btn.innerText = "Soal Berikutnya →";
+        btn.className = "w-full py-3.5 font-bold rounded-xl transition shadow-lg shadow-emerald-600/30 active:scale-95 text-white bg-emerald-600 hover:bg-emerald-500";
+        btn.onclick = nextLevel;
+      } else {
+        card.className = "w-full max-w-xs bg-slate-900 border border-rose-500/30 rounded-3xl p-6 text-center shadow-2xl flex flex-col items-center gap-4 transition-all duration-300 scale-95 opacity-0";
+        icon.className = "w-20 h-20 rounded-full flex items-center justify-center text-4xl shadow-lg bg-rose-500/20 text-rose-400 border border-rose-500/40";
+        icon.innerText = "✕";
+        title.innerText = "Kurang Tepat";
+        title.className = "text-2xl font-black mb-1 text-rose-400";
+        desc.innerText = "Ukuran belum sesuai target. Yuk coba lagi!";
+        
+        btn.innerText = "Coba Lagi ↺";
+        btn.className = "w-full py-3.5 font-bold rounded-xl transition shadow-lg shadow-rose-600/30 active:scale-95 text-white bg-rose-600 hover:bg-rose-500";
+        btn.onclick = retryQuestion;
+      }
+
+      overlay.classList.remove('hidden');
+      setTimeout(() => {
+        card.classList.remove('scale-95', 'opacity-0');
+        card.classList.add('scale-100', 'opacity-100');
+      }, 10);
+    }
+
+    function showGameCompleteModal() {
+      const overlay = document.getElementById('modalOverlay');
+      const card = document.getElementById('modalCard');
+      const icon = document.getElementById('modalIcon');
+      const title = document.getElementById('modalTitle');
+      const desc = document.getElementById('modalDesc');
+      const btn = document.getElementById('modalBtn');
+
+      card.className = "w-full max-w-xs bg-slate-900 border border-amber-500/30 rounded-3xl p-6 text-center shadow-2xl flex flex-col items-center gap-4 transition-all duration-300 scale-95 opacity-0";
+      icon.className = "w-20 h-20 rounded-full flex items-center justify-center text-4xl shadow-lg bg-amber-500/20 text-amber-400 border border-amber-500/40";
+      icon.innerText = "🏆";
+      title.innerText = "Selamat!";
+      title.className = "text-2xl font-black mb-1 text-amber-400";
+      desc.innerText = `Kamu berhasil menyelesaikan seluruh 55 level dengan Total Skor: ${score}!`;
+      
+      btn.innerText = "Main Lagi ↺";
+      btn.className = "w-full py-3.5 font-bold rounded-xl transition shadow-lg shadow-amber-600/30 active:scale-95 text-white bg-amber-600 hover:bg-amber-500";
+      btn.onclick = resetGame;
+
+      overlay.classList.remove('hidden');
+      setTimeout(() => {
+        card.classList.remove('scale-95', 'opacity-0');
+        card.classList.add('scale-100', 'opacity-100');
+      }, 10);
+    }
+
+    function closeModal() {
+      const overlay = document.getElementById('modalOverlay');
+      const card = document.getElementById('modalCard');
+      card.classList.remove('scale-100', 'opacity-100');
+      card.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+      }, 200);
+    }
+
+    // Event Listeners
+    canvas.addEventListener('mousedown', handleStart);
+    canvas.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleEnd);
+
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleStart(e); }, { passive: false });
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); handleMove(e); }, { passive: false });
+    window.addEventListener('touchend', handleEnd);
+
+    window.addEventListener('resize', resizeCanvas);
+
+    window.onload = () => {
+      resizeCanvas();
+      loadLevel();
+    };
+
+    (function() {
+        window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+        }, true);
+    })();
+  </script>
+</body>
+</html>
