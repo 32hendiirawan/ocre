@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Game Menyusun Barang (Goods Sort 9:16)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Fredoka', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #083358;
+            background-image: 
+                radial-gradient(circle at 20px 20px, rgba(255, 255, 255, 0.05) 2%, transparent 0%), 
+                radial-gradient(circle at 60px 60px, rgba(255, 255, 255, 0.05) 2%, transparent 0%);
+            background-size: 80px 80px;
+            color: white;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Container dengan Fixed Aspect Ratio 9:16 Fit 1 Layar */
+        .app-container {
+            width: 100%;
+            height: 100%;
+            max-width: calc(100vh * (9/16));
+            max-height: calc(100vw * (16/9));
+            aspect-ratio: 9 / 16;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 10px;
+            position: relative;
+            background: rgba(11, 79, 140, 0.4);
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+
+        /* Top Header Navigation */
+        .header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 10%;
+        }
+
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            font-size: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+        }
+
+        .icon-btn:active {
+            transform: scale(0.92);
+        }
+
+        .title-container {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .level-title {
+            font-size: 15px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            margin-bottom: 2px;
+        }
+
+        .score-board {
+            display: flex;
+            gap: 8px;
+            font-size: 11px;
+            color: #ffd89b;
+            margin-top: 2px;
+        }
+
+        .moves-badge {
+            background: linear-gradient(180deg, #ffc83b 0%, #ff9214 100%);
+            border: 2px solid #ffffff;
+            border-radius: 16px;
+            padding: 2px 14px;
+            font-size: 14px;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 3px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            display: inline-block;
+        }
+
+        /* Game Main Board - 10 Drawers Rack */
+        .rack-container {
+            background: linear-gradient(180deg, #e68a35 0%, #b85d14 100%);
+            border: 6px solid #572702;
+            border-radius: 14px;
+            padding: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.3);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            width: 100%;
+            height: 79%;
+        }
+
+        /* Individual Drawer / Laci */
+        .drawer {
+            background: #8d430a;
+            border: 3px solid #4a1f01;
+            border-radius: 8px;
+            padding: 4px;
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            height: 100%;
+        }
+
+        /* Slots inside drawer (Each drawer has 3 slots) */
+        .drawer-slots {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            background: rgba(0,0,0,0.25);
+            padding: 4px;
+            border-radius: 6px;
+            height: 100%;
+        }
+
+        .slot {
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1.5px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 5px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .slot.drag-over {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: #ffeb3b;
+        }
+
+        /* Item stack design (3 layers) */
+        .item-stack {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .item {
+            width: 95%;
+            height: 95%;
+            border-radius: 6px;
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.3);
+            transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+            cursor: grab;
+        }
+
+        /* Ukuran Emoji Diperbesar */
+        .item .item-emoji {
+            font-size: 28px;
+            line-height: 1;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+        }
+
+        /* Visual representation & accessibility logic of 3 layers */
+        .item.layer-0 {
+            z-index: 3;
+            transform: translateY(0) scale(1);
+        }
+
+        .item.layer-1 {
+            z-index: 2;
+            transform: translateY(-3px) scale(0.92);
+            filter: brightness(0.55);
+        }
+
+        .item.layer-2 {
+            z-index: 1;
+            transform: translateY(-6px) scale(0.84);
+            filter: brightness(0.3);
+        }
+
+        /* Status Terkunci jika belum paling depan */
+        .item.locked {
+            pointer-events: none;
+        }
+
+        /* Status Terbuka / Active (Dapat diakses jika barang depan sudah kosong) */
+        .item.active-accessible {
+            pointer-events: auto !important;
+            filter: brightness(1) !important;
+            transform: translateY(0) scale(1) !important;
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.8) !important;
+            border: 1.5px solid #ffffff !important;
+            z-index: 5 !important;
+        }
+
+        .item.dragging {
+            opacity: 0.4;
+            transform: scale(1.1) !important;
+        }
+
+        /* Highlight animation for 3 seconds inactivity hint */
+        @keyframes hintPulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 235, 59, 0.9); }
+            50% { transform: scale(1.08); box-shadow: 0 0 12px 4px rgba(255, 235, 59, 1); border: 2px solid #fff; }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 235, 59, 0); }
+        }
+
+        .item.hint-highlight {
+            animation: hintPulse 1.2s infinite ease-in-out;
+            z-index: 10 !important;
+        }
+
+        /* Bottom Controls */
+        .controls {
+            height: 8%;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        .tool-btn {
+            background: linear-gradient(180deg, #ff9d00 0%, #e65100 100%);
+            border: 2px solid #ffffff;
+            border-radius: 14px;
+            padding: 6px 20px;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .tool-btn:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .tool-btn:disabled {
+            filter: grayscale(0.8);
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .badge {
+            background: #d32f2f;
+            border: 1.5px solid white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 11px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            font-weight: bold;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background: #ffffff;
+            color: #333;
+            border-radius: 18px;
+            padding: 20px 25px;
+            text-align: center;
+            max-width: 300px;
+            width: 85%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            transform: scale(0.8);
+            transition: transform 0.3s;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal h2 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            color: #0b4f8c;
+        }
+
+        .modal p {
+            font-size: 14px;
+            margin-bottom: 16px;
+            color: #666;
+            white-space: pre-line;
+        }
+
+        .modal-btn {
+            background: linear-gradient(180deg, #4caf50 0%, #2e7d32 100%);
+            border: none;
+            color: white;
+            padding: 10px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        /* Background gradien warna tiap jenis Makanan/Buah/Minuman */
+        .type-apple { background: linear-gradient(135deg, #ff5252, #c62828); }
+        .type-banana { background: linear-gradient(135deg, #ffee58, #fbc02d); }
+        .type-burger { background: linear-gradient(135deg, #ff9800, #e65100); }
+        .type-pizza { background: linear-gradient(135deg, #ff7043, #d84315); }
+        .type-donut { background: linear-gradient(135deg, #ff4081, #c2185b); }
+        .type-boba { background: linear-gradient(135deg, #8d6e63, #4e342e); }
+        .type-soda { background: linear-gradient(135deg, #42a5f5, #1565c0); }
+        .type-avocado { background: linear-gradient(135deg, #66bb6a, #2e7d32); }
+        .type-strawberry { background: linear-gradient(135deg, #ec407a, #ad1457); }
+        .type-icecream { background: linear-gradient(135deg, #ab47bc, #6a1b9a); }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Header Navigation -->
+        <div class="header">
+            <button class="icon-btn" onclick="restartGameTotal()" title="Reset Game Total">🔄</button>
+            <div class="title-container">
+                <div class="level-title" id="level-title">Level 1</div>
+                <div class="moves-badge" id="moves-count">50 Moves</div>
+                <div class="score-board">
+                    <span>Score: <b id="current-score" style="color:#fff">0</b></span> | 
+                    <span>High: <b id="high-score" style="color:#fff">0</b></span>
+                </div>
+            </div>
+            <button class="icon-btn" id="sound-btn" onclick="toggleSound()" title="Sound">🔊</button>
+        </div>
+
+        <!-- Main Rack with 10 Drawers -->
+        <div class="rack-container" id="rack">
+            <!-- 10 Drawers generated by JS -->
+        </div>
+
+        <!-- Bottom Controls -->
+        <div class="controls">
+            <button class="tool-btn" id="reshuffle-btn" onclick="useReshuffle()">
+                <span>🔀 Reshuffle</span>
+                <span class="badge" id="reshuffle-count">3</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Game Over / Victory Modal -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <h2 id="modal-title">Menang! 🎉</h2>
+            <p id="modal-desc">Semua barang berhasil disusun!</p>
+            <button class="modal-btn" id="modal-action-btn" onclick="nextLevel()">Lanjut Level</button>
+        </div>
+    </div>
+
+    <script>
+        // 10 Jenis Varian Buah, Makanan, & Minuman
+        const ITEM_TYPES = [
+            { id: 'apple', icon: '🍎', class: 'type-apple' },
+            { id: 'banana', icon: '🍌', class: 'type-banana' },
+            { id: 'burger', icon: '🍔', class: 'type-burger' },
+            { id: 'pizza', icon: '🍕', class: 'type-pizza' },
+            { id: 'donut', icon: '🍩', class: 'type-donut' },
+            { id: 'boba', icon: '🧋', class: 'type-boba' },
+            { id: 'soda', icon: '🥤', class: 'type-soda' },
+            { id: 'avocado', icon: '🥑', class: 'type-avocado' },
+            { id: 'strawberry', icon: '🍓', class: 'type-strawberry' },
+            { id: 'icecream', icon: '🍦', class: 'type-icecream' }
+        ];
+
+        // Constants
+        const TOTAL_DRAWERS = 10;
+        const SLOTS_PER_DRAWER = 3;
+        const LAYERS_PER_SLOT = 3; 
+        const INITIAL_MOVES = 50;
+        const INACTIVITY_TIME = 3000;
+
+        // Game State Variables
+        let gameState = [];
+        let movesLeft = INITIAL_MOVES;
+        let reshuffleLeft = 3;
+        let currentLevel = 1;
+        let currentScore = 0;
+        let highScore = parseInt(localStorage.getItem('goodsSortHighScore')) || 0;
+        let inactivityTimer = null;
+        let draggedItemInfo = null;
+        let soundEnabled = true;
+
+        // Sound Synthesizer (Web Audio API)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                const now = audioCtx.currentTime;
+
+                if (type === 'move') {
+                    osc.frequency.setValueAtTime(320, now);
+                    osc.frequency.exponentialRampToValueAtTime(520, now + 0.08);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'match') {
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.07);
+                    osc.frequency.setValueAtTime(783.99, now + 0.14);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'shuffle') {
+                    osc.frequency.setValueAtTime(450, now);
+                    osc.frequency.linearRampToValueAtTime(220, now + 0.18);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.18);
+                    osc.start(now);
+                    osc.stop(now + 0.18);
+                } else if (type === 'win') {
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.setValueAtTime(554.37, now + 0.12);
+                    osc.frequency.setValueAtTime(659.25, now + 0.24);
+                    osc.frequency.setValueAtTime(880, now + 0.36);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.6);
+                    osc.start(now);
+                    osc.stop(now + 0.6);
+                }
+            } catch(e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('sound-btn').innerText = soundEnabled ? '🔊' : '🔇';
+        }
+
+        // Initialize Level Function
+        function initLevel() {
+            updateUIStats();
+
+            // Membikin 90 barang (10 jenis x 9 item = 90 barang)
+            let pool = [];
+            ITEM_TYPES.forEach(type => {
+                for (let i = 0; i < 9; i++) {
+                    pool.push({ ...type });
+                }
+            });
+
+            // Acak pool (Shuffle)
+            pool.sort(() => Math.random() - 0.5);
+
+            // Isi seluruh 10 laci x 3 slot x 3 lapisan secara penuh (90 barang)
+            gameState = [];
+            let poolIdx = 0;
+
+            for (let d = 0; d < TOTAL_DRAWERS; d++) {
+                let drawerSlots = [];
+                for (let s = 0; s < SLOTS_PER_DRAWER; s++) {
+                    let layers = [];
+                    for (let l = 0; l < LAYERS_PER_SLOT; l++) {
+                        layers.push(pool[poolIdx++]);
+                    }
+                    drawerSlots.push(layers);
+                }
+                gameState.push(drawerSlots);
+            }
+
+            renderBoard();
+            resetInactivityTimer();
+        }
+
+        // Render Game Board
+        function renderBoard() {
+            const rack = document.getElementById('rack');
+            rack.innerHTML = '';
+
+            for (let d = 0; d < TOTAL_DRAWERS; d++) {
+                const drawerEl = document.createElement('div');
+                drawerEl.className = 'drawer';
+
+                const slotsEl = document.createElement('div');
+                slotsEl.className = 'drawer-slots';
+
+                for (let s = 0; s < SLOTS_PER_DRAWER; s++) {
+                    const slotEl = document.createElement('div');
+                    slotEl.className = 'slot';
+                    slotEl.dataset.drawer = d;
+                    slotEl.dataset.slot = s;
+
+                    slotEl.addEventListener('dragover', handleDragOver);
+                    slotEl.addEventListener('dragleave', handleDragLeave);
+                    slotEl.addEventListener('drop', handleDrop);
+
+                    const stackEl = document.createElement('div');
+                    stackEl.className = 'item-stack';
+
+                    const layers = gameState[d][s];
+                    
+                    let accessibleLayerIdx = -1;
+                    for (let l = 0; l < LAYERS_PER_SLOT; l++) {
+                        if (layers[l] !== null) {
+                            accessibleLayerIdx = l;
+                            break;
+                        }
+                    }
+
+                    for (let l = LAYERS_PER_SLOT - 1; l >= 0; l--) {
+                        const itemData = layers[l];
+                        if (itemData) {
+                            const itemEl = document.createElement('div');
+                            const isAccessible = (l === accessibleLayerIdx);
+
+                            itemEl.className = `item ${itemData.class} layer-${l} ${isAccessible ? 'active-accessible' : 'locked'}`;
+                            itemEl.dataset.drawer = d;
+                            itemEl.dataset.slot = s;
+                            itemEl.dataset.layer = l;
+
+                            itemEl.innerHTML = `<span class="item-emoji">${itemData.icon}</span>`;
+
+                            if (isAccessible) {
+                                itemEl.draggable = true;
+                                itemEl.addEventListener('dragstart', handleDragStart);
+                                itemEl.addEventListener('dragend', handleDragEnd);
+                                itemEl.addEventListener('touchstart', handleTouchStart, {passive: false});
+                                itemEl.addEventListener('touchmove', handleTouchMove, {passive: false});
+                                itemEl.addEventListener('touchend', handleTouchEnd);
+                            }
+
+                            stackEl.appendChild(itemEl);
+                        }
+                    }
+
+                    slotEl.appendChild(stackEl);
+                    slotsEl.appendChild(slotEl);
+                }
+
+                drawerEl.appendChild(slotsEl);
+                rack.appendChild(drawerEl);
+            }
+        }
+
+        function getAccessibleItemInfo(drawerIdx, slotIdx) {
+            const layers = gameState[drawerIdx][slotIdx];
+            for (let l = 0; l < LAYERS_PER_SLOT; l++) {
+                if (layers[l] !== null) {
+                    return { layer: l, data: layers[l] };
+                }
+            }
+            return null;
+        }
+
+        // Drag & Drop Handlers
+        function handleDragStart(e) {
+            resetInactivityTimer();
+            removeHighlights();
+            
+            const d = parseInt(this.dataset.drawer);
+            const s = parseInt(this.dataset.slot);
+            const l = parseInt(this.dataset.layer);
+
+            draggedItemInfo = { drawer: d, slot: s, layer: l };
+            this.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', JSON.stringify({ drawer: d, slot: s, layer: l }));
+        }
+
+        function handleDragEnd() {
+            this.classList.remove('dragging');
+            document.querySelectorAll('.slot').forEach(slot => slot.classList.remove('drag-over'));
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        }
+
+        function handleDragLeave() {
+            this.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            resetInactivityTimer();
+
+            if (!draggedItemInfo) return;
+
+            const targetDrawer = parseInt(this.dataset.drawer);
+            const targetSlot = parseInt(this.dataset.slot);
+
+            executeMoveOrSwap(draggedItemInfo.drawer, draggedItemInfo.slot, targetDrawer, targetSlot);
+            draggedItemInfo = null;
+        }
+
+        // Touch Drag & Drop Logic
+        let touchDragElement = null;
+
+        function handleTouchStart(e) {
+            resetInactivityTimer();
+            removeHighlights();
+            
+            const d = parseInt(this.dataset.drawer);
+            const s = parseInt(this.dataset.slot);
+            const l = parseInt(this.dataset.layer);
+
+            draggedItemInfo = { drawer: d, slot: s, layer: l };
+            touchDragElement = this;
+            this.classList.add('dragging');
+        }
+
+        function handleTouchMove(e) {
+            if (!draggedItemInfo) return;
+            e.preventDefault();
+        }
+
+        function handleTouchEnd(e) {
+            if (!draggedItemInfo) return;
+            
+            const touch = e.changedTouches[0];
+            const dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
+            const slotEl = dropTarget ? dropTarget.closest('.slot') : null;
+
+            if (slotEl) {
+                const targetDrawer = parseInt(slotEl.dataset.drawer);
+                const targetSlot = parseInt(slotEl.dataset.slot);
+                executeMoveOrSwap(draggedItemInfo.drawer, draggedItemInfo.slot, targetDrawer, targetSlot);
+            }
+
+            if (touchDragElement) {
+                touchDragElement.classList.remove('dragging');
+                touchDragElement = null;
+            }
+            draggedItemInfo = null;
+        }
+
+        function executeMoveOrSwap(sourceDrawer, sourceSlot, targetDrawer, targetSlot) {
+            if (sourceDrawer === targetDrawer && sourceSlot === targetSlot) return;
+
+            const sourceAccessible = getAccessibleItemInfo(sourceDrawer, sourceSlot);
+            const targetAccessible = getAccessibleItemInfo(targetDrawer, targetSlot);
+
+            if (!sourceAccessible) return;
+
+            if (targetAccessible) {
+                gameState[sourceDrawer][sourceSlot][sourceAccessible.layer] = targetAccessible.data;
+                gameState[targetDrawer][targetSlot][targetAccessible.layer] = sourceAccessible.data;
+            } else {
+                gameState[targetDrawer][targetSlot][0] = sourceAccessible.data;
+                gameState[sourceDrawer][sourceSlot][sourceAccessible.layer] = null;
+            }
+
+            movesLeft--;
+            playSound('move');
+            updateUIStats();
+            renderBoard();
+
+            checkAndClearMatches();
+            checkGameStatus();
+        }
+
+        function addScore(points) {
+            currentScore += points;
+            if (currentScore > highScore) {
+                highScore = currentScore;
+                localStorage.setItem('goodsSortHighScore', highScore);
+            }
+            updateUIStats();
+        }
+
+        function checkAndClearMatches() {
+            let matched = false;
+
+            for (let d = 0; d < TOTAL_DRAWERS; d++) {
+                const item0 = getAccessibleItemInfo(d, 0);
+                const item1 = getAccessibleItemInfo(d, 1);
+                const item2 = getAccessibleItemInfo(d, 2);
+
+                if (item0 && item1 && item2 && item0.data.id === item1.data.id && item1.data.id === item2.data.id) {
+                    matched = true;
+                    playSound('match');
+                    addScore(100);
+
+                    gameState[d][0][item0.layer] = null;
+                    gameState[d][1][item1.layer] = null;
+                    gameState[d][2][item2.layer] = null;
+                }
+            }
+
+            if (matched) {
+                setTimeout(() => {
+                    renderBoard();
+                    checkAndClearMatches();
+                }, 250);
+            }
+        }
+
+        function useReshuffle() {
+            if (reshuffleLeft <= 0) return;
+
+            resetInactivityTimer();
+            removeHighlights();
+
+            let remainingItems = [];
+            for (let d = 0; d < TOTAL_DRAWERS; d++) {
+                for (let s = 0; s < SLOTS_PER_DRAWER; s++) {
+                    for (let l = 0; l < LAYERS_PER_SLOT; l++) {
+                        if (gameState[d][s][l]) {
+                            remainingItems.push(gameState[d][s][l]);
+                        }
+                    }
+                }
+            }
+
+            if (remainingItems.length === 0) return;
+
+            remainingItems.sort(() => Math.random() - 0.5);
+
+            for (let d = 0; d < TOTAL_DRAWERS; d++) {
+                for (let s = 0; s < SLOTS_PER_DRAWER; s++) {
+                    for (let l = 0; l < LAYERS_PER_SLOT; l++) {
+                        gameState[d][s][l] = null;
+                    }
+                }
+            }
+
+            let idx = 0;
+            for (let l = 0; l < LAYERS_PER_SLOT; l++) {
+                for (let d = 0; d < TOTAL_DRAWERS; d++) {
+                    for (let s = 0; s < SLOTS_PER_DRAWER; s++) {
+                        if (idx < remainingItems.length) {
+                            gameState[d][s][l] = remainingItems[idx++];
+                        }
+                    }
+                }
+            }
+
+            reshuffleLeft--;
+            playSound('shuffle');
+            updateUIStats();
+            renderBoard();
+            
+            checkAndClearMatches();
+        }
+
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(highlightMatches, INACTIVITY_TIME);
+        }
+
+        function removeHighlights() {
+            document.querySelectorAll('.item.hint-highlight').forEach(el => el.classList.remove('hint-highlight'));
+        }
+
+        function highlightMatches() {
+            removeHighlights();
+
+            const accessibleItems = [];
+            for (let d = 0; d < TOTAL_DRAWERS; d++) {
+                for (let s = 0; s < SLOTS_PER_DRAWER; s++) {
+                    const info = getAccessibleItemInfo(d, s);
+                    if (info) {
+                        accessibleItems.push({ id: info.data.id, drawer: d, slot: s, layer: info.layer });
+                    }
+                }
+            }
+
+            const counts = {};
+            for (let item of accessibleItems) {
+                if (!counts[item.id]) counts[item.id] = [];
+                counts[item.id].push(item);
+            }
+
+            let targetGroup = null;
+            for (let id in counts) {
+                if (counts[id].length >= 3) {
+                    targetGroup = counts[id].slice(0, 3);
+                    break;
+                }
+            }
+
+            if (!targetGroup) {
+                for (let id in counts) {
+                    if (counts[id].length >= 2) {
+                        targetGroup = counts[id].slice(0, 2);
+                        break;
+                    }
+                }
+            }
+
+            if (targetGroup) {
+                targetGroup.forEach(info => {
+                    const selector = `.item[data-drawer="${info.drawer}"][data-slot="${info.slot}"][data-layer="${info.layer}"]`;
+                    const el = document.querySelector(selector);
+                    if (el) el.classList.add('hint-highlight');
+                });
+            }
+        }
+
+        function updateUIStats() {
+            document.getElementById('level-title').innerText = `Level ${currentLevel}`;
+            document.getElementById('moves-count').innerText = `${movesLeft} Moves`;
+            document.getElementById('current-score').innerText = currentScore;
+            document.getElementById('high-score').innerText = highScore;
+            document.getElementById('reshuffle-count').innerText = reshuffleLeft;
+            document.getElementById('reshuffle-btn').disabled = reshuffleLeft <= 0;
+        }
+
+        function checkGameStatus() {
+            let isEmpty = true;
+            for (let d = 0; d < TOTAL_DRAWERS; d++) {
+                for (let s = 0; s < SLOTS_PER_DRAWER; s++) {
+                    for (let l = 0; l < LAYERS_PER_SLOT; l++) {
+                        if (gameState[d][s][l] !== null) {
+                            isEmpty = false;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (isEmpty) {
+                playSound('win');
+                const bonusScore = movesLeft * 10;
+                addScore(bonusScore);
+                
+                showModal('Level Selesai! 🎉', `Skor Kamu: ${currentScore}\nBonus Sisa Moves: +${bonusScore}`, 'Lanjut Level', true);
+                return;
+            }
+
+            if (movesLeft <= 0) {
+                showModal('Game Over 😢', `Skor Akhir: ${currentScore}`, 'Main Lagi', false);
+            }
+        }
+
+        function showModal(title, desc, btnText, isWin) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-desc').innerText = desc;
+            const btn = document.getElementById('modal-action-btn');
+            btn.innerText = btnText;
+            btn.onclick = isWin ? nextLevel : restartGameTotal;
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function nextLevel() {
+            document.getElementById('modal').classList.remove('active');
+            currentLevel++;
+            movesLeft = INITIAL_MOVES; // Reset sisa moves kembali ke 50
+            initLevel();
+        }
+
+        function restartGameTotal() {
+            document.getElementById('modal').classList.remove('active');
+            currentLevel = 1;
+            currentScore = 0;
+            movesLeft = INITIAL_MOVES; // Reset ke 50
+            reshuffleLeft = 3;
+            initLevel();
+        }
+
+        window.addEventListener('mousemove', resetInactivityTimer);
+        window.addEventListener('click', resetInactivityTimer);
+        window.addEventListener('touchstart', resetInactivityTimer);
+
+        window.onload = initLevel;
+        (function() {
+            window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+            window.addEventListener('keydown', function(e) {
+                if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            }, true);
+        })();
+    </script>
+</body>
+</html>
