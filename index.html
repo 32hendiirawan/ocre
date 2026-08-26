@@ -619,6 +619,9 @@
         let currentItem = null;
         let favorites = JSON.parse(localStorage.getItem('ocre_favorites')) || [];
 
+        // Mengurutkan itemsData secara otomatis berdasarkan abjad judul (A-Z)
+        itemsData.sort((a, b) => a.title.localeCompare(b.title, 'id', { sensitivity: 'base' }));
+
         // Toggle Favorit
         function toggleFavorite(event, id) {
             event.stopPropagation();
