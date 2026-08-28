@@ -487,6 +487,7 @@
                 <option value="game">Game</option>
                 <option value="aplikasi">Aplikasi</option>
                 <option value="favorite">❤️ Favorit Saya</option>
+                <option value="afiliasi">Produk Afiliasi</option>
             </select>
 
             <div class="search-box">
@@ -559,6 +560,8 @@
                 </p>
                 <a href="https://saweria.co/32hendiirawan" target="_blank" class="btn-donate">Saweria</a>
                 <a href="https://link.dana.id/minta?full_url=https://qr.dana.id/v1/281012012021050224513837" target="_blank" class="btn-donate">Dana</a>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">
+                    Anda juga dapat berbelanja melalui tautan (link) produk yang ditampilkan untuk memberikan kami sedikit komisi tanpa biaya tambahan bagi Anda.</p>
             </div>
         </div>
     </div>
@@ -673,67 +676,116 @@
             }
 
             const cols = getGridColumnsCount();
-            const itemsPerRow = cols * 2; // Setiap 2 baris (12 item di desktop, 4 item di mobile)
+            const itemsPerRow = cols * 2; // 2 baris (12 item di desktop, 4 item di mobile)
             let adIndex = 0;
 
-            data.forEach((item, index) => {
-                // 1. Render Kartu Game / Aplikasi
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.onclick = () => openPlayer(item);
-                const isFav = favorites.includes(item.id);
+            // Fungsi pembantu untuk membuat elemen kartu produk afiliasi
+            function createAdCard(ad) {
+                const adCard = document.createElement('a');
+                adCard.className = 'card ad-card';
+                adCard.href = ad.url;
+                adCard.target = '_blank';
+                adCard.rel = 'noopener noreferrer';
 
-                card.innerHTML = `
+                adCard.innerHTML = `
                     <div class="card-img-wrapper">
-                        <img src="${item.image}" alt="${item.title}" loading="lazy">
+                        <img src="${ad.image}" alt="${ad.title}" loading="lazy">
                     </div>
                     <div class="card-content">
                         <div class="card-meta">
-                            <span class="card-tag">${item.category}</span>
-                            <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(event, '${item.id}')" title="Simpan Favorit">
-                                <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
-                            </button>
+                            <span class="card-tag ad-tag"><i class="fa-solid fa-bag-shopping"></i> Shopee</span>
                         </div>
-                        <h3 class="card-title" title="${item.title}">${item.title}</h3>
+                        <h3 class="card-title" title="${ad.title}">${ad.title}</h3>
+                        <span class="card-sub">Produk Sponsor</span>
                     </div>
                 `;
-                grid.appendChild(card);
+                return adCard;
+            }
 
-                // 2. Disisipkan 1 BARIS iklan secara otomatis setelah kelipatan 2 baris game
+            // Render item utama (Game/Aplikasi/Afiliasi)
+            data.forEach((item, index) => {
+                const card = document.createElement('div');
+                
+                // Memeriksa apakah item merupakan Produk Afiliasi
+                if (item.category === 'afiliasi') {
+                    const adCard = document.createElement('a');
+                    adCard.className = 'card ad-card';
+                    adCard.href = item.url;
+                    adCard.target = '_blank';
+                    adCard.rel = 'noopener noreferrer';
+
+                    adCard.innerHTML = `
+                        <div class="card-img-wrapper">
+                            <img src="${item.image}" alt="${item.title}" loading="lazy">
+                        </div>
+                        <div class="card-content">
+                            <div class="card-meta">
+                                <span class="card-tag ad-tag"><i class="fa-solid fa-bag-shopping"></i> Shopee</span>
+                            </div>
+                            <h3 class="card-title" title="${item.title}">${item.title}</h3>
+                            <span class="card-sub">Produk Sponsor</span>
+                        </div>
+                    `;
+                    grid.appendChild(adCard);
+                } else {
+                    // Render Kartu Game / Aplikasi
+                    card.className = 'card';
+                    card.onclick = () => openPlayer(item);
+                    const isFav = favorites.includes(item.id);
+
+                    card.innerHTML = `
+                        <div class="card-img-wrapper">
+                            <img src="${item.image}" alt="${item.title}" loading="lazy">
+                        </div>
+                        <div class="card-content">
+                            <div class="card-meta">
+                                <span class="card-tag">${item.category}</span>
+                                <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(event, '${item.id}')" title="Simpan Favorit">
+                                    <i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                                </button>
+                            </div>
+                            <h3 class="card-title" title="${item.title}">${item.title}</h3>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                }
+
+                // Disisipkan 1 BARIS iklan secara otomatis setiap kelipatan 2 baris
                 if ((index + 1) % itemsPerRow === 0 && (index + 1) < data.length) {
                     for (let i = 0; i < cols; i++) {
                         const ad = adsData[adIndex % adsData.length];
                         adIndex++;
-
-                        const adCard = document.createElement('a');
-                        adCard.className = 'card ad-card';
-                        adCard.href = ad.url;
-                        adCard.target = '_blank';
-                        adCard.rel = 'noopener noreferrer';
-
-                        adCard.innerHTML = `
-                            <div class="card-img-wrapper">
-                                <img src="${ad.image}" alt="${ad.title}" loading="lazy">
-                            </div>
-                            <div class="card-content">
-                                <div class="card-meta">
-                                    <span class="card-tag ad-tag"><i class="fa-solid fa-bag-shopping"></i> Shopee</span>
-                                </div>
-                                <h3 class="card-title" title="${ad.title}">${ad.title}</h3>
-                                <span class="card-sub">Produk Sponsor</span>
-                            </div>
-                        `;
-                        grid.appendChild(adCard);
+                        grid.appendChild(createAdCard(ad));
                     }
                 }
             });
+
+            // Jika total item yang ditampilkan <= 2 baris, tambahkan 1 baris produk afiliasi di bawahnya
+            if (data.length <= itemsPerRow) {
+                for (let i = 0; i < cols; i++) {
+                    const ad = adsData[adIndex % adsData.length];
+                    adIndex++;
+                    grid.appendChild(createAdCard(ad));
+                }
+            }
         }
 
         function filterItems() {
             const category = document.getElementById('categorySelect').value;
             const query = document.getElementById('searchInput').value.toLowerCase();
 
-            const filtered = itemsData.filter(item => {
+            // Gabungkan data itemsData dengan adsData agar pencarian mencakup produk afiliasi
+            const convertedAds = adsData.map((ad, idx) => ({
+                id: 'ad-' + idx,
+                title: ad.title,
+                category: 'afiliasi',
+                image: ad.image,
+                url: ad.url
+            }));
+
+            const allCombinedItems = [...itemsData, ...convertedAds];
+
+            const filtered = allCombinedItems.filter(item => {
                 let matchesCat = false;
                 if (category === 'all') {
                     matchesCat = true;
@@ -749,7 +801,6 @@
 
             renderGrid(filtered);
         }
-
         function resetFilter() {
             document.getElementById('categorySelect').value = 'all';
             document.getElementById('searchInput').value = '';
