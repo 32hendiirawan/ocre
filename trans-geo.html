@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Transformasi Geometri</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --accent: #dc2626;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            padding: 16px;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        /* Layout Grid Responsif */
+        .app-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 850px) {
+            .app-layout {
+                grid-template-columns: 340px 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-main);
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 8px;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background-color: #fff;
+            color: var(--text-main);
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .dynamic-param {
+            display: none;
+        }
+
+        /* Button Controls */
+        .btn-group {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: #ffffff;
+        }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: var(--text-main);
+        }
+        .btn-secondary:hover { background-color: #cbd5e1; }
+
+        .btn-outline-danger {
+            background-color: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+        .btn-outline-danger:hover { background-color: #fef2f2; }
+
+        /* Single Output Frame */
+        .output-frame {
+            height: 100%;
+            min-height: 440px;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            background: #ffffff;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Tampilan Tabel Solusi yang Rapi */
+        .solution-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        .solution-table td {
+            padding: 4px 0;
+            vertical-align: top;
+        }
+
+        .solution-table td.label-col {
+            white-space: nowrap;
+            font-weight: 600;
+            width: 1%;
+            padding-right: 6px;
+        }
+
+        .solution-table td.colon-col {
+            width: 1%;
+            padding-right: 8px;
+            font-weight: 600;
+        }
+
+        .step-math {
+            background: #ffffff;
+            padding: 10px 12px;
+            border-left: 3px solid var(--primary);
+            border-radius: 4px;
+            margin-top: 12px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            border: 1px solid var(--border);
+            border-left-width: 3px;
+        }
+
+        /* Guide View */
+        .guide-box {
+            font-size: 0.875rem;
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        .guide-box ul {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+
+        .guide-box li {
+            margin-bottom: 6px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 12px;
+            font-size: 0.75rem;
+            margin-top: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .dot-start { background-color: var(--primary); }
+        .dot-end { background-color: var(--accent); }
+        .dot-center { background-color: #059669; }
+        .line-mirror { width: 12px; height: 2px; background-color: var(--accent); border-top: 1px dashed var(--accent); }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>TRANSFORMASI GEOMETRI</h1>
+    <p>Alat Bantu Pembelajaran & Penghitungan dan Visualisasi Interaktif</p>
+</div>
+
+<div class="app-layout">
+    <div class="card">
+        <div class="card-title">Input Parameter</div>
+        
+        <div class="form-group">
+            <label>Mode Perhitungan</label>
+            <select id="calc-mode" onchange="updateMode()">
+                <option value="forward">Cari Titik Akhir A'</option>
+                <option value="backward">Cari Titik Awal A</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label id="point-label">Titik Awal A (x, y)</label>
+            <div class="grid-2">
+                <input type="number" id="px" placeholder="x">
+                <input type="number" id="py" placeholder="y">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Jenis Transformasi</label>
+            <select id="type" onchange="updateForm()">
+                <option value="translation">Translasi (Pergeseran)</option>
+                <option value="reflection">Refleksi (Pencerminan)</option>
+                <option value="rotation">Rotasi (Perputaran)</option>
+                <option value="dilation">Dilatasi (Perkalian Skala)</option>
+            </select>
+        </div>
+
+        <div id="param-translation" class="form-group dynamic-param" style="display:block;">
+            <label>Vektor (a, b)</label>
+            <div class="grid-2">
+                <input type="number" id="trans-a" placeholder="a">
+                <input type="number" id="trans-b" placeholder="b">
+            </div>
+        </div>
+
+        <div id="param-reflection" class="form-group dynamic-param">
+            <label>Sumbu Cermin</label>
+            <select id="refl-axis" onchange="updateReflSubParam()">
+                <option value="x">Sumbu X</option>
+                <option value="y">Sumbu Y</option>
+                <option value="origin">Titik Pusat (0,0)</option>
+                <option value="y=x">Garis y = x</option>
+                <option value="y=-x">Garis y = -x</option>
+                <option value="x=a">Garis x = a</option>
+                <option value="y=b">Garis y = b</option>
+            </select>
+            <div id="refl-param-val" style="display:none; margin-top:8px;">
+                <label id="refl-val-label">Nilai Garis (a)</label>
+                <input type="number" id="refl-val" placeholder="Nilai">
+            </div>
+        </div>
+
+        <div id="param-rotation" class="form-group dynamic-param">
+            <label>Sudut Rotasi</label>
+            <select id="rot-angle" style="margin-bottom:8px;">
+                <option value="90">90° (Berlawanan arah)</option>
+                <option value="180">180°</option>
+                <option value="270">270° (Searah jarum jam)</option>
+            </select>
+            <label>Pusat Rotasi (a, b)</label>
+            <div class="grid-2">
+                <input type="number" id="rot-cx" placeholder="a">
+                <input type="number" id="rot-cy" placeholder="b">
+            </div>
+        </div>
+
+        <div id="param-dilation" class="form-group dynamic-param">
+            <label>Faktor Skala (k)</label>
+            <input type="number" id="dil-k" step="0.5" placeholder="k" style="margin-bottom:8px;">
+            <label>Pusat Dilatasi (a, b)</label>
+            <div class="grid-2">
+                <input type="number" id="dil-cx" placeholder="a">
+                <input type="number" id="dil-cy" placeholder="b">
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="showSolution()">Hitung</button>
+            <button class="btn btn-secondary" onclick="showGraph()">Grafik</button>
+            <button class="btn btn-outline-danger" onclick="resetAll()">Reset</button>
+        </div>
+    </div>
+
+    <div class="card output-frame">
+        <div class="card-title" id="output-title">Petunjuk Penggunaan</div>
+        
+        <div id="view-guide" class="guide-box" style="display: block;">
+            <p>Selamat datang di alat bantu <b>Transformasi Geometri</b>. Silakan ikuti langkah berikut:</p>
+            <ul>
+                <li>Pilih <b>Mode Perhitungan</b> (mencari titik hasil $A'$ atau mencari titik awal $A$).</li>
+                <li>Isikan nilai koordinat titik awal/akhir pada kolom yang tersedia.</li>
+                <li>Pilih <b>Jenis Transformasi</b> (Translasi, Refleksi, Rotasi, atau Dilatasi) dan lengkapi parameternya.</li>
+                <li>Tekan tombol <b>HITUNG</b> untuk mendapatkan penjabaran matematika yang rapi.</li>
+                <li>Tekan tombol <b>GRAFIK</b> untuk melihat posisi titik dan elemen pembantu (sumbu cermin/pusat rotasi/dilatasi) pada bidang Kartesius.</li>
+            </ul>
+        </div>
+
+        <div id="view-solution" style="display: none;">
+            <div id="solution"></div>
+        </div>
+
+        <div id="view-graph" style="display: none; height: 100%;">
+            <div class="canvas-wrapper">
+                <canvas id="gridCanvas"></canvas>
+            </div>
+            <div class="legend">
+                <div class="legend-item"><div class="dot dot-start"></div> Titik Awal (A)</div>
+                <div class="legend-item"><div class="dot dot-end"></div> Titik Hasil (A')</div>
+                <div class="legend-item"><div class="dot dot-center"></div> Pusat / Acuan</div>
+                <div class="legend-item"><div class="line-mirror"></div> Sumbu Cermin</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let calculatedData = null;
+
+function updateMode() {
+    const mode = document.getElementById('calc-mode').value;
+    const label = document.getElementById('point-label');
+    label.innerText = (mode === 'forward') ? "Titik Awal A (x, y)" : "Titik Hasil A' (x', y')";
+}
+
+function updateForm() {
+    const type = document.getElementById('type').value;
+    document.querySelectorAll('.dynamic-param').forEach(el => el.style.display = 'none');
+    document.getElementById(`param-${type}`).style.display = 'block';
+    if (type === 'reflection') updateReflSubParam();
+}
+
+function updateReflSubParam() {
+    const axis = document.getElementById('refl-axis').value;
+    const valContainer = document.getElementById('refl-param-val');
+    const valLabel = document.getElementById('refl-val-label');
+    
+    if (axis === 'x=a') {
+        valContainer.style.display = 'block';
+        valLabel.innerText = 'Nilai a (x = a)';
+    } else if (axis === 'y=b') {
+        valContainer.style.display = 'block';
+        valLabel.innerText = 'Nilai b (y = b)';
+    } else {
+        valContainer.style.display = 'none';
+    }
+}
+
+function processCalculation() {
+    const mode = document.getElementById('calc-mode').value;
+    const inputX = parseFloat(document.getElementById('px').value) || 0;
+    const inputY = parseFloat(document.getElementById('py').value) || 0;
+    const type = document.getElementById('type').value;
+
+    let x, y, resX, resY;
+    let labelTrans = "", rumusText = "", stepMathText = "";
+    let mirrorElement = null; // { type: 'line'|'point', value: ... }
+    let extraLines = [];
+
+    if (mode === 'forward') {
+        x = inputX; y = inputY;
+
+        if (type === 'translation') {
+            const a = parseFloat(document.getElementById('trans-a').value) || 0;
+            const b = parseFloat(document.getElementById('trans-b').value) || 0;
+            resX = x + a; resY = y + b;
+            labelTrans = `Translasi T = [${a}, ${b}]`;
+            rumusText = `(x', y') = (x + a, y + b)`;
+            stepMathText = `A' = (${x} + ${a}, ${y} + ${b})<br><b>A' = (${resX}, ${resY})</b>`;
+        } 
+        else if (type === 'reflection') {
+            const axis = document.getElementById('refl-axis').value;
+            const refVal = parseFloat(document.getElementById('refl-val').value) || 0;
+
+            if (axis === 'x') {
+                resX = x; resY = -y;
+                labelTrans = `Refleksi terhadap Sumbu X`;
+                rumusText = `(x, -y)`;
+                mirrorElement = { type: 'line-h', val: 0 };
+            } else if (axis === 'y') {
+                resX = -x; resY = y;
+                labelTrans = `Refleksi terhadap Sumbu Y`;
+                rumusText = `(-x, y)`;
+                mirrorElement = { type: 'line-v', val: 0 };
+            } else if (axis === 'origin') {
+                resX = -x; resY = -y;
+                labelTrans = `Refleksi terhadap Titik Pusat (0,0)`;
+                rumusText = `(-x, -y)`;
+                mirrorElement = { type: 'point', x: 0, y: 0 };
+            } else if (axis === 'y=x') {
+                resX = y; resY = x;
+                labelTrans = `Refleksi terhadap Garis y = x`;
+                rumusText = `(y, x)`;
+                mirrorElement = { type: 'line-diag1' };
+            } else if (axis === 'y=-x') {
+                resX = -y; resY = -x;
+                labelTrans = `Refleksi terhadap Garis y = -x`;
+                rumusText = `(-y, -x)`;
+                mirrorElement = { type: 'line-diag2' };
+            } else if (axis === 'x=a') {
+                resX = 2 * refVal - x; resY = y;
+                labelTrans = `Refleksi terhadap Garis x = ${refVal}`;
+                rumusText = `(2a - x, y)`;
+                stepMathText = `x' = 2(${refVal}) - (${x}) = ${resX}<br>y' = ${y}`;
+                mirrorElement = { type: 'line-v', val: refVal };
+            } else if (axis === 'y=b') {
+                resX = x; resY = 2 * refVal - y;
+                labelTrans = `Refleksi terhadap Garis y = ${refVal}`;
+                rumusText = `(x, 2b - y)`;
+                stepMathText = `x' = ${x}<br>y' = 2(${refVal}) - (${y}) = ${resY}`;
+                mirrorElement = { type: 'line-h', val: refVal };
+            }
+            if (!stepMathText) stepMathText = `<b>A' = (${resX}, ${resY})</b>`;
+        } 
+        else if (type === 'rotation') {
+            const angle = parseInt(document.getElementById('rot-angle').value);
+            const cx = parseFloat(document.getElementById('rot-cx').value) || 0;
+            const cy = parseFloat(document.getElementById('rot-cy').value) || 0;
+            const rad = (angle * Math.PI) / 180;
+            const cos = Math.round(Math.cos(rad));
+            const sin = Math.round(Math.sin(rad));
+
+            resX = cx + (x - cx) * cos - (y - cy) * sin;
+            resY = cy + (x - cx) * sin + (y - cy) * cos;
+
+            labelTrans = `Rotasi ${angle}° [Pusat (${cx}, ${cy})]`;
+            rumusText = `x' = a + (x-a)cosθ - (y-b)sinθ<br>y' = b + (x-a)sinθ + (y-b)cosθ`;
+            stepMathText = `x' = ${cx} + (${x}-${cx})(${cos}) - (${y}-${cy})(${sin}) = ${resX}<br>` +
+                           `y' = ${cy} + (${x}-${cx})(${sin}) + (${y}-${cy})(${cos}) = ${resY}<br>` +
+                           `<b>A' = (${resX}, ${resY})</b>`;
+            mirrorElement = { type: 'point', x: cx, y: cy };
+            extraLines.push({x1: cx, y1: cy, x2: x, y2: y}, {x1: cx, y1: cy, x2: resX, y2: resY});
+        } 
+        else if (type === 'dilation') {
+            const k = parseFloat(document.getElementById('dil-k').value) || 1;
+            const cx = parseFloat(document.getElementById('dil-cx').value) || 0;
+            const cy = parseFloat(document.getElementById('dil-cy').value) || 0;
+
+            resX = cx + k * (x - cx);
+            resY = cy + k * (y - cy);
+
+            labelTrans = `Dilatasi [k = ${k}, Pusat (${cx}, ${cy})]`;
+            rumusText = `(a + k(x-a), b + k(y-b))`;
+            stepMathText = `x' = ${cx} + ${k}(${x} - ${cx}) = ${resX}<br>` +
+                           `y' = ${cy} + ${k}(${y} - ${cy}) = ${resY}<br>` +
+                           `<b>A' = (${resX}, ${resY})</b>`;
+            mirrorElement = { type: 'point', x: cx, y: cy };
+            extraLines.push({x1: cx, y1: cy, x2: resX, y2: resY});
+        }
+    } 
+    else { // Backward Mode
+        resX = inputX; resY = inputY;
+
+        if (type === 'translation') {
+            const a = parseFloat(document.getElementById('trans-a').value) || 0;
+            const b = parseFloat(document.getElementById('trans-b').value) || 0;
+            x = resX - a; y = resY - b;
+            labelTrans = `Translasi T = [${a}, ${b}] (Mencari Asal)`;
+            rumusText = `(x, y) = (x' - a, y' - b)`;
+            stepMathText = `A = (${resX} - ${a}, ${resY} - ${b})<br><b>A = (${x}, ${y})</b>`;
+        } 
+        else if (type === 'reflection') {
+            const axis = document.getElementById('refl-axis').value;
+            const refVal = parseFloat(document.getElementById('refl-val').value) || 0;
+
+            if (axis === 'x') { x = resX; y = -resY; mirrorElement = { type: 'line-h', val: 0 }; }
+            else if (axis === 'y') { x = -resX; y = resY; mirrorElement = { type: 'line-v', val: 0 }; }
+            else if (axis === 'origin') { x = -resX; y = -resY; mirrorElement = { type: 'point', x: 0, y: 0 }; }
+            else if (axis === 'y=x') { x = resY; y = resX; mirrorElement = { type: 'line-diag1' }; }
+            else if (axis === 'y=-x') { x = -resY; y = -resX; mirrorElement = { type: 'line-diag2' }; }
+            else if (axis === 'x=a') { x = 2 * refVal - resX; y = resY; mirrorElement = { type: 'line-v', val: refVal }; }
+            else if (axis === 'y=b') { x = resX; y = 2 * refVal - resY; mirrorElement = { type: 'line-h', val: refVal }; }
+
+            labelTrans = `Kebalikan Refleksi (${axis})`;
+            rumusText = `Prosedur pemetaan balik titik asal`;
+            stepMathText = `<b>A = (${x}, ${y})</b>`;
+        } 
+        else if (type === 'rotation') {
+            const angle = parseInt(document.getElementById('rot-angle').value);
+            const cx = parseFloat(document.getElementById('rot-cx').value) || 0;
+            const cy = parseFloat(document.getElementById('rot-cy').value) || 0;
+            const rad = (-angle * Math.PI) / 180;
+            const cos = Math.round(Math.cos(rad));
+            const sin = Math.round(Math.sin(rad));
+
+            x = cx + (resX - cx) * cos - (resY - cy) * sin;
+            y = cy + (resX - cx) * sin + (resY - cy) * cos;
+
+            labelTrans = `Kebalikan Rotasi ${angle}° [Pusat (${cx}, ${cy})]`;
+            rumusText = `Memutar balik posisi dengan sudut -${angle}°`;
+            stepMathText = `x = ${cx} + (${resX}-${cx})(${cos}) - (${resY}-${cy})(${sin}) = ${x}<br>` +
+                           `y = ${cy} + (${resX}-${cx})(${sin}) + (${resY}-${cy})(${cos}) = ${y}<br>` +
+                           `<b>A = (${x}, ${y})</b>`;
+            mirrorElement = { type: 'point', x: cx, y: cy };
+            extraLines.push({x1: cx, y1: cy, x2: x, y2: y}, {x1: cx, y1: cy, x2: resX, y2: resY});
+        } 
+        else if (type === 'dilation') {
+            const k = parseFloat(document.getElementById('dil-k').value) || 1;
+            const cx = parseFloat(document.getElementById('dil-cx').value) || 0;
+            const cy = parseFloat(document.getElementById('dil-cy').value) || 0;
+
+            x = cx + (resX - cx) / k;
+            y = cy + (resY - cy) / k;
+
+            labelTrans = `Kebalikan Dilatasi k=${k} [Pusat (${cx}, ${cy})]`;
+            rumusText = `(a + (x' - a)/k, b + (y' - b)/k)`;
+            stepMathText = `x = ${cx} + (${resX} - ${cx}) / ${k} = ${x}<br>` +
+                           `y = ${cy} + (${resY} - ${cy}) / ${k} = ${y}<br>` +
+                           `<b>A = (${x}, ${y})</b>`;
+            mirrorElement = { type: 'point', x: cx, y: cy };
+            extraLines.push({x1: cx, y1: cy, x2: resX, y2: resY});
+        }
+    }
+
+    // Format Solusi Rapi Menggunakan Tabel
+    let tableHTML = `
+        <table class="solution-table">
+            <tr>
+                <td class="label-col">Titik Awal (A)</td>
+                <td class="colon-col">:</td>
+                <td>(${x}, ${y})</td>
+            </tr>
+            <tr>
+                <td class="label-col">Titik Hasil (A')</td>
+                <td class="colon-col">:</td>
+                <td>(${resX}, ${resY})</td>
+            </tr>
+            <tr>
+                <td class="label-col">Jenis Transformasi</td>
+                <td class="colon-col">:</td>
+                <td>${labelTrans}</td>
+            </tr>
+            <tr>
+                <td class="label-col">Rumus Digunakan</td>
+                <td class="colon-col">:</td>
+                <td>${rumusText}</td>
+            </tr>
+        </table>
+        <div class="step-math">${stepMathText}</div>
+    `;
+
+    calculatedData = { x, y, resX, resY, htmlSol: tableHTML, extraLines, mirrorElement };
+}
+
+function showSolution() {
+    processCalculation();
+    document.getElementById('output-title').innerText = 'Langkah Penyelesaian';
+    document.getElementById('view-guide').style.display = 'none';
+    document.getElementById('view-graph').style.display = 'none';
+    document.getElementById('view-solution').style.display = 'block';
+    document.getElementById('solution').innerHTML = calculatedData.htmlSol;
+}
+
+function showGraph() {
+    processCalculation();
+    document.getElementById('output-title').innerText = 'Visualisasi Grafik Koordinat';
+    document.getElementById('view-guide').style.display = 'none';
+    document.getElementById('view-solution').style.display = 'none';
+    document.getElementById('view-graph').style.display = 'block';
+
+    setTimeout(() => {
+        drawGrid(calculatedData.x, calculatedData.y, calculatedData.resX, calculatedData.resY, calculatedData.extraLines, calculatedData.mirrorElement);
+    }, 50);
+}
+
+function resetAll() {
+    document.getElementById('calc-mode').value = 'forward';
+    updateMode();
+    document.getElementById('type').value = 'translation';
+    updateForm();
+
+    document.querySelectorAll('input').forEach(input => input.value = '');
+
+    document.getElementById('output-title').innerText = 'Petunjuk Penggunaan';
+    document.getElementById('view-solution').style.display = 'none';
+    document.getElementById('view-graph').style.display = 'none';
+    document.getElementById('view-guide').style.display = 'block';
+    
+    calculatedData = null;
+}
+
+function drawGrid(x1, y1, x2, y2, extraLines, mirror) {
+    const canvas = document.getElementById('gridCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
+    const width = canvas.width;
+    const height = canvas.height;
+    
+    ctx.clearRect(0, 0, width, height);
+
+    let coordsForMax = [x1, y1, x2, y2];
+    if (mirror) {
+        if (mirror.type === 'point') coordsForMax.push(mirror.x, mirror.y);
+        if (mirror.type === 'line-v' || mirror.type === 'line-h') coordsForMax.push(mirror.val);
+    }
+
+    const maxCoord = Math.max(...coordsForMax.map(n => Math.abs(n)), 8) + 2;
+    const scale = Math.min(width, height) / (maxCoord * 2);
+    
+    const centerX = width / 2;
+    const centerY = height / 2;
+
+    const toPx = (vx, vy) => ({ x: centerX + vx * scale, y: centerY - vy * scale });
+
+    // Grid garis tipis
+    ctx.strokeStyle = '#f1f5f9';
+    ctx.lineWidth = 1;
+    for(let i = -maxCoord; i <= maxCoord; i++) {
+        ctx.beginPath();
+        ctx.moveTo(centerX + i * scale, 0); ctx.lineTo(centerX + i * scale, height);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(0, centerY - i * scale); ctx.lineTo(width, centerY - i * scale);
+        ctx.stroke();
+    }
+
+    // Sumbu X & Y Utama
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(0, centerY); ctx.lineTo(width, centerY);
+    ctx.moveTo(centerX, 0); ctx.lineTo(centerX, height);
+    ctx.stroke();
+
+    // Gambar Elemen Refleksi / Pusat
+    if (mirror) {
+        ctx.strokeStyle = '#ef4444';
+        ctx.fillStyle = '#059669';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+
+        if (mirror.type === 'line-v') {
+            const p = toPx(mirror.val, 0);
+            ctx.beginPath();
+            ctx.moveTo(p.x, 0); ctx.lineTo(p.x, height);
+            ctx.stroke();
+        } else if (mirror.type === 'line-h') {
+            const p = toPx(0, mirror.val);
+            ctx.beginPath();
+            ctx.moveTo(0, p.y); ctx.lineTo(width, p.y);
+            ctx.stroke();
+        } else if (mirror.type === 'line-diag1') { // y = x
+            const p1 = toPx(-maxCoord, -maxCoord);
+            const p2 = toPx(maxCoord, maxCoord);
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+        } else if (mirror.type === 'line-diag2') { // y = -x
+            const p1 = toPx(-maxCoord, maxCoord);
+            const p2 = toPx(maxCoord, -maxCoord);
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+        } else if (mirror.type === 'point') {
+            const p = toPx(mirror.x, mirror.y);
+            ctx.setLineDash([]);
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.font = '11px sans-serif';
+            ctx.fillText(`Pusat(${mirror.x},${mirror.y})`, p.x + 8, p.y - 8);
+        }
+        ctx.setLineDash([]);
+    }
+
+    // Garis putus-putus tambahan
+    ctx.strokeStyle = '#94a3b8';
+    ctx.setLineDash([3, 3]);
+    extraLines.forEach(line => {
+        const p1 = toPx(line.x1, line.y1);
+        const p2 = toPx(line.x2, line.y2);
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+    });
+    ctx.setLineDash([]);
+
+    // Garis Penghubung Titik A ke A'
+    const pStart = toPx(x1, y1);
+    const pEnd = toPx(x2, y2);
+    
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(pStart.x, pStart.y);
+    ctx.lineTo(pEnd.x, pEnd.y);
+    ctx.stroke();
+
+    // Gambar Titik Awal (A)
+    ctx.fillStyle = '#2563eb';
+    ctx.beginPath();
+    ctx.arc(pStart.x, pStart.y, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.font = '12px sans-serif';
+    ctx.fillText(`A(${x1},${y1})`, pStart.x + 6, pStart.y - 6);
+
+    // Gambar Titik Hasil (A')
+    ctx.fillStyle = '#dc2626';
+    ctx.beginPath();
+    ctx.arc(pEnd.x, pEnd.y, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillText(`A'(${x2},${y2})`, pEnd.x + 6, pEnd.y - 6);
+}
+
+(function() {
+    window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+    window.addEventListener('keydown', function(e) {
+        if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+        if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+        if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+    }, true);
+})();
+</script>
+
+</body>
+</html>
