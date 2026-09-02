@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kuis Lambang Provinsi Indonesia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- PROTEKSI TEKS & RESET DASAR --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Fredoka', 'Segoe UI', sans-serif;
+            /* Mencegah seleksi teks di semua browser */
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            -webkit-touch-callout: none; /* Mencegah menu pop-up saat sentuh lama di mobile */
+        }
+
+        body {
+            background-color: #d2f4ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #3c3c3c;
+            overflow: hidden;
+            padding: 10px;
+        }
+
+        /* --- CONTAINER GAME DENGAN RASIO 9:16 PROPORSIONAL --- */
+        .game-container {
+            width: 100%;
+            /* Mengunci aspek rasio ke 9:16 secara dinamis */
+            aspect-ratio: 9 / 16; 
+            /* Memastikan container muat dan proporsional di layar tinggi maupun lebar */
+            max-height: calc(100vh - 20px);
+            max-width: calc((100vh - 20px) * 9 / 16);
+            background-color: #ffffff;
+            box-shadow: 0 16px 40px rgba(13, 110, 253, 0.15);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            border-radius: 24px;
+            border: 6px solid #ffffff;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            position: relative;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* --- 1. MENU UTAMA STYLING --- */
+        #menu-screen {
+            background-image: url(logo/bg.png);
+            background-size: contain;
+            color: white;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 25px;
+            text-align: center;
+        }
+
+        #menu-screen h1 {
+            font-size: 2.8rem;
+            margin-bottom: 12px;
+            color: #fff;
+            text-shadow: 0 5px 0px #008b94, 0 6px 12px rgba(0,0,0,0.2);
+            letter-spacing: 1px;
+        }
+
+        #menu-screen p {
+            font-size: 1rem;
+            margin-bottom: 40px;
+            line-height: 1.5;
+            font-weight: 600;
+            color: #f0faff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background-color: #ffc107;
+            color: #523b00;
+            border: none;
+            padding: 14px 45px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 6px 0px #dca200, 0 10px 15px rgba(0,0,0,0.15);
+            transition: all 0.1s ease;
+        }
+
+        .btn-primary:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0px #dca200, 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        /* --- 2. GAMEPLAY STYLING --- */
+        header {
+            background: #ffffff;
+            padding: 12px;
+            text-align: center;
+        }
+
+        header h2 {
+            font-size: 1.2rem;
+            color: #00b4d8;
+            font-weight: 700;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f1f9ff;
+            padding: 8px 20px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border-radius: 16px;
+            margin: 0 12px 10px 12px;
+            border: 2px solid #e2f2ff;
+            color: #4a5568;
+        }
+
+        .status-bar span {
+            color: #ff9f1c;
+            font-size: 1.1rem;
+        }
+
+        /* Frame Menampilkan Lambang */
+        .lambang-display {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #ffffff;
+            padding: 10px;
+            margin: 0 12px 12px 12px;
+            border-radius: 20px;
+            border: 4px solid #f0f4f8;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.02);
+            overflow: hidden;
+        }
+
+        .lambang-display img {
+            max-width: 90%;
+            max-height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.06));
+        }
+
+        /* Papan Pilihan Jawaban Dua Kolom */
+        .quiz-board {
+            background-color: #f7f9fc;
+            padding: 12px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            border-top: 4px solid #edf2f7;
+        }
+
+        .column-title {
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #a0aec0;
+            margin-bottom: 8px;
+            text-shadow: 0 1px 0px #fff;
+        }
+
+        .options-column {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Tombol Opsi Kapsul 3D */
+        .option-card {
+            background-color: #ffffff;
+            border: 3px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 10px 6px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #4a5568;
+            cursor: pointer;
+            box-shadow: 0 4px 0px #e2e8f0;
+            transition: all 0.1s ease;
+            word-break: break-word;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 52px;
+        }
+
+        .option-card.selected {
+            background-color: #e3f2fd;
+            border-color: #3182ce;
+            color: #2b6cb0;
+            box-shadow: 0 4px 0px #2b6cb0;
+        }
+
+        .option-card.correct {
+            background: linear-gradient(180deg, #98eff9 0%, #5ce1e6 100%);
+            border-color: #00a8b5;
+            color: #005a61;
+            box-shadow: 0 4px 0px #00828c;
+            animation: popCheck 0.3s ease;
+        }
+
+        .option-card.wrong {
+            background-color: #fee2e2;
+            border-color: #e53e3e;
+            color: #9b2c2c;
+            box-shadow: 0 4px 0px #9b2c2c;
+        }
+
+        @keyframes popCheck {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        .action-area {
+            display: none;
+        }
+
+        /* --- 3. LAYAR SKOR AKHIR STYLING --- */
+        #result-screen {
+            background-color: #ffffff;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        #result-screen h2 {
+            font-size: 2.2rem;
+            color: #00c2cb;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .score-display {
+            font-size: 4.5rem;
+            font-weight: 700;
+            color: #ff9f1c;
+            text-shadow: 0 5px 0px #f37a00;
+            margin: 20px 0 30px 0;
+            background: #fff9f0;
+            width: 130px;
+            height: 130px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 5px dashed #ffe3bc;
+        }
+
+        #result-screen p {
+            font-size: 1rem;
+            color: #718096;
+            margin-bottom: 30px;
+            font-weight: 600;
+            padding: 0 10px;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 240px;
+        }
+
+        .btn-secondary {
+            background-color: #edf2f7;
+            color: #4a5568;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 18px;
+            cursor: pointer;
+            box-shadow: 0 5px 0px #cbd5e0;
+            transition: all 0.1s ease;
+        }
+
+        .btn-secondary:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0px #cbd5e0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        
+        <div class="screen active" id="menu-screen">
+            <button class="btn-primary" onclick="changeScreen('game-screen'); startGame();">PLAY</button>
+        </div>
+
+        <div class="screen" id="game-screen">
+            <header>
+                <h2>Tebak Lambang Provinsi</h2>
+            </header>
+
+            <div class="status-bar">
+                <div>Soal: <span id="current-question">1</span>/10</div>
+                <div>Skor: <span id="current-score">0</span></div>
+            </div>
+
+            <div class="lambang-display">
+                <img id="lambang-image" src="" alt="Lambang Provinsi">
+            </div>
+
+            <div class="quiz-board">
+                <div>
+                    <div class="column-title">Provinsi</div>
+                    <div class="options-column" id="col-provinsi-options"></div>
+                </div>
+                
+                <div>
+                    <div class="column-title">Ibu Kota</div>
+                    <div class="options-column" id="col-ibukota-options"></div>
+                </div>
+            </div>
+
+            <div class="action-area">
+                <button class="btn-submit" id="btn-action" disabled>PILIH JAWABAN</button>
+            </div>
+        </div>
+
+        <div class="screen" id="result-screen">
+            <h2>Selesai! 🎉</h2>
+            <p>Skor Total Kamu:</p>
+            <div class="score-display" id="final-score">0</div>
+            <p id="result-feedback">Hebat! Kamu mengenal Indonesia dengan sangat baik.</p>
+            
+            <div class="btn-group">
+                <button class="btn-primary" onclick="changeScreen('game-screen'); startGame();">Main Lagi</button>
+                <button class="btn-secondary" onclick="changeScreen('menu-screen');">Menu Utama</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        /* --- PROTEKSI ANTI KLIK KANAN, COPY, DAN INSPEKSI ELEMENT --- */
+        // Mencegah Klik Kanan (Context Menu)
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Mencegah Menyalin Teks (Copy)
+        document.addEventListener('copy', function(e) {
+            e.preventDefault();
+        });
+
+        // Mencegah Tombol Pintasan Keyboard (F12, Ctrl+Shift+I, Ctrl+Shift+C, Ctrl+U)
+        document.addEventListener('keydown', function(e) {
+            if (
+                e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C' || e.key === 'J')) || 
+                (e.ctrlKey && e.key === 'u')
+            ) {
+                e.preventDefault();
+            }
+        });
+
+        // DATABASE LENGKAP 38 PROVINSI DI INDONESIA
+        const database38Provinsi = [
+            { id: 1, lambang: "logo/aceh.png", provinsi: "Aceh", ibukota: "Banda Aceh" },
+            { id: 2, lambang: "logo/sumatera-utara.png", provinsi: "Sumatera Utara", ibukota: "Medan" },
+            { id: 3, lambang: "logo/sumatera-barat.png", provinsi: "Sumatera Barat", ibukota: "Padang" },
+            { id: 4, lambang: "logo/riau.png", provinsi: "Riau", ibukota: "Pekanbaru" },
+            { id: 5, lambang: "logo/kepulauan-riau.png", provinsi: "Kepulauan Riau", ibukota: "Tanjungpinang" },
+            { id: 6, lambang: "logo/jambi.png", provinsi: "Jambi", ibukota: "Jambi" },
+            { id: 7, lambang: "logo/sumatera-selatan.png", provinsi: "Sumatera Selatan", ibukota: "Palembang" },
+            { id: 8, lambang: "logo/bangka-belitung.png", provinsi: "Kep. Bangka Belitung", ibukota: "Pangkalpinang" },
+            { id: 9, lambang: "logo/bengkulu.png", provinsi: "Bengkulu", ibukota: "Bengkulu" },
+            { id: 10, lambang: "logo/lampung.png", provinsi: "Lampung", ibukota: "Bandar Lampung" },
+            { id: 11, lambang: "logo/jakarta.png", provinsi: "Jakarta", ibukota: "Jakarta" },
+            { id: 12, lambang: "logo/jawa-barat.png", provinsi: "Jawa Barat", ibukota: "Bandung" },
+            { id: 13, lambang: "logo/banten.png", provinsi: "Banten", ibukota: "Serang" },
+            { id: 14, lambang: "logo/jawa-tengah.png", provinsi: "Jawa Tengah", ibukota: "Semarang" },
+            { id: 15, lambang: "logo/yogyakarta.png", provinsi: "DI Yogyakarta", ibukota: "Yogyakarta" },
+            { id: 16, lambang: "logo/jawa-timur.png", provinsi: "Jawa Timur", ibukota: "Surabaya" },
+            { id: 17, lambang: "logo/bali.png", provinsi: "Bali", ibukota: "Denpasar" },
+            { id: 18, lambang: "logo/nusa-tenggara-barat.png", provinsi: "Nusa Tenggara Barat", ibukota: "Mataram" },
+            { id: 19, lambang: "logo/nusa-tenggara-timur.png", provinsi: "Nusa Tenggara Timur", ibukota: "Kupang" },
+            { id: 20, lambang: "logo/kalimantan-barat.png", provinsi: "Kalimantan Barat", ibukota: "Pontianak" },
+            { id: 21, lambang: "logo/kalimantan-tengah.png", provinsi: "Kalimantan Tengah", ibukota: "Palangkaraya" },
+            { id: 22, lambang: "logo/kalimantan-selatan.png", provinsi: "Kalimantan Selatan", ibukota: "Banjarbaru" },
+            { id: 23, lambang: "logo/kalimantan-timur.png", provinsi: "Kalimantan Timur", ibukota: "Samarinda" },
+            { id: 24, lambang: "logo/kalimantan-utara.png", provinsi: "Kalimantan Utara", ibukota: "Tanjung Selor" },
+            { id: 25, lambang: "logo/sulawesi-utara.png", provinsi: "Sulawesi Utara", ibukota: "Manado" },
+            { id: 26, lambang: "logo/gorontalo.png", provinsi: "Gorontalo", ibukota: "Gorontalo" },
+            { id: 27, lambang: "logo/sulawesi-tengah.png", provinsi: "Sulawesi Tengah", ibukota: "Palu" },
+            { id: 28, lambang: "logo/sulawesi-barat.png", provinsi: "Sulawesi Barat", ibukota: "Mamuju" },
+            { id: 29, lambang: "logo/sulawesi-selatan.png", provinsi: "Sulawesi Selatan", ibukota: "Makassar" },
+            { id: 30, lambang: "logo/sulawesi-tenggara.png", provinsi: "Sulawesi Tenggara", ibukota: "Kendari" },
+            { id: 31, lambang: "logo/maluku.png", provinsi: "Maluku", ibukota: "Ambon" },
+            { id: 32, lambang: "logo/maluku-utara.png", provinsi: "Maluku Utara", ibukota: "Sofifi" },
+            { id: 33, lambang: "logo/papua.png", provinsi: "Papua", ibukota: "Jayapura" },
+            { id: 34, lambang: "logo/papua-barat.png", provinsi: "Papua Barat", ibukota: "Manokwari" },
+            { id: 35, lambang: "logo/papua-selatan.png", provinsi: "Papua Selatan", ibukota: "Merauke" },
+            { id: 36, lambang: "logo/papua-tengah.png", provinsi: "Papua Tengah", ibukota: "Nabire" },
+            { id: 37, lambang: "logo/papua-pegunungan.png", provinsi: "Papua Pegunungan", ibukota: "Wamena" },
+            { id: 38, lambang: "logo/papua-barat-daya.png", provinsi: "Papua Barat Daya", ibukota: "Sorong" }
+        ];
+
+        // State Kuis
+        let sesiKuis = [];
+        let indeksSoal = 0;
+        let skor = 0;
+        let pilihanTerpilih = { provinsi: null, ibukota: null };
+        let isStateMengecek = false;
+
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function changeScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function startGame() {
+            skor = 0;
+            indeksSoal = 0;
+            isStateMengecek = false;
+            const shuffledAll = shuffle([...database38Provinsi]);
+            sesiKuis = shuffledAll.slice(0, 10);
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            pilihanTerpilih = { provinsi: null, ibukota: null };
+            isStateMengecek = false;
+
+            document.getElementById('current-question').innerText = indeksSoal + 1;
+            document.getElementById('current-score').innerText = skor;
+
+            const itemBenar = sesiKuis[indeksSoal];
+            
+            // Mengubah nama file gambar asli menjadi versi blur (menambahkan '(2)')
+            const namaGambarBlur = itemBenar.lambang.replace(".png", "(2).png");
+            document.getElementById('lambang-image').src = namaGambarBlur;
+
+            const databasePengecoh = database38Provinsi.filter(p => p.id !== itemBenar.id);
+            const acakPengecoh = shuffle([...databasePengecoh]).slice(0, 3);
+            const EmpatPilihanRaw = [itemBenar, ...acakPengecoh];
+            
+            const opsiProvinsi = shuffle([...EmpatPilihanRaw]);
+            const opsiIbukota = shuffle([...EmpatPilihanRaw]);
+
+            const containerProvinsi = document.getElementById('col-provinsi-options');
+            containerProvinsi.innerHTML = '';
+            opsiProvinsi.forEach(item => {
+                containerProvinsi.appendChild(createOptionCard(item.provinsi, item.id, 'provinsi'));
+            });
+
+            const containerIbukota = document.getElementById('col-ibukota-options');
+            containerIbukota.innerHTML = '';
+            opsiIbukota.forEach(item => {
+                containerIbukota.appendChild(createOptionCard(item.ibukota, item.id, 'ibukota'));
+            });
+        }
+
+        function createOptionCard(text, id, type) {
+            const card = document.createElement('div');
+            card.className = 'option-card';
+            card.innerText = text;
+            card.dataset.id = id;
+
+            card.addEventListener('click', () => {
+                if (isStateMengecek) return;
+
+                const siblings = card.parentNode.querySelectorAll('.option-card');
+                siblings.forEach(s => {
+                    s.classList.remove('selected');
+                    s.style.transform = 'none';
+                    s.style.boxShadow = '0 4px 0px #e2e8f0';
+                });
+
+                card.classList.add('selected');
+                card.style.transform = 'translateY(4px)';
+                card.style.boxShadow = '0 0px 0px #2b6cb0';
+                pilihanTerpilih[type] = card;
+
+                if (pilihanTerpilih.provinsi && pilihanTerpilih.ibukota) {
+                    periksaJawabanOtomatis();
+                }
+            });
+
+            return card;
+        }
+
+        function periksaJawabanOtomatis() {
+            isStateMengecek = true;
+
+            const itemBenar = sesiKuis[indeksSoal];
+            
+            // Ganti gambar blur kembali ke gambar asli (tanpa blur)
+            document.getElementById('lambang-image').src = itemBenar.lambang;
+
+            const idProvinsiTerpilih = parseInt(pilihanTerpilih.provinsi.dataset.id);
+            const idIbukotaTerpilih = parseInt(pilihanTerpilih.ibukota.dataset.id);
+
+            let isProvinsiBenar = (idProvinsiTerpilih === itemBenar.id);
+            let isIbukotaBenar = (idIbukotaTerpilih === itemBenar.id);
+
+            pilihanTerpilih.provinsi.classList.remove('selected');
+            if (isProvinsiBenar) {
+                pilihanTerpilih.provinsi.classList.add('correct');
+                pilihanTerpilih.provinsi.style.boxShadow = '0 4px 0px #00828c';
+            } else {
+                pilihanTerpilih.provinsi.classList.add('wrong');
+                pilihanTerpilih.provinsi.style.boxShadow = '0 4px 0px #9b2c2c';
+                highlightCorrectOption('col-provinsi-options', itemBenar.id);
+            }
+
+            pilihanTerpilih.ibukota.classList.remove('selected');
+            if (isIbukotaBenar) {
+                pilihanTerpilih.ibukota.classList.add('correct');
+                pilihanTerpilih.ibukota.style.boxShadow = '0 4px 0px #00828c';
+            } else {
+                pilihanTerpilih.ibukota.classList.add('wrong');
+                pilihanTerpilih.ibukota.style.boxShadow = '0 4px 0px #9b2c2c';
+                highlightCorrectOption('col-ibukota-options', itemBenar.id);
+            }
+
+            if (isProvinsiBenar && isIbukotaBenar) {
+                skor += 10;
+                document.getElementById('current-score').innerText = skor;
+            }
+
+            setTimeout(() => {
+                indeksSoal++;
+                if (indeksSoal < 10) {
+                    loadQuestion();
+                } else {
+                    showFinalResult();
+                }
+            }, 1200);
+        }
+
+        function highlightCorrectOption(containerId, correctId) {
+            const options = document.getElementById(containerId).querySelectorAll('.option-card');
+            options.forEach(opt => {
+                if (parseInt(opt.dataset.id) === correctId) {
+                    opt.classList.add('correct');
+                    opt.style.boxShadow = '0 4px 0px #00828c';
+                }
+            });
+        }
+
+        function showFinalResult() {
+            changeScreen('result-screen');
+            document.getElementById('final-score').innerText = skor;
+
+            const feedbackText = document.getElementById('result-feedback');
+            if (skor === 100) {
+                feedbackText.innerText = "Sempurna! Kamu Hebat Sekali Mengenal Geografi Indonesia! 🏆";
+            } else if (skor >= 70) {
+                feedbackText.innerText = "Keren! Pengetahuanmu Mengenai Provinsi Sudah Mantap! 👍";
+            } else if (skor >= 40) {
+                feedbackText.innerText = "Bagus! Ayo Belajar Lagi Biar Tambah Hafal Semuanya. 📚";
+            } else {
+                feedbackText.innerText = "Jangan Menyerah! Yuk Coba Lagi dan Hafalkan Lambangnya. 💪";
+            }
+        }
+    </script>
+</body>
+</html>

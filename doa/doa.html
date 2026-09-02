@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Doa Anak Harian</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        @font-face {
+            font-family: Amiri;
+            src: url(Amiri-Regular.ttf) format('truetype');
+        }
+        /* CSS RESET & BASE STYLES */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #f1f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            height: 100vh;
+            color: #334155;
+            overflow: hidden;
+        }
+
+        /* CONTAINER UTAMA (Mobile Max 450px) */
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: 2px solid #fcd34d; /* Border Amber Kuning */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* HALAMAN 1: COVER / SPLASH SCREEN */
+        .splash-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #fef3c7 0%, #fffbeb 50%, #fcd34d 100%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 40px 24px;
+            text-align: center;
+            transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.4s ease;
+        }
+        .splash-screen.hide {
+            transform: translateY(-100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .splash-title-box {
+            margin-top: 20px;
+        }
+        .splash-tagline {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #d97706;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .splash-main-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.2rem;
+            color: #b45309;
+            text-shadow: 2px 2px 0px #fef3c7;
+            line-height: 1.2;
+        }
+        
+        /* ILUSTRASI VECTOR SPLASH (SVG) */
+        .splash-artwork {
+            width: 80%;
+            max-width: 280px;
+            height: auto;
+            margin: 20px 0;
+            animation: float 4s ease-in-out infinite;
+        }
+        .star-blink {
+            animation: blink 2s infinite ease-in-out;
+        }
+        .star-delay {
+            animation-delay: 1s;
+        }
+
+        .splash-btn {
+            font-family: 'Fredoka One', cursive;
+            background: linear-gradient(135deg, #fb923c, #ea580c);
+            color: #ffffff;
+            border: none;
+            padding: 16px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 15px -3px rgba(234, 88, 12, 0.4);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 85%;
+            letter-spacing: 0.5px;
+        }
+        .splash-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.4);
+        }
+
+        /* HEADER */
+        .app-header {
+            background: linear-gradient(135deg, #fbbf24, #fb923c, #facc15);
+            padding: 16px 50px; 
+            text-align: center;
+            position: relative;
+            flex-shrink: 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* WRAPPER TEXT WALKING (MARQUEE) */
+        .app-header-title-container {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            white-space: nowrap;
+        }
+        .app-title {
+            font-family: 'Fredoka One', cursive;
+            color: #ffffff;
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            display: inline-block;
+        }
+
+        /* Kelas Aktif Marquee via JavaScript */
+        .marquee-active {
+            animation: marquee-effect 10s linear infinite;
+            padding-left: 100%;
+        }
+
+        @keyframes marquee-effect {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+
+        /* TOMBOL KEMBALI DI HEADER */
+        .back-btn {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #ffffff;
+            color: #ea580c;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex; /* Selalu tampil untuk melayani back dari daftar isi ke cover */
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.1s ease;
+            z-index: 10;
+        }
+        .back-btn:active {
+            transform: translateY(-50%) scale(0.9);
+        }
+
+        /* KONTEN UTAMA SCROLLABLE */
+        .app-main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            background: linear-gradient(to bottom, #fffbeb, #ffffff);
+        }
+
+        /* SEARCH BAR WITH CLEAR BUTTON */
+        .search-container {
+            margin-bottom: 16px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px 40px 12px 16px; 
+            border-radius: 16px;
+            border: 2px solid #fef3c7;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+        .search-input:focus {
+            border-color: #fcd34d;
+        }
+        .clear-btn {
+            position: absolute;
+            right: 12px;
+            background: #cbd5e1;
+            color: #ffffff;
+            border: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: none; 
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s ease;
+        }
+        .clear-btn:hover {
+            background: #94a3b8;
+        }
+
+        /* HALAMAN 2: DAFTAR ISI */
+        .doa-list-page {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .doa-card {
+            background-color: #ffffff;
+            border-radius: 15px;
+            padding: 6px 8px;
+            border: 1px solid #bae6fd; 
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .doa-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .doa-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .doa-number {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background-color: #e0f2fe;
+            color: #0284c7;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        .doa-name {
+            font-weight: 500;
+            color: #475569;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .doa-info:hover .doa-name {
+            color: #0284c7;
+        }
+
+        /* HALAMAN 3: DETAIL DOA */
+        .doa-detail-page {
+            display: none; 
+            flex-direction: column;
+            gap: 16px;
+            padding-top: 4px;
+        }
+        
+        /* CARD TEKS ARAB & LATIN */
+        .arabic-card {
+            background-color: #ffffff;
+            border-radius: 24px;
+            padding: 24px;
+            border: 2px solid #a7f3d0; 
+            text-align: right;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        .text-arabic {
+            font-size: 1.75rem;
+            line-height: 2.3;
+            color: #059669;
+            direction: rtl;
+            margin-bottom: 16px;
+            font-weight: 500;
+            font-family: 'Amiri', serif;
+        }
+        .divider {
+            border-top: 2px dashed #f1f5f9;
+            margin-bottom: 16px;
+        }
+        .text-latin {
+            font-size: 0.95rem;
+            color: #d97706;
+            font-weight: 700;
+            font-style: italic;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        /* CARD TERJEMAHAN */
+        .translation-card {
+            background-color: #fffbeb;
+            border-radius: 24px;
+            padding: 16px 20px;
+            border: 2px solid #fef3c7;
+        }
+        .translation-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #f59e0b;
+            display: block;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+        .text-translation {
+            font-size: 0.9rem;
+            color: #475569;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        /* CONTROLLER AUDIO BESAR (Dinonaktifkan Sesuai Instruksi Sebelumnya) */
+        .audio-container-lg {
+            display: none !important; 
+            justify-content: center;
+            margin-top: 8px;
+        }
+
+        /* NAVIGASI PREV & NEXT */
+        .detail-nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            padding: 0 4px;
+            gap: 16px;
+        }
+        .nav-btn-sm {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 14px;
+            border: 2px solid #cbd5e1;
+            background-color: #ffffff;
+            color: #64748b;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
+        }
+        .nav-btn-sm:active {
+            transform: scale(0.95);
+        }
+        .nav-btn-sm:hover {
+            border-color: #fcd34d;
+            background-color: #fffbeb;
+            color: #b45309;
+        }
+
+        /* FOOTER BRANDING */
+        .app-footer {
+            background-color: #f8fafc;
+            padding: 10px;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #94a3b8;
+            border-top: 1px solid #f1f5f9;
+            flex-shrink: 0;
+        }
+
+        /* ANIMASI GRAPHIC SPLASH */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <div id="splashScreen" class="splash-screen">
+            <div class="splash-title-box">
+                <p class="splash-tagline">Belajar Setiap Hari</p>
+                <h1 class="splash-main-title">Doa Anak Muslim</h1>
+            </div>
+
+            <svg class="splash-artwork" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="100" cy="100" r="80" fill="#fef08a" opacity="0.6"/>
+                <path d="M130 60C110 60 95 75 95 95C95 115 110 130 130 130C138 130 145 127 150 123C135 128 115 123 105 107C95 91 100 71 115 63C120 61 125 60 130 60Z" fill="#fcd34d"/>
+                <rect x="60" y="110" width="80" height="40" rx="4" fill="#38bdf8"/>
+                <path d="M70 110C70 90 85 80 100 80C115 80 130 90 130 110H70Z" fill="#0284c7"/>
+                <path d="M92 80C92 75 100 70 100 70C100 70 108 75 108 80H92Z" fill="#facc15"/>
+                <path d="M90 150V125C90 120 110 120 110 125V150H90Z" fill="#0f172a" opacity="0.15"/>
+                <rect x="48" y="95" width="10" height="55" rx="2" fill="#0284c7"/>
+                <path d="M45 95L53 82L61 95H45Z" fill="#facc15"/>
+                <rect x="142" y="95" width="10" height="55" rx="2" fill="#0284c7"/>
+                <path d="M139 95L147 82L155 95H139Z" fill="#facc15"/>
+                <path d="M30 140C30 134 35 130 41 130C43 130 46 131 48 132C51 128 56 125 61 125C69 125 75 131 75 139C75 140 75 141 75 142H30V140Z" fill="#ffffff" opacity="0.9"/>
+                <path d="M135 145C135 141 138 138 142 138C143 138 145 139 146 140C148 137 152 135 155 135C161 135 165 139 165 145V147H135V145Z" fill="#ffffff" opacity="0.9"/>
+                <path class="star-blink" d="M45 50L47 55L52 56L47 57L45 62L43 57L38 56L43 55L45 50Z" fill="#ea580c"/>
+                <path class="star-blink star-delay" d="M155 45L156.5 49L161 50L156.5 51L155 55L153.5 51L149 50L153.5 49L155 45Z" fill="#f97316"/>
+                <path class="star-blink" d="M165 85L166 88L169 89L166 90L165 93L164 90L161 89L164 88L165 85Z" fill="#facc15"/>
+            </svg>
+
+            <button id="startAppBtn" class="splash-btn">Mulai Belajar Doa</button>
+        </div>
+        
+        <header class="app-header">
+            <button id="backButton" class="back-btn">&larr;</button>
+            <div class="app-header-title-container">
+                <h1 id="headerTitle" class="app-title">Daftar Isi Doa</h1>
+            </div>
+        </header>
+
+        <main class="app-main">
+            
+            <div id="listPage">
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="🔍 Cari doa..." class="search-input">
+                    <button id="clearSearchBtn" class="clear-btn">✕</button>
+                </div>
+                <div id="doaListContainer" class="doa-list-page"></div>
+            </div>
+
+            <div id="detailPage" class="doa-detail-page">
+                <div class="arabic-card">
+                    <div id="detailArabic" class="text-arabic"></div>
+                    <div class="divider"></div>
+                    <div id="detailLatin" class="text-latin"></div>
+                </div>
+
+                <div class="translation-card">
+                    <span class="translation-label">Artinya:</span>
+                    <p id="detailTranslation" class="text-translation"></p>
+                </div>
+
+                <div class="audio-container-lg">
+                    <button id="detailAudioBtn" class="audio-btn-lg"></button>
+                </div>
+
+                <div class="detail-nav-container">
+                    <button id="prevDoaBtn" class="nav-btn-sm">&larr; Sebelum</button>
+                    <button id="nextDoaBtn" class="nav-btn-sm">Sesudah &rarr;</button>
+                </div>
+            </div>
+
+        </main>
+
+        <footer class="app-footer">
+            Aplikasi Doa Harian Anak &copy; 2026
+        </footer>
+    </div>
+
+    <script>
+        // Global State Manajemen Aplikasi
+        let doaList = []; 
+        let selectedDoaObject = null;
+        let appCurrentView = "list"; // Menyimpan posisi halaman aktif ("list" atau "detail")
+        
+        // Ambil elemen DOM
+        const splashScreen = document.getElementById('splashScreen');
+        const startAppBtn = document.getElementById('startAppBtn');
+        const listPage = document.getElementById('listPage');
+        const detailPage = document.getElementById('detailPage');
+        const backButton = document.getElementById('backButton');
+        const headerTitle = document.getElementById('headerTitle');
+        const searchInput = document.getElementById('searchInput');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
+        const doaListContainer = document.getElementById('doaListContainer');
+
+        const detailArabic = document.getElementById('detailArabic');
+        const detailLatin = document.getElementById('detailLatin');
+        const detailTranslation = document.getElementById('detailTranslation');
+        
+        const prevDoaBtn = document.getElementById('prevDoaBtn');
+        const nextDoaBtn = document.getElementById('nextDoaBtn');
+
+        // AMBIL DATA DARI FILE JSON EKSTERNAL
+        async function loadDoaData() {
+            try {
+                const response = await fetch('doa-data.json');
+                if (!response.ok) {
+                    throw new Error(`Gagal memuat berkas JSON: Status ${response.status}`);
+                }
+                const data = await response.json();
+                doaList = data.doa; 
+                renderList(doaList);
+            } catch (error) {
+                console.error("Kesalahan pengambilan data:", error);
+                doaListContainer.innerHTML = `<p style="text-align:center;font-weight:600;color:#ef4444;margin-top:20px;">Gagal memuat data doa 😢<br><span style="font-size:0.8rem; font-weight:normal;">Pastikan server lokal (Live Server) berjalan.</span></p>`;
+            }
+        }
+
+        // LOGIKA PINTAR: TEKS BERJALAN (MARQUEE DETECTOR)
+        function setHeaderTitleWithMarquee(text) {
+            headerTitle.innerText = text;
+            
+            // Reset kelas animasi
+            headerTitle.classList.remove('marquee-active');
+            
+            // Hitung lebar penampung vs lebar teks asli asli
+            const containerWidth = headerTitle.parentElement.offsetWidth;
+            const textWidth = headerTitle.scrollWidth;
+
+            // Jika teks kepanjangan dan tidak cukup dalam 1 baris, hidupkan marquee
+            if (textWidth > containerWidth) {
+                headerTitle.classList.add('marquee-active');
+            }
+        }
+
+        // RENDER HALAMAN DAFTAR ISI
+        function renderList(items) {
+            doaListContainer.innerHTML = '';
+            if(!items || items.length === 0) {
+                doaListContainer.innerHTML = `<p style="text-align:center;font-weight:600;color:#94a3b8;margin-top:20px;">Doa tidak ditemukan 🔍</p>`;
+                return;
+            }
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'doa-card';
+                card.setAttribute('data-number', item.number);
+
+                card.innerHTML = `
+                    <div class="doa-info">
+                        <span class="doa-number">${item.number}</span>
+                        <span class="doa-name">${item.name}</span>
+                    </div>
+                `;
+
+                card.querySelector('.doa-info').addEventListener('click', () => {
+                    navigateToDetail(item);
+                });
+
+                doaListContainer.appendChild(card);
+            });
+        }
+
+        // NAVIGASI KE DETAIL DOA
+        function navigateToDetail(doaObj) {
+            selectedDoaObject = doaObj;
+            appCurrentView = "detail"; // Set sedang di halaman detail
+            
+            detailArabic.innerText = doaObj.arabic;
+            detailLatin.innerText = doaObj.latin;
+            detailTranslation.innerText = doaObj.translation;
+
+            listPage.style.display = 'none';
+            detailPage.style.display = 'flex';
+            
+            // Set judul detail dengan deteksi teks berjalan
+            setHeaderTitleWithMarquee(doaObj.name); 
+
+            updateNavigationButtons();
+        }
+
+        // FUNGSI NAVIGASI TOMBOL BACK MULTI-PAGE
+        function handleBackNavigation() {
+            if (appCurrentView === "detail") {
+                // JIKA SEDANG DI DETAIL: Kembali ke Halaman Daftar Isi
+                appCurrentView = "list";
+                listPage.style.display = 'block';
+                detailPage.style.display = 'none';
+                
+                setHeaderTitleWithMarquee('Daftar Isi Doa');
+                renderList(getFilteredItems());
+            } else if (appCurrentView === "list") {
+                // JIKA SEDANG DI DAFTAR ISI: Kembali ke Halaman Cover Awal (Splash)
+                splashScreen.classList.remove('hide');
+            }
+        }
+
+        // UPDATE STATUS TOMBOL PREV & NEXT DI DETAIL
+        function updateNavigationButtons() {
+            if (!selectedDoaObject || doaList.length === 0) return;
+
+            const currentIndex = doaList.findIndex(item => item.number === selectedDoaObject.number);
+
+            // Sembunyikan 'Sebelum' jika berada di item pertama
+            prevDoaBtn.style.visibility = (currentIndex === 0) ? 'hidden' : 'visible';
+
+            // Sembunyikan 'Sesudah' jika berada di item terakhir
+            nextDoaBtn.style.visibility = (currentIndex === doaList.length - 1) ? 'hidden' : 'visible';
+        }
+
+        // KLIK TOMBOL GESER PREV / NEXT
+        function changeDoa(direction) {
+            if (!selectedDoaObject || doaList.length === 0) return;
+
+            const currentIndex = doaList.findIndex(item => item.number === selectedDoaObject.number);
+            const targetIndex = currentIndex + direction;
+
+            if (targetIndex >= 0 && targetIndex < doaList.length) {
+                navigateToDetail(doaList[targetIndex]);
+                detailPage.parentElement.scrollTop = 0; // Kembalikan scroll konten ke atas
+            }
+        }
+
+        // FILTER REAKTIF PENCARIAN
+        function getFilteredItems() {
+            const query = searchInput.value.toLowerCase().trim();
+            return doaList.filter(item => item.name.toLowerCase().includes(query));
+        }
+
+        function toggleClearButton() {
+            if (searchInput.value.length > 0) {
+                clearSearchBtn.style.display = 'flex';
+            } else {
+                clearSearchBtn.style.display = 'none';
+            }
+        }
+
+        // REGISTER GLOBAL EVENT LISTENERS
+        startAppBtn.addEventListener('click', () => {
+            splashScreen.classList.add('hide');
+            appCurrentView = "list";
+            setHeaderTitleWithMarquee('Daftar Isi Doa');
+        });
+
+        backButton.addEventListener('click', handleBackNavigation);
+        
+        searchInput.addEventListener('input', () => {
+            toggleClearButton();
+            renderList(getFilteredItems());
+        });
+
+        clearSearchBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            toggleClearButton();
+            searchInput.focus();
+            renderList(doaList); 
+        });
+
+        prevDoaBtn.addEventListener('click', () => changeDoa(-1));
+        nextDoaBtn.addEventListener('click', () => changeDoa(1));
+
+        // INITIAL LOAD DATA SCRIPT DIBUKA
+        loadDoaData();
+
+        // GLOBAL BULLETPROOF SECURITY LAYER
+        (function() {
+            window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+            window.addEventListener('keydown', function(e) {
+                if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            }, true);
+        })();
+    </script>
+</body>
+</html>

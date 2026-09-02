@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Theme Word Search - Colorful Edition</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --accent: #3b82f6;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 950px;
+            position: relative;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 25px;
+        }
+
+        /* 1. HALAMAN MUKA / UTAMA */
+        #home-screen {
+            text-align: center;
+            position: relative;
+        }
+
+        .home-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .btn-settings-trigger {
+            position: absolute;
+            right: 0;
+            background: #e5e7eb;
+            border: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .btn-settings-trigger:hover {
+            background: #d1d5db;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .theme-card {
+            background: #e5e7eb;
+            padding: 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .theme-card:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* SYSTEM MODAL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: left;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 8px;
+        }
+
+        .setting-section {
+            margin-bottom: 20px;
+        }
+
+        .setting-section label.section-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .select-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 1rem;
+            background: #f9fafb;
+        }
+
+        .direction-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .direction-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+        }
+
+        .direction-item span {
+            font-size: 1.4rem;
+        }
+
+        .direction-item input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* MODAL KEMENANGAN KUSTOM */
+        #win-modal .modal-content {
+            text-align: center;
+        }
+        .win-icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+        .win-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #059669;
+            margin-bottom: 10px;
+        }
+        .win-stats {
+            background: #f0fdf4;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #166534;
+        }
+
+        /* 2. HALAMAN GAMEPLAY */
+        #game-screen {
+            display: none;
+        }
+
+        .header-game {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .theme-title {
+            font-size: 1.2rem;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .game-layout {
+            display: flex;
+            flex-direction: row;
+            gap: 30px;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* Sisi Kiri: Grid Karakter */
+        .grid-container {
+            display: grid;
+            gap: 2px;
+            background-color: #d1d5db;
+            padding: 4px;
+            border-radius: 6px;
+            touch-action: none;
+        }
+
+        .cell {
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .cell.selected { background-color: #fef08a !important; color: #1f2937 !important; }
+        
+        /* Modifikasi Class Found (Warna teks default saat ditemukan) */
+        .cell.found { color: #ffffff; }
+
+        /* Sisi Kanan: Daftar Kata Target */
+        .word-section {
+            flex: 1;
+            min-width: 200px;
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            max-height: 540px;
+            overflow-y: auto;
+        }
+
+        .word-section h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            color: #4b5563;
+        }
+
+        .word-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .word-item {
+            padding: 8px 12px;
+            background: #ffffff;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .word-item.found {
+            text-decoration: line-through;
+            color: #ffffff;
+            border-left-color: rgba(0,0,0,0.3);
+            opacity: 0.9;
+        }
+
+        .btn-panel {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .btn.secondary { background-color: #6b7280; }
+        .btn.success { background-color: #10b981; }
+
+        @media (max-width: 768px) {
+            .game-layout { flex-direction: column; align-items: center; }
+            .word-section { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="home-screen">
+        <div class="home-header">
+            <h1>🕵🏻‍♀️ CARI KATA</h1>
+            <button class="btn-settings-trigger" onclick="openModal('settings-modal')" title="Pengaturan">⚙️</button>
+        </div>
+        <div>
+            <p>Pilih Tema yang ingin Kamu mainkan</p>
+        </div>  
+        <div class="theme-grid" id="theme-list"></div>
+    </div>
+
+    <div id="game-screen">
+        <div class="header-game">
+            <div class="theme-title" id="current-theme-title">Tema: -</div>
+            <div class="stats">
+                <button class="btn secondary" style="width:auto;" onclick="backToHome()">← Kembali</button>
+                <button class="btn" style="width:auto;" onclick="resetGame()">Acak Ulang</button>
+                <div id="progress">Ditemukan: 0 / 0</div>
+                <div id="timer">Waktu: 00:00</div>
+            </div>
+        </div>
+
+        <div class="game-layout">
+            <div class="grid-container" id="grid"></div>
+            <div class="word-section">
+                <h3>Kata yang harus dicari:</h3>
+                <div class="word-list" id="word-list-container"></div>
+            </div>
+        </div>
+
+        <div class="btn-panel">
+        </div>
+    </div>
+</div>
+
+<div id="settings-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">⚙️ Pengaturan Permainan</div>
+        
+        <div class="setting-section">
+            <label class="section-label" for="setting-grid-size">Ukuran Kotak Huruf (Grid)</label>
+            <select id="setting-grid-size" class="select-input">
+                <option value="10">10 x 10</option>
+                <option value="11">11 x 11</option>
+                <option value="12" selected>12 x 12</option>
+                <option value="13">13 x 13</option>
+                <option value="14">14 x 14</option>
+                <option value="15">15 x 15</option>
+            </select>
+        </div>
+
+        <div class="setting-section">
+            <label class="section-label">Arah Kata Tersembunyi</label>
+            <div class="direction-grid">
+                <label class="direction-item" title="Kanan"><input type="checkbox" id="dir-right" checked value="0,1"> <span>➡️</span></label>
+                <label class="direction-item" title="Bawah"><input type="checkbox" id="dir-down" checked value="1,0"> <span>⬇️</span></label>
+                <label class="direction-item" title="Diagonal Kanan Atas"><input type="checkbox" id="dir-up-right" checked value="-1,1"> <span>↗️</span></label>
+                <label class="direction-item" title="Diagonal Kanan Bawah"><input type="checkbox" id="dir-down-right" checked value="1,1"> <span>↘️</span></label>
+                <label class="direction-item" title="Kiri"><input type="checkbox" id="dir-left" checked value="0,-1"> <span>⬅️</span></label>
+                <label class="direction-item" title="Atas"><input type="checkbox" id="dir-up" checked value="-1,0"> <span>⬆️</span></label>
+                <label class="direction-item" title="Diagonal Kiri Atas"><input type="checkbox" id="dir-up-left" checked value="-1,-1"> <span>↖️</span></label>
+                <label class="direction-item" title="Diagonal Kiri Bawah"><input type="checkbox" id="dir-down-left" checked value="1,-1"> <span>↙️</span></label>
+            </div>
+        </div>
+        
+        <button class="btn" onclick="closeModal('settings-modal')">Simpan & Tutup</button>
+    </div>
+</div>
+
+<div id="win-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="win-icon">🎉</div>
+        <div class="win-title">Luar Biasa! Sukses!</div>
+        <p style="margin-bottom: 15px; color:#4b5563;">Kamu berhasil menemukan semua kata tersembunyi!</p>
+        <div class="win-stats" id="win-time-result">Waktu Penyelesaian: 00:00</div>
+        <button class="btn success" onclick="closeWinModalAndGoHome()">Main Tema Lain</button>
+    </div>
+</div>
+
+<script>
+    let gridSize = 12;
+    let allThemesWords = {};
+    let activeThemeId = "";
+    let activeThemeName = "";
+    
+    let gridData = [];
+    let targetWords = [];
+    let isDrawing = false;
+    let startCell = null;
+    let currentCells = [];
+    let foundWordsCount = 0;
+    let secondsElapsed = 0;
+    let timerInterval = null;
+
+    // DAFTAR WARNA CERIA (Koleksi warna cerah yang kontras & ramah anak)
+    const cheerfulColors = [
+        "#ef4444", "#f97316", "#f59e0b", "#10b981", 
+        "#06b6d4", "#3b82f6", "#6366f1", "#8b5cf6", 
+        "#ec4899", "#14b8a6", "#a855f7"
+    ];
+
+    function getRandomColor() {
+        return cheerfulColors[Math.floor(Math.random() * cheerfulColors.length)];
+    }
+
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { 
+        if(id === 'settings-modal') {
+            gridSize = parseInt(document.getElementById('setting-grid-size').value);
+            getSelectedDirections(); 
+        }
+        document.getElementById(id).style.display = 'none'; 
+    }
+
+    function closeWinModalAndGoHome() {
+        closeModal('win-modal');
+        backToHome();
+    }
+
+    async function loadThemesData() {
+        try {
+            const listRes = await fetch('list_level.json');
+            const themesList = await listRes.json();
+            const wordsRes = await fetch('nama_tema.json');
+            allThemesWords = await wordsRes.json();
+            renderThemeSelection(themesList);
+        } catch (error) {
+            console.error(error);
+            document.getElementById('theme-list').innerText = "Gagal memuat level. Pastikan menggunakan server lokal (Live Server).";
+        }
+    }
+
+    function renderThemeSelection(themes) {
+        const listContainer = document.getElementById('theme-list');
+        listContainer.innerHTML = '';
+        themes.forEach(theme => {
+            const card = document.createElement('div');
+            card.classList.add('theme-card');
+            card.innerText = theme.nama;
+            card.onclick = () => startTheme(theme.id, theme.nama);
+            listContainer.appendChild(card);
+        });
+    }
+
+    function getSelectedDirections() {
+        const ids = ['dir-right', 'dir-left', 'dir-down', 'dir-up', 'dir-up-right', 'dir-down-right', 'dir-up-left', 'dir-down-left'];
+        let chosenDirs = [];
+        ids.forEach(id => {
+            const cb = document.getElementById(id);
+            if (cb && cb.checked) chosenDirs.push(cb.value.split(',').map(Number));
+        });
+        if (chosenDirs.length === 0) {
+            chosenDirs.push([0, 1]);
+            document.getElementById('dir-right').checked = true;
+        }
+        return chosenDirs;
+    }
+
+    function startTheme(themeId, themeNama) {
+        activeThemeId = themeId;
+        activeThemeName = themeNama;
+        document.getElementById('current-theme-title').innerText = `Tema: ${themeNama}`;
+        document.getElementById('home-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'block';
+        initGame();
+    }
+
+    function backToHome() {
+        clearInterval(timerInterval);
+        document.getElementById('game-screen').style.display = 'none';
+        document.getElementById('home-screen').style.display = 'block';
+    }
+
+    function generateWordSearch(allWords, size) {
+        let grid = Array(size).fill(null).map(() => Array(size).fill(''));
+        targetWords = [];
+
+        let validWords = allWords.filter(w => {
+            let cleanLength = w.replace(/\s+/g, '').length;
+            return cleanLength <= size;
+        });
+
+        if (validWords.length === 0) {
+            validWords = ["GAME"];
+        }
+
+        let shuffledWords = [...validWords].sort(() => Math.random() - 0.5);
+        let selectedRawWords = shuffledWords.slice(0, 10);
+
+        let cleanedWords = selectedRawWords.map(w => ({
+            original: w,
+            clean: w.replace(/\s+/g, '').toUpperCase()
+        })).sort((a, b) => b.clean.length - a.clean.length);
+
+        const directions = getSelectedDirections();
+
+        cleanedWords.forEach(wordObj => {
+            let word = wordObj.clean;
+            let placed = false;
+            let attempts = 0;
+
+            while (!placed && attempts < 400) {
+                attempts++;
+                let dir = directions[Math.floor(Math.random() * directions.length)];
+                let row = Math.floor(Math.random() * size);
+                let col = Math.floor(Math.random() * size);
+
+                if (canPlaceWord(grid, word, row, col, dir, size)) {
+                    let r = row, c = col;
+                    for (let i = 0; i < word.length; i++) {
+                        grid[r][c] = word[i];
+                        r += dir[0]; c += dir[1];
+                    }
+                    placed = true;
+                }
+            }
+            if (placed) targetWords.push({ word: wordObj.original, found: false });
+        });
+
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        for (let r = 0; r < size; r++) {
+            for (let c = 0; c < size; c++) {
+                if (grid[r][c] === '') {
+                    grid[r][c] = alphabet[Math.floor(Math.random() * alphabet.length)];
+                }
+            }
+        }
+        return grid;
+    }
+
+    function canPlaceWord(grid, word, row, col, dir, size) {
+        let r = row, c = col;
+        for (let i = 0; i < word.length; i++) {
+            if (r < 0 || r >= size || c < 0 || c >= size) return false;
+            if (grid[r][c] !== '' && grid[r][c] !== word[i]) return false;
+            r += dir[0]; c += dir[1];
+        }
+        return true;
+    }
+
+    function initGame() {
+        const gridElement = document.getElementById('grid');
+        const wordListContainer = document.getElementById('word-list-container');
+        gridElement.innerHTML = '';
+        wordListContainer.innerHTML = '';
+        foundWordsCount = 0;
+        secondsElapsed = 0;
+        clearInterval(timerInterval);
+
+        const cellSize = window.innerWidth <= 768 ? 'minmax(22px, 26px)' : 'minmax(30px, 38px)';
+        gridElement.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize})`;
+        gridElement.style.gridTemplateRows = `repeat(${gridSize}, ${cellSize})`;
+
+        const rawWords = allThemesWords[activeThemeId] || ["ERROR"];
+        gridData = generateWordSearch(rawWords, gridSize);
+
+        document.getElementById('progress').innerText = `Ditemukan: 0 / ${targetWords.length}`;
+
+        timerInterval = setInterval(() => {
+            secondsElapsed++;
+            const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+            const secs = String(secondsElapsed % 60).padStart(2, '0');
+            document.getElementById('timer').innerText = `Waktu: ${mins}:${secs}`;
+        }, 1000);
+
+        for (let r = 0; r < gridSize; r++) {
+            for (let c = 0; c < gridSize; c++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.style.fontSize = window.innerWidth <= 768 ? '0.85rem' : '1.05rem';
+                cell.innerText = gridData[r][c];
+                cell.dataset.row = r;
+                cell.dataset.col = c;
+                cell.addEventListener('mousedown', onStart);
+                cell.addEventListener('mouseenter', onMove);
+                cell.addEventListener('touchstart', (e) => {
+                    const touch = e.touches[0];
+                    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+                    if (target && target.classList.contains('cell')) onStart({ target });
+                });
+                gridElement.appendChild(cell);
+            }
+        }
+
+        window.addEventListener('mouseup', onEnd);
+        gridElement.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const target = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (target && target.classList.contains('cell')) onMove({ target });
+        });
+        gridElement.addEventListener('touchend', onEnd);
+
+        targetWords.forEach(w => {
+            const el = document.createElement('div');
+            el.classList.add('word-item');
+            el.id = `word-${w.word.replace(/\s+/g, '')}`;
+            el.innerText = w.word;
+            wordListContainer.appendChild(el);
+        });
+    }
+
+    function onStart(e) { isDrawing = true; startCell = e.target; clearSelection(); highlightCell(startCell); }
+
+    function onMove(e) {
+        if (!isDrawing || !startCell) return;
+        const currentCell = e.target;
+        const r1 = parseInt(startCell.dataset.row), c1 = parseInt(startCell.dataset.col);
+        const r2 = parseInt(currentCell.dataset.row), c2 = parseInt(currentCell.dataset.col);
+        const dr = r2 - r1, dc = c2 - c1;
+        
+        if (dr === 0 || dc === 0 || Math.abs(dr) === Math.abs(dc)) {
+            clearSelection();
+            const steps = Math.max(Math.abs(dr), Math.abs(dc));
+            const stepR = dr === 0 ? 0 : dr / steps;
+            const stepC = dc === 0 ? 0 : dc / steps;
+
+            currentCells = [];
+            for (let i = 0; i <= steps; i++) {
+                const currR = r1 + (i * stepR), currC = c1 + (i * stepC);
+                const cell = document.querySelector(`[data-row='${currR}'][data-col='${currC}']`);
+                if (cell) { cell.classList.add('selected'); currentCells.push(cell); }
+            }
+        }
+    }
+
+    function onEnd() {
+        if (!isDrawing) return;
+        isDrawing = false;
+
+        let selectedWord = currentCells.map(c => c.innerText).join('');
+        let reversedWord = selectedWord.split('').reverse().join('');
+        let foundMatch = null;
+
+        targetWords.forEach(w => {
+            if (!w.found) {
+                let cleanTarget = w.word.replace(/\s+/g, '').toUpperCase();
+                if (selectedWord === cleanTarget || reversedWord === cleanTarget) foundMatch = w;
+            }
+        });
+
+        if (foundMatch) {
+            foundMatch.found = true;
+            
+            // LOGIKA BARU: Ambil satu warna ceria acak khusus untuk kata ini
+            const wordColor = getRandomColor();
+
+            // Terapkan warna tersebut ke barisan sel huruf yang baru ditemukan
+            currentCells.forEach(c => { 
+                c.classList.remove('selected'); 
+                c.classList.add('found'); 
+                c.style.backgroundColor = wordColor; // Warna latar kustom pelangi
+            });
+
+            // Terapkan warna yang sama ke item daftar kata di sisi kanan
+            const wordEl = document.getElementById(`word-${foundMatch.word.replace(/\s+/g, '')}`);
+            if (wordEl) {
+                wordEl.classList.add('found');
+                wordEl.style.backgroundColor = wordColor; // Latar belakang list sewarna
+            }
+            
+            foundWordsCount++;
+            document.getElementById('progress').innerText = `Ditemukan: ${foundWordsCount} / ${targetWords.length}`;
+            
+            if (foundWordsCount === targetWords.length) {
+                clearInterval(timerInterval);
+                const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+                const secs = String(secondsElapsed % 60).padStart(2, '0');
+                document.getElementById('win-time-result').innerText = `Waktu Bermain: ${mins}:${secs}`;
+                setTimeout(() => openModal('win-modal'), 400);
+            }
+        } else { clearSelection(); }
+        startCell = null; currentCells = [];
+    }
+
+    function clearSelection() { document.querySelectorAll('.cell.selected').forEach(c => c.classList.remove('selected')); }
+    function highlightCell(cell) { cell.classList.add('selected'); currentCells = [cell]; }
+    function resetGame() { initGame(); }
+
+    window.onload = loadThemesData;
+
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        });
+</script>
+</body>
+</html>

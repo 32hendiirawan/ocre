@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Matching Game</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --bg: skyblue;
+            --text: #2c3e50;
+        }
+
+        body, html { 
+            margin: 0; padding: 0; height: 100%; 
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            overflow: hidden;
+            color: var(--text);
+        }
+
+        /* --- HALAMAN DEPAN --- */
+        #home-screen {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; text-align: center;
+        }
+
+        .menu-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;
+            max-width: 500px; width: 90%;
+        }
+
+        .btn-theme {
+            padding: 20px; font-size: 1.1rem; font-weight: bold; border: none;
+            border-radius: 15px; background: white; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.3s;
+        }
+
+        .btn-theme:hover { background: var(--primary); color: white; transform: translateY(-3px); }
+
+        /* --- HALAMAN PERMAINAN --- */
+        #game-screen {
+            display: none; position: relative; height: 100vh; width: 100vw;
+            flex-direction: column; padding: 15px; box-sizing: border-box;
+        }
+
+        .game-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 20px; z-index: 20; background: white; border-radius: 12px;
+        }
+
+        .game-wrapper {
+            flex-grow: 1; position: relative; margin-top: 15px;
+            /* Container ini adalah titik nol koordinat canvas */
+        }
+
+        #lineCanvas {
+            position: absolute; top: 0; left: 0;
+            pointer-events: none; z-index: 5;
+        }
+
+        .game-area {
+            display: flex; justify-content: space-between; height: 100%;
+            position: relative; z-index: 10;
+        }
+
+        .column { width: 32%; display: flex; flex-direction: column; justify-content: space-around; }
+
+        .card { 
+            padding: 12px; border: 3px solid #ddd; border-radius: 15px; cursor: pointer; 
+            background: #fff; font-weight: bold; text-align: center; font-size: 1.2rem;
+            transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .card.selected { border-color: var(--primary); background: #e1f5fe; }
+        .card.correct { border-color: var(--success); opacity: 0.6; cursor: default; }
+
+        .card img { width: 60px; height: 60px; object-fit: contain; pointer-events: none; display: block; margin: auto; }
+
+        #win-message {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; padding: 40px; border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3); text-align: center;
+            display: none; z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOBBY -->
+    <div id="home-screen">
+        <h1 style="line-height: normal; margin-bottom: 0px;">ENGLISH</h1>
+        <h3 style="line-height: normal; margin-top: 0px;">Matching Game</h3>
+        <div class="menu-grid">
+            <button class="btn-theme" onclick="initGame('numbers')">Numbers</button>
+            <button class="btn-theme" onclick="initGame('colors')">Colors</button>
+            <button class="btn-theme" onclick="initGame('animals')">Animals</button>
+            <button class="btn-theme" onclick="initGame('fruits')">Fruits</button>
+            <button class="btn-theme" onclick="initGame('body')">Body Parts</button>
+        </div>
+        <button class="btn-theme" style="margin-top:20px;" onclick="toggleFullScreen()">Fullscreen</button>
+    </div>
+
+    <!-- GAMEPLAY -->
+    <div id="game-screen">
+        <div class="game-header">
+            <button class="btn-theme" onclick="goBack()">← Back</button>
+            <h2 id="theme-title" style="margin:0;">THEME</h2>
+            <div id="score-text">Score: 0/5</div>
+        </div>
+
+        <div class="game-wrapper" id="game-wrapper">
+            <canvas id="lineCanvas"></canvas>
+            <div class="game-area">
+                <div class="column" id="words-column"></div>
+                <div class="column" id="images-column"></div>
+            </div>
+        </div>
+
+        <div id="win-message">
+            <h2>🎉 Well Done!</h2>
+            <button class="btn-theme" onclick="goBack()">Play Again</button>
+        </div>
+    </div>
+
+<script>
+    const dataStock = {
+        numbers: [
+            {n:'One', i:'1sannKNDhUZ7h2RprMIPeeDyv3PfrkU9M'},
+            {n:'Two', i:'1Ju0amNkk2lhIkQP7KphvVav1V8MSNSpy'},
+            {n:'Three', i:'1fNONvKQwM-efaumphdv81D3IemdoDN90'},
+            {n:'Four', i:'1KQBT-J7K7WZgkJL9mS_U5xHxS4kw7AWC'},
+            {n:'Five', i:'1qXnnLeBtGwqa25a7_nn5vTCoWh9VwdYN'}
+        ],
+        colors: [
+            {n:'Red', i:'1Kb7zm_DKaNdW4j-n7iRcDZ5zJrdGBI_4'},
+            {n:'Green', i:'1gChlwQG4XQYgXejK78rJ8M55oLvZZRYT'},
+            {n:'Blue', i:'1n_IIplHRjBda0h1u81_6AF9EK7DDT-b-'},
+            {n:'Yellow', i:'1s5NpTZ2ospNXUMA3jmNMjPYqzG0YR6oL'},
+            {n:'Purple', i:'1u1heMy9zDROb3_d3bkZfvMnTXBPdJHGs'}
+        ],
+        animals: [
+            {n:'Lion', i:'1osnKn7AFxGMl0NNA2Ocz80xFZ_nNmdh-'}, 
+            {n:'Cat', i:'154vHVa6xbBpPWwWhXx2jXeE4lUJpjGuD'}, 
+            {n:'Mouse', i:'18fhKmFlprGSW_B_kp5Cu56RNA5-mHcvL'}, 
+            {n:'Duck', i:'1Uzh3Ib5ZzXQEhY69xCEA5JVT6AdmbcNy'}, 
+            {n:'Bird', i:'1I-ETn8DPz707c0KQM4jJGUQPxOmGH95t'}
+        ],
+        fruits: [
+            {n:'Apple', i:'1E35m7CEyvOqstNwBRxOqryPRDK0BPXmm'}, 
+            {n:'Grape', i:'1Pqnig3G6EquPuKQ2bOp-vBTGXt9ezb5i'}, 
+            {n:'Mango', i:'1tAvYunTq0vsbgaqWMhx4f3iPrVCdQsJb'}, 
+            {n:'Papaya', i:'1XJChCxevmYbCQek2uRfFxGII-iC9c5Pq'},
+            {n:'Orange', i:'1XPYKiP2EzhfIbUlE0zgjELPwXI-b4T5F'}
+        ],
+        body: [
+            {n:'Head', i:'1OfxvvFXn6wtqKiHMdb0M-mrXxm7Xugbx'}, 
+            {n:'Hand', i:'1lDd7B05NPhBslxGRlOYF4rexOMJKeP0i'}, 
+            {n:'Foot', i:'1Fexym_fU2e2j1an_awTxJZeouYxYaFpP'}, 
+            {n:'Eye', i:'1gz7LghFMCaUS247KHaRpsLZUEpUU2b73'}, 
+            {n:'Mouth', i:'1LcVAa9XGk9UXabo1f-Ujqq6bsRmTMAp4'}
+        ]   
+    };
+
+    let selectedWord = null;
+    let score = 0;
+    let matches = []; // Menyimpan pasangan yang benar: { wordId, imgId }
+    const canvas = document.getElementById('lineCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function initGame(theme) {
+        document.getElementById('home-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'flex';
+        document.getElementById('win-message').style.display = 'none';
+
+        document.getElementById('theme-title').innerText = theme.toUpperCase();
+        document.getElementById('score-text').innerText = `Score: 0/5`;
+        
+        score = 0;
+        matches = [];
+        selectedWord = null;
+        
+        const stock = dataStock[theme] || dataStock['numbers'];
+        let items = [...stock].sort(() => Math.random() - 0.5).slice(0, 5);
+
+        renderColumn('words-column', items, true);
+        renderColumn('images-column', items, false);
+        
+        // Pastikan canvas siap
+        setTimeout(resizeCanvas, 100);
+    }
+
+    function renderColumn(id, items, isWord) {
+        const col = document.getElementById(id);
+        col.innerHTML = '';
+        const displayItems = [...items].sort(() => Math.random() - 0.5);
+        
+        displayItems.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'card';
+            // Beri ID unik agar koordinat bisa dicari nanti
+            div.id = (isWord ? 'w-' : 'i-') + item.n; 
+            
+            if(isWord) {
+                div.innerText = item.n;
+                div.onclick = () => selectWord(div, item.n);
+            } else {
+                div.innerHTML = `<img src="https://lh3.googleusercontent.com/d/${item.i}" onerror="this.src='https://via.placeholder.com/80?text=${item.n}'">`;
+                div.onclick = () => checkMatch(div, item.n);
+            }
+            col.appendChild(div);
+        });
+    }
+
+    function selectWord(el, name) {
+        if(el.classList.contains('correct')) return;
+        document.querySelectorAll('#words-column .card').forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedWord = { el, name };
+    }
+
+    function checkMatch(imgEl, name) {
+        if(!selectedWord || imgEl.classList.contains('correct')) return;
+
+        if(selectedWord.name === name) {
+            imgEl.classList.add('correct');
+            selectedWord.el.classList.add('correct');
+            selectedWord.el.classList.remove('selected');
+            
+            // Simpan pasangan ID-nya saja, jangan koordinat kaku
+            matches.push({ wordId: 'w-'+name, imgId: 'i-'+name });
+            
+            score++;
+            document.getElementById('score-text').innerText = `Score: ${score}/5`;
+            drawAllLines();
+            selectedWord = null;
+
+            if(score === document.querySelectorAll('#words-column .card').length) {
+                document.getElementById('win-message').style.display = 'block';
+            }
+        } else {
+            // Garis merah sementara
+            drawErrorLine(selectedWord.el.id, imgEl.id);
+        }
+    }
+
+    function drawAllLines() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const wrapperRect = document.getElementById('game-wrapper').getBoundingClientRect();
+
+        matches.forEach(m => {
+            const wEl = document.getElementById(m.wordId).getBoundingClientRect();
+            const iEl = document.getElementById(m.imgId).getBoundingClientRect();
+
+            draw(
+                wEl.right - wrapperRect.left, 
+                wEl.top + (wEl.height/2) - wrapperRect.top,
+                iEl.left - wrapperRect.left,
+                iEl.top + (iEl.height/2) - wrapperRect.top,
+                '#2ecc71'
+            );
+        });
+    }
+
+    function drawErrorLine(wId, iId) {
+        const wrapperRect = document.getElementById('game-wrapper').getBoundingClientRect();
+        const wEl = document.getElementById(wId).getBoundingClientRect();
+        const iEl = document.getElementById(iId).getBoundingClientRect();
+
+        const x1 = wEl.right - wrapperRect.left;
+        const y1 = wEl.top + (wEl.height/2) - wrapperRect.top;
+        const x2 = iEl.left - wrapperRect.left;
+        const y2 = iEl.top + (iEl.height/2) - wrapperRect.top;
+
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = '#e74c3c';
+        ctx.lineWidth = 3;
+        ctx.setLineDash([5, 5]);
+        ctx.stroke();
+
+        setTimeout(drawAllLines, 500); // Hapus garis merah setelah 0.5 detik
+    }
+
+    function draw(x1, y1, x2, y2, color) {
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'round';
+        ctx.setLineDash([]);
+        ctx.stroke();
+    }
+
+    function resizeCanvas() {
+        const wrapper = document.getElementById('game-wrapper');
+        canvas.width = wrapper.clientWidth;
+        canvas.height = wrapper.clientHeight;
+        drawAllLines(); // Gambar ulang garis di posisi baru
+    }
+
+    function goBack() {
+        // Sembunyikan semua layar permainan dan modal
+        document.getElementById('home-screen').style.display = 'flex';
+        document.getElementById('game-screen').style.display = 'none';
+        document.getElementById('win-message').style.display = 'none'; // Pastikan modal hilang
+        
+        // Bersihkan canvas agar tidak ada garis sisa di permainan berikutnya
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        matches = []; 
+    }
+
+    function toggleFullScreen() {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+        else document.exitFullscreen();
+        setTimeout(resizeCanvas, 500); // Tunggu animasi fullscreen selesai
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        });
+</script>
+</body>
+</html>

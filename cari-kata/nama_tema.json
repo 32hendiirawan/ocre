@@ -1,0 +1,38 @@
+{
+    "kendaraan": [
+        "MOBIL", "SEPEDA", "SEPEDAMOTOR", "BECAK", "PESAWAT", 
+        "KERETA", "KAPAL", "PERAHU", "AMBULANS", "BUS",
+        "TRUK", "TAKSI"
+    ],
+    "profesi": [
+        "PETANI", "DOKTER", "POLISI", "TENTARA", "PILOT", 
+        "MASINIS", "NAHKODA", "SOPIR", "GURU", "PERAWAT",
+        "NELAYAN", "PEDAGANG", "KOKI", "TUKANG", "KARYAWAN"
+    ],
+    "hewan": [
+        "HARIMAU", "GAJAH", "JERAPAH", "MERPATI", "LUMBALUMBA", 
+        "KANGGURU", "BERUANG", "KUCING", "ELANG", "LANDAK",
+        "KAMBING", "SERIGALA", "BUAYA", "KERBAU", "KELINCI"
+    ],
+    "buah": [
+        "MANGGA", "PISANG", "DURIAN", "RAMBUTAN", "SEMANGKA", 
+        "ALPUKAT", "ANGGUR", "MELON", "PEPAYA", "MANGGIS",
+        "JERUK", "APEL", "JAMBU", "NANGKA"
+    ],
+    "antariksa": [
+        "MERKURIUS", "VENUS", "MARS", "JUPITER", "SATURNUS", 
+        "NEPTUNUS", "GALAKSI", "METEOR", "ASTEROID", "KOMET",
+        "URANUS", "BULAN", "MATAHARI", "TATASURYA"
+    ],
+    "bulan": [
+        "JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", 
+        "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER",
+        "NOVEMBER", "DESEMBER"
+    ],
+    "asean": [
+        "INDONESIA", "MALAYSIA", "THAILAND", "VIETNAM", "PHILIPPINES", 
+        "SINGAPORE", "BRUNEI", "TIMORLESTE", "LAOS", "CAMBODIA",
+        "MYANMAR"
+    ]
+
+}

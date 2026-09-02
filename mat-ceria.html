@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kuis Matematika Dasar Interaktif - Efek Tirai</title>
+    <style>
+        :root {
+            --primary: #16a34a;
+            --primary-hover: #15803d;
+            --bg-main: #f0fdf4;
+            --border-color: #64748b;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-main);
+            color: #1e293b;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            max-width: 750px;
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+            position: relative;
+        }
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+        .page { display: none; }
+        .active { display: block; }
+
+        /* ===== ELEMEN TIRAI TRANSISI ===== */
+        .curtain-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none; /* Biar tombol di bawahnya tetep bisa diklik saat terbuka */
+            z-index: 9999;
+            display: flex;
+        }
+    .curtain-left, .curtain-right {
+        width: 50%;
+        height: 100%;
+        /* Ganti URL di bawah dengan link gambar Anda */
+        background-image: url('https://i.pinimg.com/736x/54/dd/e2/54dde2ad5f93864148e55e657d431cbb.jpg'); 
+        background-size: 200% 100%; /* Lebar diatur 200% karena gambarnya dipakai berdua */
+        background-repeat: no-repeat;
+        transition: transform 0.5s ease-in-out;
+    }
+
+    /* Sisi kiri mengambil belahan gambar sebelah kiri */
+    .curtain-left {
+        background-position: left center;
+    }
+
+    /* Sisi kanan mengambil belahan gambar sebelah kanan */
+    .curtain-right {
+        background-position: right center;
+    }        /* State Terbuka */
+        .curtain-container.open .curtain-left {
+            transform: translateX(-100%);
+        }
+        .curtain-container.open .curtain-right {
+            transform: translateX(100%);
+        }
+        /* State Tertutup */
+        .curtain-container.closed .curtain-left {
+            transform: translateX(0);
+        }
+        .curtain-container.closed .curtain-right {
+            transform: translateX(0);
+        }
+
+        /* Menu Home */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .menu-btn {
+            background-color: #ffffff;
+            border: 2px solid #e2e8f0;
+            padding: 15px 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 1.0s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        @media (max-width: 480px) {
+            .menu-grid { grid-template-columns: 1fr; }
+        }
+        .menu-btn:hover {
+            border-color: var(--primary);
+            background-color: #f0fdf4;
+        }
+
+        /* Game Progress */
+        .progress-bar {
+            font-size: 0.9rem;
+            color: #64748b;
+            font-weight: bold;
+        }
+
+        /* Pembungkus Skala Otomatis */
+        .scale-outer-container {
+            width: 100%;
+            overflow: visible;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 15px 0;
+        }
+        .scale-inner-wrap {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            transform-origin: center center;
+            transition: transform 1.0s ease-out;
+            width: max-content;
+        }
+        
+        /* Kotak Pasangan Berimbang */
+        .visual-box {
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            width: 280px; 
+            min-height: 120px; 
+            padding: 15px; 
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 12px; 
+            justify-items: center;
+            align-items: center;
+            background-color: #f8fafc;
+            box-sizing: border-box;
+        }
+        .operator-sign {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .emoji-item {
+            font-size: 1.8rem;
+            line-height: 1;
+            display: inline-block;
+        }
+
+        /* Grid Perkalian & Pembagian */
+        .grid-container {
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 15px;
+            background-color: #f8fafc;
+            display: inline-block;
+            box-sizing: border-box;
+        }
+        .math-grid {
+            display: grid;
+            gap: 12px;
+            justify-items: center;
+            align-items: center;
+        }
+        .basket-row {
+            display: grid;
+            gap: 12px;
+            justify-items: center;
+            margin-top: 10px;
+            border-top: 2px dashed #cbd5e1;
+            padding-top: 10px;
+        }
+
+        /* Teks Soal */
+        .question-text {
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: bold;
+            margin: 15px 0;
+            letter-spacing: 1px;
+        }
+
+        /* Pilihan Jawaban */
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .option-btn {
+            background-color: #f1f5f9;
+            border: 2px solid #cbd5e1;
+            padding: 14px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 1.0s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .option-btn:hover {
+            background-color: #e2e8f0;
+            border-color: #94a3b8;
+        }
+
+        /* Hasil Akhir */
+        .result-card {
+            text-align: center;
+            padding: 10px 0;
+        }
+        .score-circle {
+            width: 110px;
+            height: 110px;
+            background-color: var(--bg-main);
+            border: 4px solid var(--primary);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.3rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 15px auto;
+        }
+        .action-btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+        .btn-retry { background-color: var(--primary); color: white; }
+        .btn-home { background-color: #64748b; color: white; }
+    </style>
+</head>
+<body>
+
+<div id="curtain" class="curtain-container closed">
+    <div class="curtain-left"></div>
+    <div class="curtain-right"></div>
+</div>
+
+<div class="container">
+    <div id="page-home" class="page active">
+        <h1>🍓 Matematika Ceria 🍉</h1>
+        <p style="text-align: center; color: #64748b; margin-top: 0;">Pilih jenis permainan untuk mulai belajar!</p>
+        <div class="menu-grid">
+            <button class="menu-btn" onclick="startQuiz('hitung')"><span>🍎</span>1. Menghitung Buah</button>
+            <button class="menu-btn" onclick="startQuiz('banding')"><span>⚖️</span>2. Membandingkan</button>
+            <button class="menu-btn" onclick="startQuiz('tambah')"><span>➕</span>3. Penjumlahan</button>
+            <button class="menu-btn" onclick="startQuiz('kurang')"><span>➖</span>4. Pengurangan</button>
+            <button class="menu-btn" onclick="startQuiz('kali')"><span>✖️</span>5. Perkalian</button>
+            <button class="menu-btn" onclick="startQuiz('bagi')"><span>➗</span>6. Pembagian</button>
+        </div>
+    </div>
+
+    <div id="page-game" class="page">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span id="game-title" style="font-weight: bold; color: var(--primary); font-size: 0.95rem;">Kategori</span>
+            <div id="game-progress" class="progress-bar">Soal 1 dari 10</div>
+        </div>
+        
+        <div class="scale-outer-container">
+            <div class="scale-inner-wrap" id="visual-area"></div>
+        </div>
+
+        <div class="question-text" id="question-label">0 + 0 = ....</div>
+        <div class="options-container" id="options-area"></div>
+    </div>
+
+    <div id="page-result" class="page">
+        <div class="result-card">
+            <h1>🎉 Hasil Kuis 🎉</h1>
+            <p id="result-message" style="font-size: 1.2rem; font-weight: 500; margin: 5px 0;"></p>
+            <div class="score-circle" id="score-text">0</div>
+            <p id="score-detail" style="margin-bottom: 20px;"></p>
+            
+            <button class="action-btn btn-retry" onclick="retryQuiz()">🔄 Ulangi Kuis</button>
+            <button class="action-btn btn-home" onclick="goHome()">🏠 Kembali ke Home</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const fruits = ['🍎', '🍊', '🍓', '🍋', '🍇', '🍒', '🥑', '🥭'];
+    let currentCategory = '';
+    let questions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    // FUNGSI ANIMASI TIRAI UTAMA
+    function triggerCurtainTransition(durationClosed, callback) {
+        const curtain = document.getElementById('curtain');
+        
+        // 1. Tutup Tirai
+        curtain.className = 'curtain-container closed';
+        
+        // 2. Tunggu sampai tirai menutup penuh, lalu ganti konten/soal di belakang layar
+        setTimeout(() => {
+            if (callback) callback();
+            
+            // 3. Buka Tirai Kembali
+            curtain.className = 'curtain-container open';
+        }, durationClosed);
+    }
+
+    // Efek Pembuka saat pertama kali aplikasi dibuka (Durasi Menutup Diatur 1.2 Detik)
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            document.getElementById('curtain').className = 'curtain-container open';
+        }, 1200); 
+    });
+
+    function getRandomFruit() {
+        return fruits[Math.floor(Math.random() * fruits.length)];
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function generateQuestions(category) {
+        let generated = [];
+        for (let i = 0; i < 10; i++) {
+            let q = { fruit: getRandomFruit() };
+            if (category === 'hitung') {
+                q.num1 = Math.floor(Math.random() * 10) + 1;
+                q.text = `Berapa jumlah buah? = ....`;
+                q.answer = q.num1;
+                q.options = generateOptions(q.answer, 1, 10);
+            } 
+            else if (category === 'banding') {
+                q.num1 = Math.floor(Math.random() * 10) + 1;
+                q.num2 = Math.floor(Math.random() * 10) + 1;
+                q.text = `${q.num1}  ...  ${q.num2}`;
+                q.answer = q.num1 > q.num2 ? '>' : (q.num1 < q.num2 ? '<' : '=');
+                q.options = ['<', '>', '='];
+            } 
+            else if (category === 'tambah') {
+                q.num1 = Math.floor(Math.random() * 9) + 1;
+                q.num2 = Math.floor(Math.random() * 9) + 1;
+                q.text = `${q.num1} + ${q.num2} = ....`;
+                q.answer = q.num1 + q.num2;
+                q.options = generateOptions(q.answer, 2, 20);
+            } 
+            else if (category === 'kurang') {
+                q.num1 = Math.floor(Math.random() * 9) + 2;
+                q.num2 = Math.floor(Math.random() * (q.num1 - 1)) + 1;
+                q.text = `${q.num1} - ${q.num2} = ....`;
+                q.answer = q.num1 - q.num2;
+                q.options = generateOptions(q.answer, 1, 10);
+            } 
+            else if (category === 'kali') {
+                q.num1 = Math.floor(Math.random() * 4) + 2; 
+                q.num2 = Math.floor(Math.random() * 4) + 2; 
+                q.text = `${q.num1} x ${q.num2} = ....`;
+                q.answer = q.num1 * q.num2;
+                q.options = generateOptions(q.answer, 4, 25);
+            } 
+            else if (category === 'bagi') {
+                q.num2 = Math.floor(Math.random() * 4) + 2; 
+                q.answer = Math.floor(Math.random() * 4) + 1; 
+                q.num1 = q.num2 * q.answer; 
+                q.text = `${q.num1} : ${q.num2} = ....`;
+                q.options = generateOptions(q.answer, 1, 6);
+            }
+            generated.push(q);
+        }
+        return generated;
+    }
+
+    function generateOptions(correct, min, max) {
+        let set = new Set([correct]);
+        while (set.size < 4) {
+            let rand = Math.floor(Math.random() * (max - min + 1)) + min;
+            if (rand > 0) set.add(rand);
+        }
+        return shuffleArray(Array.from(set));
+    }
+
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+    }
+
+    function startQuiz(category) {
+        triggerCurtainTransition(1000, () => {
+            currentCategory = category;
+            questions = generateQuestions(category);
+            currentQuestionIndex = 0;
+            score = 0;
+            
+            const titles = {
+                hitung: '1. Menghitung Buah', banding: '2. Membandingkan', 
+                tambah: '3. Penjumlahan', kurang: '4. Pengurangan', 
+                kali: '5. Perkalian', bagi: '6. Pembagian'
+            };
+            document.getElementById('game-title').innerText = titles[category];
+            
+            showPage('page-game');
+            renderQuestion();
+        });
+    }
+
+    function adjustScale() {
+        const outer = document.querySelector('.scale-outer-container');
+        const inner = document.getElementById('visual-area');
+        if (!outer || !inner) return;
+
+        inner.style.transform = 'scale(1)';
+        outer.style.height = 'auto';
+
+        const outerWidth = outer.offsetWidth;
+        const innerWidth = inner.offsetWidth;
+
+        if (innerWidth > outerWidth) {
+            const scaleFactor = (outerWidth / innerWidth) * 0.95;
+            inner.style.transform = `scale(${scaleFactor})`;
+            outer.style.height = `${inner.offsetHeight * scaleFactor}px`;
+        } else {
+            outer.style.height = `${inner.offsetHeight}px`;
+        }
+    }
+
+    function renderQuestion() {
+        const q = questions[currentQuestionIndex];
+        document.getElementById('game-progress').innerText = `Soal ${currentQuestionIndex + 1} dari 10`;
+        document.getElementById('question-label').innerText = q.text;
+
+        const visualArea = document.getElementById('visual-area');
+        visualArea.innerHTML = ''; 
+
+        if (currentCategory === 'hitung') {
+            let box = document.createElement('div');
+            box.className = 'visual-box';
+            box.innerHTML = Array(q.num1).fill(`<span class="emoji-item">${q.fruit}</span>`).join('');
+            visualArea.appendChild(box);
+        } 
+        else if (currentCategory === 'banding' || currentCategory === 'tambah' || currentCategory === 'kurang') {
+            let sign = currentCategory === 'tambah' ? '+' : (currentCategory === 'kurang' ? '-' : '?');
+            
+            let boxLeft = document.createElement('div');
+            boxLeft.className = 'visual-box';
+            boxLeft.innerHTML = Array(q.num1).fill(`<span class="emoji-item">${q.fruit}</span>`).join('');
+
+            let opSign = document.createElement('div');
+            opSign.className = 'operator-sign';
+            opSign.innerText = sign;
+
+            let boxRight = document.createElement('div');
+            boxRight.className = 'visual-box';
+            boxRight.innerHTML = Array(q.num2).fill(`<span class="emoji-item">${q.fruit}</span>`).join('');
+
+            visualArea.appendChild(boxLeft);
+            visualArea.appendChild(opSign);
+            visualArea.appendChild(boxRight);
+        } 
+        else if (currentCategory === 'kali') {
+            let gridContainer = document.createElement('div');
+            gridContainer.className = 'grid-container';
+            
+            let grid = document.createElement('div');
+            grid.className = 'math-grid';
+            grid.style.gridTemplateColumns = `repeat(${q.num2}, minmax(0, 1fr))`;
+            grid.innerHTML = Array(q.num1 * q.num2).fill(`<span class="emoji-item">${q.fruit}</span>`).join('');
+            
+            gridContainer.appendChild(grid);
+            visualArea.appendChild(gridContainer);
+        } 
+        else if (currentCategory === 'bagi') {
+            let gridContainer = document.createElement('div');
+            gridContainer.className = 'grid-container';
+            
+            let grid = document.createElement('div');
+            grid.className = 'math-grid';
+            grid.style.gridTemplateColumns = `repeat(${q.num2}, minmax(0, 1fr))`;
+            grid.innerHTML = Array(q.num1).fill(`<span class="emoji-item">${q.fruit}</span>`).join('');
+            
+            let basketRow = document.createElement('div');
+            basketRow.className = 'basket-row';
+            basketRow.style.gridTemplateColumns = `repeat(${q.num2}, minmax(0, 1fr))`;
+            basketRow.innerHTML = Array(q.num2).fill(`<span class="emoji-item">🧺</span>`).join('');
+
+            gridContainer.appendChild(grid);
+            gridContainer.appendChild(basketRow);
+            visualArea.appendChild(gridContainer);
+        }
+
+        setTimeout(adjustScale, 20);
+
+        const optionsArea = document.getElementById('options-area');
+        optionsArea.innerHTML = '';
+        q.options.forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => handleAnswer(opt);
+            optionsArea.appendChild(btn);
+        });
+    }
+
+    function handleAnswer(selected) {
+        const q = questions[currentQuestionIndex];
+        if (selected.toString() === q.answer.toString()) {
+            score++;
+        }
+
+        currentQuestionIndex++;
+        
+        // Transisi singkat tirai (0.5 detik menutup-buka) antar soal atau ke halaman akhir
+        triggerCurtainTransition(1000, () => {
+            if (currentQuestionIndex < 10) {
+                renderQuestion();
+            } else {
+                showResult();
+            }
+        });
+    }
+
+    function showResult() {
+        showPage('page-result');
+        const finalScore = score * 10;
+        document.getElementById('score-text').innerText = finalScore;
+        document.getElementById('score-detail').innerText = `Kamu menjawab benar ${score} dari 10 soal.`;
+        
+        const msg = document.getElementById('result-message');
+        if (finalScore === 100) {
+            msg.innerHTML = "🏆 Luar Biasa! Nilai Sempurna ⭐";
+            msg.style.color = "#16a34a";
+        } else if (finalScore >= 70) {
+            msg.innerHTML = "👍 Hebat! Hasil yang Bagus!";
+            msg.style.color = "#2563eb";
+        } else {
+            msg.innerHTML = "💪 Tetap Semangat, Ayo Coba Lagi!";
+            msg.style.color = "#dc2626";
+        }
+    }
+
+    function retryQuiz() {
+        startQuiz(currentCategory);
+    }
+
+    function goHome() {
+        triggerCurtainTransition(1000, () => {
+            showPage('page-home');
+        });
+    }
+
+    window.addEventListener('resize', adjustScale);
+
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+
+    document.addEventListener('selectstart', function(e) {
+        e.preventDefault();
+    });
+</script>
+
+</body>
+</html>

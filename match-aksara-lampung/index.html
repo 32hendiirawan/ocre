@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onet Match - Aksara Lampung Ceria</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@700;800&family=Noto+Sans+Sundanese&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'kaganga_21';
+            src: url('kaganga.ttf');
+        }
+
+        :root {
+            /* Palette Ceria & Playful */
+            --bg-color: #f0f9ff;
+            --wrapper-bg: #ffffff;
+            --primary: #8b5cf6;
+            --primary-hover: #7c3aed;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --timer-bg: #fef3c7;
+            --timer-text: #d97706;
+            --score-bg: #dcfce7;
+            --score-text: #15803d;
+
+            /* Ubin Aksara (Kuning/Orange Ceria) */
+            --tile-aksara-bg: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            --tile-aksara-border: #fde047;
+            --tile-aksara-shadow: #f59e0b;
+            --tile-aksara-text: #b45309;
+
+            /* Ubin Latin (Biru/Cyan Segar) */
+            --tile-latin-bg: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            --tile-latin-border: #86efac;
+            --tile-latin-shadow: #22c55e;
+            --tile-latin-text: #15803d;
+
+            /* State Status */
+            --tile-selected-bg: #e0e7ff;
+            --tile-selected-border: #6366f1;
+            --tile-selected-shadow: #4338ca;
+            --line-color: #ec4899;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#bae6fd 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Container 16:9 Landscape */
+        .game-wrapper {
+            width: 95vw;
+            height: 53.4375vw;
+            max-width: 1100px;
+            max-height: 618.75px;
+            background: var(--wrapper-bg);
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -10px rgba(139, 92, 246, 0.15), 0 10px 15px -5px rgba(0, 0, 0, 0.04);
+            border: 4px solid #e0e7ff;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Header UI */
+        .header-ui {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 3px dashed #e2e8f0;
+        }
+
+        .title-area h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-shadow: 1px 1px 0px #ddd6fe;
+        }
+
+        .title-area p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .stats-area {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .stat-badge {
+            padding: 6px 16px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 0px rgba(0,0,0,0.05);
+        }
+
+        .stat-score {
+            background-color: var(--score-bg);
+            color: var(--score-text);
+            border: 2px solid #86efac;
+        }
+
+        .stat-timer {
+            background-color: var(--timer-bg);
+            color: var(--timer-text);
+            border: 2px solid #fde047;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 14px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 0px var(--primary-hover);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0px var(--primary-hover);
+        }
+
+        .btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0px var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: #f1f5f9;
+            color: #475569;
+            box-shadow: 0 4px 0px #cbd5e1;
+        }
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+            box-shadow: 0 6px 0px #cbd5e1;
+        }
+
+        /* Board & Canvas Overlay */
+        .board-container {
+            flex: 1;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background: #faf5ff;
+            border-radius: 20px;
+            padding: 10px;
+        }
+
+        #line-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .grid {
+            display: grid;
+            gap: 10px;
+            position: relative;
+            z-index: 5;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Tile Style (Sensasi Tombol 3D Pop-up) */
+        .tile {
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+            text-align: center;
+            padding: 4px;
+        }
+
+        .tile:hover {
+            transform: translateY(-3px);
+        }
+
+        .tile:active {
+            transform: translateY(1px);
+        }
+
+        /* Ubin Aksara Lampung */
+        .tile.aksara {
+            background: var(--tile-aksara-bg);
+            border: 2px solid var(--tile-aksara-border);
+            box-shadow: 0 5px 0px var(--tile-aksara-shadow);
+            color: var(--tile-aksara-text);
+            font-family: 'kaganga_21', 'Noto Sans Sundanese', sans-serif;
+            font-size: 1.8rem;
+        }
+
+        .tile.aksara:hover {
+            box-shadow: 0 7px 0px var(--tile-aksara-shadow);
+        }
+
+        /* Ubin Tulisan Latin */
+        .tile.latin {
+            background: var(--tile-latin-bg);
+            border: 2px solid var(--tile-latin-border);
+            box-shadow: 0 5px 0px var(--tile-latin-shadow);
+            color: var(--tile-latin-text);
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        .tile.latin:hover {
+            box-shadow: 0 7px 0px var(--tile-latin-shadow);
+        }
+
+        /* State Dipilih */
+        .tile.selected {
+            background: var(--tile-selected-bg) !important;
+            border-color: var(--tile-selected-border) !important;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3), 0 5px 0px var(--tile-selected-shadow) !important;
+            transform: scale(1.05) translateY(-3px) !important;
+        }
+
+        .tile.empty {
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        /* Overlays Ceria */
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background-image: url('https://i0.wp.com/www.eviindrawanto.com/wp-content/uploads/2012/01/Mahkota-Siger-Lampung.jpg?fit=800%2C537&ssl=1');
+            background-size: cover;
+            background-position: center;            
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            border-radius: 28px;
+        }
+
+        .overlay h2 {
+            font-size: 2.3rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0px #ddd6fe;
+        }
+
+        .overlay p {
+            color: var(--primary);
+            margin-bottom: 24px;
+            text-align: center;
+            font-size: 1rem;
+            line-height: 1.4;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 12px 20px;
+            border-radius: 12px;
+        }
+
+        .level-select {
+            display: flex;
+            gap: 16px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-wrapper">
+        <!-- Header -->
+        <div class="header-ui">
+            <div class="title-area">
+                <h1> Match Aksara Lampung</h1>
+                <p id="level-title">Level 1: Aksara Dasar</p>
+            </div>
+            <div class="stats-area">
+                <div class="stat-badge stat-score">Skor: <span id="score">0</span></div>
+                <div class="stat-badge stat-timer">Waktu: <span id="timer">120</span>s</div>
+                <button class="btn btn-secondary" onclick="shuffleCurrentBoard()"> Acak Board</button>
+                <button class="btn btn-secondary" onclick="showStartScreen()"> Menu</button>
+            </div>
+        </div>
+
+        <!-- Area Game & Canvas -->
+        <div class="board-container" id="board-container">
+            <canvas id="line-canvas"></canvas>
+            <div class="grid" id="grid"></div>
+        </div>
+
+        <!-- Overlay Layar Mulai / Level Select -->
+        <div id="start-screen" class="overlay">
+            <h2> Match Aksara Lampung</h2>
+            <p>Yuk, pasangkan Aksara Lampung dengan huruf Latin yang tepat!<br>Pilih level yang ingin kamu mainkan:</p>
+            <div class="level-select">
+                <button class="btn" onclick="startGame(1)"> Level 1: Aksara Dasar</button>
+                <button class="btn" onclick="startGame(2)"> Level 2: Aksara Lanjutan</button>
+            </div>
+        </div>
+
+        <!-- Overlay Menang/Kalah -->
+        <div id="end-screen" class="overlay hidden">
+            <h2 id="end-title"> Selamat!</h2>
+            <p id="end-desc">Kamu berhasil menyelesaikan permainan ini!</p>
+            <div class="level-select">
+                <button class="btn btn-secondary" onclick="showStartScreen()">Pilih Level</button>
+                <button class="btn" id="btn-next" onclick="restartLevel()">Main Lagi</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Kunci Induk Huruf dari Level 1[cite: 1]
+        const level1Data = [
+            { id: 1, aksara: 'k', latin: 'Ka', baseLatin: 'k' },
+            { id: 2, aksara: 'g', latin: 'Ga', baseLatin: 'g' },
+            { id: 3, aksara: 'G', latin: 'Nga', baseLatin: 'ng' },
+            { id: 4, aksara: 'p', latin: 'Pa', baseLatin: 'p' },
+            { id: 5, aksara: 'b', latin: 'Ba', baseLatin: 'b' },
+            { id: 6, aksara: 'm', latin: 'Ma', baseLatin: 'm' },
+            { id: 7, aksara: 't', latin: 'Ta', baseLatin: 't' },
+            { id: 8, aksara: 'd', latin: 'Da', baseLatin: 'd' },
+            { id: 9, aksara: 'n', latin: 'Na', baseLatin: 'n' },
+            { id: 10, aksara: 'c', latin: 'Ca', baseLatin: 'c' },
+            { id: 11, aksara: 'j', latin: 'Ja', baseLatin: 'j' },
+            { id: 12, aksara: 'N', latin: 'Nya', baseLatin: 'ny' },
+            { id: 13, aksara: 'y', latin: 'Ya', baseLatin: 'y' },
+            { id: 14, aksara: 'a', latin: 'A', baseLatin: '' },
+            { id: 15, aksara: 'l', latin: 'La', baseLatin: 'l' },
+            { id: 16, aksara: 'r', latin: 'Ra', baseLatin: 'r' },
+            { id: 17, aksara: 's', latin: 'Sa', baseLatin: 's' },
+            { id: 18, aksara: 'w', latin: 'Wa', baseLatin: 'w' },
+            { id: 19, aksara: 'h', latin: 'Ha', baseLatin: 'h' },
+            { id: 20, aksara: 'H', latin: 'Gha', baseLatin: 'gh' }
+        ];
+
+        // Template Struktur Anak Huruf (Benah Surat)
+        const anakHurufTemplates = [
+            { suffixAksara: '', suffixLatin: 'a' },
+            { suffixAksara: 'i', suffixLatin: 'i' },
+            { suffixAksara: 'u', suffixLatin: 'u' },
+            { suffixAksara: 'e', suffixLatin: 'ê' },
+            { suffixAksara: 'E', suffixLatin: 'é' },
+            { suffixAksara: 'o', suffixLatin: 'o' },
+            { suffixAksara: 'A', suffixLatin: 'an' },
+            { suffixAksara: 'X', suffixLatin: 'ang' },
+            { suffixAksara: 'x', suffixLatin: 'ah' },
+            { suffixAksara: 'R', suffixLatin: 'ar' },
+            { suffixAksara: 'I', suffixLatin: 'ai' },
+            { suffixAksara: 'W', suffixLatin: 'au' },
+            { suffixAksara: 'kM', suffixLatin: 'ak' },
+            { suffixAksara: 'iA', suffixLatin: 'in' },
+            { suffixAksara: 'uX', suffixLatin: 'ung' },
+            { suffixAksara: 'oR', suffixLatin: 'or' },
+            { suffixAksara: 'Ex', suffixLatin: 'éh' },
+            { suffixAksara: 'uA', suffixLatin: 'un' },
+            { suffixAksara: 'iX', suffixLatin: 'ing' },
+            { suffixAksara: 'eR', suffixLatin: 'êr' }
+        ];
+
+        function capitalize(str) {
+            if (!str) return '';
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function generateLevel2Data() {
+            const randomBase = level1Data[Math.floor(Math.random() * level1Data.length)];
+            return anakHurufTemplates.map((template, index) => {
+                let aksaraStr = randomBase.aksara + template.suffixAksara;
+                let rawLatin = randomBase.baseLatin + template.suffixLatin;
+                if (randomBase.aksara === 'a') {
+                    rawLatin = template.suffixLatin;
+                }
+                let latinStr = capitalize(rawLatin);
+
+                return {
+                    id: 100 + index + 1,
+                    aksara: aksaraStr,
+                    latin: latinStr,
+                    baseName: randomBase.latin
+                };
+            });
+        }
+
+        const COLS = 8;
+        const ROWS = 5;
+
+        let currentLevel = 1;
+        let board = [];
+        let selectedTile = null;
+        let score = 0;
+        let timer = 120;
+        let timerInterval = null;
+        let pairsLeft = 0;
+
+        const gridEl = document.getElementById('grid');
+        const canvas = document.getElementById('line-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            const container = document.getElementById('board-container');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        function showStartScreen() {
+            clearInterval(timerInterval);
+            document.getElementById('start-screen').classList.remove('hidden');
+            document.getElementById('end-screen').classList.add('hidden');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function startGame(level) {
+            currentLevel = level;
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('end-screen').classList.add('hidden');
+            
+            score = 0;
+            timer = level === 1 ? 120 : 150;
+            document.getElementById('score').innerText = score;
+            document.getElementById('timer').innerText = timer;
+
+            setupBoard();
+            resizeCanvas();
+
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timer--;
+                document.getElementById('timer').innerText = timer;
+                if (timer <= 0) {
+                    endGame(false, "Waktu Habis!");
+                }
+            }, 1000);
+        }
+
+        function restartLevel() {
+            startGame(currentLevel);
+        }
+
+        function setupBoard() {
+            let dataPool;
+            if (currentLevel === 1) {
+                dataPool = level1Data;
+                document.getElementById('level-title').innerText = 'Level 1: Aksara Dasar';
+            } else {
+                dataPool = generateLevel2Data();
+                const sampleBaseName = dataPool[0].baseName;
+                document.getElementById('level-title').innerText = `Level 2: Aksara Lanjutan (Basik Induk: ${sampleBaseName})`;
+            }
+            
+            let items = [];
+            dataPool.forEach(item => {
+                items.push({ pairId: item.id, text: item.aksara, type: 'aksara' });
+                items.push({ pairId: item.id, text: item.latin, type: 'latin' });
+            });
+
+            items.sort(() => Math.random() - 0.5);
+
+            board = Array(ROWS).fill(null).map(() => Array(COLS).fill(null));
+
+            let itemIdx = 0;
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    board[r][c] = {
+                        r, c,
+                        ...items[itemIdx++]
+                    };
+                }
+            }
+
+            pairsLeft = items.length / 2;
+            renderBoard();
+        }
+
+        function renderBoard() {
+            gridEl.innerHTML = '';
+            gridEl.style.gridTemplateColumns = `repeat(${COLS}, 1fr)`;
+
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const tileEl = document.createElement('div');
+                    tileEl.classList.add('tile');
+
+                    const tileData = board[r][c];
+                    if (!tileData) {
+                        tileEl.classList.add('empty');
+                    } else {
+                        tileEl.innerText = tileData.text;
+                        tileEl.classList.add(tileData.type);
+                        tileEl.onclick = () => onTileClick(r, c);
+                        if (selectedTile && selectedTile.r === r && selectedTile.c === c) {
+                            tileEl.classList.add('selected');
+                        }
+                    }
+                    gridEl.appendChild(tileEl);
+                }
+            }
+        }
+
+        function shuffleCurrentBoard() {
+            let activeItems = [];
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    if (board[r][c]) {
+                        activeItems.push(board[r][c]);
+                    }
+                }
+            }
+
+            activeItems.sort(() => Math.random() - 0.5);
+
+            let idx = 0;
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    if (board[r][c]) {
+                        board[r][c] = { ...activeItems[idx++], r, c };
+                    }
+                }
+            }
+            selectedTile = null;
+            renderBoard();
+        }
+
+        function onTileClick(r, c) {
+            const clicked = board[r][c];
+            if (!clicked) return;
+
+            if (!selectedTile) {
+                selectedTile = clicked;
+                renderBoard();
+                return;
+            }
+
+            if (selectedTile.r === r && selectedTile.c === c) {
+                selectedTile = null;
+                renderBoard();
+                return;
+            }
+
+            if (selectedTile.pairId === clicked.pairId && selectedTile.type !== clicked.type) {
+                const p1 = selectedTile;
+                const p2 = clicked;
+
+                drawLineDirect(p1, p2);
+
+                setTimeout(() => {
+                    board[p1.r][p1.c] = null;
+                    board[p2.r][p2.c] = null;
+                    selectedTile = null;
+                    score += 10;
+                    pairsLeft--;
+                    document.getElementById('score').innerText = score;
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    renderBoard();
+
+                    if (pairsLeft === 0) {
+                        endGame(true, "Level Selesai!");
+                    }
+                }, 200);
+            } else {
+                selectedTile = clicked;
+                renderBoard();
+            }
+        }
+
+        function drawLineDirect(p1, p2) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.strokeStyle = '#ec4899';
+            ctx.lineWidth = 6;
+            ctx.lineCap = 'round';
+
+            const containerRect = gridEl.getBoundingClientRect();
+            const parentRect = document.getElementById('board-container').getBoundingClientRect();
+
+            const cellWidth = containerRect.width / COLS;
+            const cellHeight = containerRect.height / ROWS;
+
+            const x1 = (containerRect.left - parentRect.left) + p1.c * cellWidth + cellWidth / 2;
+            const y1 = (containerRect.top - parentRect.top) + p1.r * cellHeight + cellHeight / 2;
+            
+            const x2 = (containerRect.left - parentRect.left) + p2.c * cellWidth + cellWidth / 2;
+            const y2 = (containerRect.top - parentRect.top) + p2.r * cellHeight + cellHeight / 2;
+
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+        }
+
+        function endGame(isWin, titleStr) {
+            clearInterval(timerInterval);
+            const endScreen = document.getElementById('end-screen');
+            const title = document.getElementById('end-title');
+            const desc = document.getElementById('end-desc');
+            const btnNext = document.getElementById('btn-next');
+
+            title.innerText = isWin ? " Hore, Hebat!" : " Yah, Waktu Habis!";
+            desc.innerText = isWin 
+                ? `Kamu menyelesaikan ${document.getElementById('level-title').innerText} dengan skor ${score}!`
+                : `${titleStr} Tetap semangat dan coba lagi ya!`;
+
+            if (isWin && currentLevel === 1) {
+                btnNext.innerText = "Lanjut Level 2";
+                btnNext.onclick = () => startGame(2);
+            } else {
+                btnNext.innerText = "Main Lagi";
+                btnNext.onclick = () => startGame(currentLevel);
+            }
+
+            endScreen.classList.remove('hidden');
+        }
+        
+        (function() {
+            window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+            window.addEventListener('keydown', function(e) {
+                if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            }, true);
+        })();
+    </script>
+</body>
+</html>
