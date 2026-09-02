@@ -69,7 +69,6 @@
             display: flex;
             flex-direction: column;
             flex: 1;
-            margin-bottom: 240px;
         }
 
         .input-section {
@@ -95,7 +94,7 @@
         }
 
         .game-input {
-            width: 50px;
+            width: 55px;
             padding: 6px 2px;
             border: 3px solid #7209B7;
             border-radius: 12px;
@@ -104,7 +103,6 @@
             text-align: center;
             background: #FFF;
             color: #333;
-            cursor: pointer;
         }
 
         .game-input:focus {
@@ -238,37 +236,6 @@
         }
         .hp-text { font-size: 1.1rem; font-weight: 700; color: #1B5E20; display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
 
-        /* SMART NUMPAD ALGEBRA */
-        .numpad-container {
-            background: #E0AAFF;
-            border-top: 5px solid #7209B7;
-            padding: 10px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            z-index: 10;
-        }
-
-        .num-btn {
-            padding: 12px 0;
-            font-size: 1.15rem;
-            font-weight: 700;
-            border-radius: 12px;
-            border: none;
-            cursor: pointer;
-            color: white;
-            border-bottom: 4px solid rgba(0,0,0,0.25);
-        }
-        .num-btn:active { transform: scale(0.94); }
-
-        .c-1 { background: #FF595E; }
-        .c-2 { background: #FF9F1C; }
-        .c-3 { background: #00BBF9; }
-        .c-4 { background: #00F5D4; color: #005F52; }
-        .c-spec { background: #F15BB5; }
-
         /* CUSTOM MODAL OVERLAY */
         .modal-overlay {
             position: absolute;
@@ -323,11 +290,11 @@
     <div class="main-content">
         <div class="input-section">
             <div class="eq-row">
-                <input class="game-input" type="text" id="a" value="2" readonly onclick="setActiveInput('a')">
+                <input class="game-input" type="number" step="any" id="a" value="2" oninput="updateSoal()">
                 <span>x² +</span>
-                <input class="game-input" type="text" id="b" value="3" readonly onclick="setActiveInput('b')">
+                <input class="game-input" type="number" step="any" id="b" value="3" oninput="updateSoal()">
                 <span>x +</span>
-                <input class="game-input" type="text" id="c" value="1" readonly onclick="setActiveInput('c')">
+                <input class="game-input" type="number" step="any" id="c" value="1" oninput="updateSoal()">
                 <span>= 0</span>
             </div>
             <div id="soal-text">2x² + 3x + 1 = 0</div>
@@ -342,30 +309,9 @@
 
         <div id="solution-flow"></div>
     </div>
-
-    <div class="numpad-container" id="global-numpad" style="display: none;">
-        <button class="num-btn c-1" onclick="pressKey('1')">1</button>
-        <button class="num-btn c-1" onclick="pressKey('2')">2</button>
-        <button class="num-btn c-1" onclick="pressKey('3')">3</button>
-        <button class="num-btn c-spec" onclick="pressKey('-')">±</button>
-        
-        <button class="num-btn c-2" onclick="pressKey('4')">4</button>
-        <button class="num-btn c-2" onclick="pressKey('5')">5</button>
-        <button class="num-btn c-2" onclick="pressKey('6')">6</button>
-        <button class="num-btn c-spec" onclick="pressKey('.')">.</button>
-        
-        <button class="num-btn c-3" onclick="pressKey('7')">7</button>
-        <button class="num-btn c-3" onclick="pressKey('8')">8</button>
-        <button class="num-btn c-3" onclick="pressKey('9')">9</button>
-        <button class="num-btn b-reset" style="grid-row: span 2; height:100%; font-size:1.4rem; margin-bottom:0; padding:0;" onclick="pressKey('del')">⌫</button>
-        
-        <button class="num-btn c-4" style="grid-column: span 3;" onclick="pressKey('0')">0</button>
-    </div>
 </div>
 
 <script>
-let currentActiveInputId = null;
-
 function showModal(msg) {
     document.getElementById('modal-msg').innerText = msg;
     document.getElementById('custom-modal').classList.add('show');
@@ -373,44 +319,6 @@ function showModal(msg) {
 
 function closeModal() {
     document.getElementById('custom-modal').classList.remove('show');
-}
-
-function setActiveInput(id) {
-    currentActiveInputId = id;
-    document.getElementById('global-numpad').style.display = 'grid';
-    document.querySelectorAll('.game-input').forEach(el => el.style.borderColor = '#7209B7');
-    document.getElementById(id).style.borderColor = '#F15BB5';
-}
-
-function hideNumpad() {
-    currentActiveInputId = null;
-    document.getElementById('global-numpad').style.display = 'none';
-    document.querySelectorAll('.game-input').forEach(el => el.style.borderColor = '#7209B7');
-}
-
-function pressKey(key) {
-    if (!currentActiveInputId) return;
-    const inputEl = document.getElementById(currentActiveInputId);
-    let currentVal = inputEl.value;
-
-    if (key === 'del') {
-        inputEl.value = currentVal.slice(0, -1);
-    } else if (key === '-') {
-        if (currentVal.startsWith('-')) {
-            inputEl.value = currentVal.slice(1);
-        } else {
-            inputEl.value = '-' + currentVal;
-        }
-    } else if (key === '.') {
-        if (!currentVal.includes('.')) inputEl.value = currentVal + '.';
-    } else {
-        if (currentVal === '0') {
-            inputEl.value = key;
-        } else {
-            inputEl.value = currentVal + key;
-        }
-    }
-    updateSoal();
 }
 
 // Fungsi utama yang menyempurnakan bentuk notasi matematika
@@ -491,8 +399,6 @@ function solve(method) {
         showModal("⚠️ Nilai koefisien (a) tidak boleh 0 karena merusak pola kuadrat!");
         return;
     }
-
-    hideNumpad();
 
     const D = b * b - 4 * a * c;
     const x1 = (-b + Math.sqrt(D)) / (2 * a);
@@ -734,17 +640,7 @@ function reset() {
     document.getElementById('c').value = '';
     document.getElementById('solution-flow').style.display = "none";
     updateSoal();
-    hideNumpad();
 }
-// GLOBAL BULLETPROOF SECURITY LAYER
-(function() {
-    window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
-    window.addEventListener('keydown', function(e) {
-        if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
-        if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
-        if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
-    }, true);
-})();
 </script>
 
 </body>
