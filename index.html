@@ -569,10 +569,16 @@
     <script>
         const itemsData = [
             { id: 'budi', title: 'Buku Pelajaran Digital', category: 'aplikasi', image: 'https://i.pinimg.com/736x/02/b6/70/02b67056aca2a3876968179ea3f981b7.jpg', url: 'https://budi-sd.my.id' },
-            { id: 'aksara-lampung', title: 'Aksara Lampung', category: 'aplikasi', image: 'https://i.pinimg.com/736x/e5/6e/36/e56e360fc490e242cab421a934d84e8e.jpg', url: 'https://32hendiirawan.github.io/aksaralampung/index.html' },
+            { id: 'aksara-lampung', title: 'Aksara Lampung', category: 'aplikasi', image: 'https://i.pinimg.com/736x/e5/6e/36/e56e360fc490e242cab421a934d84e8e.jpg', url: 'https://32hendiirawan.github.io/aksaralampung/' },
             { id: 'aksara-jawa', title: 'Aksara Jawa', category: 'aplikasi', image: 'https://i.pinimg.com/736x/00/24/bf/0024bfa64803d24792584c49ef7a349d.jpg', url: 'https://32hendiirawan.github.io/aksarajawa/' },
             { id: 'kamus-bergambar', title: 'Kamus Bergambar', category: 'aplikasi', image: 'https://i.pinimg.com/736x/84/fd/c3/84fdc3b788b5ed41d1bc3c22da067a22.jpg', url: 'https://gjls-bgt.github.io/kms/' },
-            { id: 'kalkulator-matematika', title: 'Kalkulator Matematika', category: 'aplikasi', image: 'https://i.pinimg.com/736x/84/fd/c3/84fdc3b788b5ed41d1bc3c22da067a22.jpg', url: 'kalkulator-matematika.html' },
+            { id: 'porogapit', title: 'Matematika : Pembagian Porogapit', category: 'aplikasi', image: 'https://i.pinimg.com/736x/5a/06/8f/5a068fb4d5524dce1f4d7623b29fa778.jpg', url: 'https://gjls-bgt.github.io/pg/' },
+            { id: 'bangun_datar', title: 'Matematika : Bangun Datar', category: 'aplikasi', image: 'icon/bangun_datar.jpg', url: 'https://32hendiirawan.github.io/bangun-datar/index.html' },
+            { id: 'bangun_ruang', title: 'Matematika : Bangun Ruang', category: 'aplikasi', image: 'https://i.pinimg.com/736x/33/ef/4c/33ef4c51a1f9cc563d8ba8ca0b471cd5.jpg', url: 'https://32hendiirawan.github.io/bangun-ruang/index.html' },
+            { id: 'trans-geo', title: 'Matematika : Transformasi Geometri', category: 'aplikasi', image: 'icon/trans-geo.jpg', url: 'trans-geo.html' },
+            { id: 'pecahan', title: 'Matematika : Pecahan', category: 'aplikasi', image: 'https://i.pinimg.com/736x/6b/69/e6/6b69e63832baecf520bd2b64eadfd0d5.jpg', url: 'https://32hendiirawan.github.io/pecahan/' },
+            { id: 'pemfaktoran', title: 'Matematika : FPB & KPK', category: 'aplikasi', image: 'https://lh3.googleusercontent.com/d/1TX3lM3ctNlD1cpLIgHmhGrfHo0kBB2yv', url: 'https://32hendiirawan.github.io/pemfaktoran-fpb-kpk/' },
+            { id: 'persamaan-kuadrat', title: 'Matematika : Persamaan Kuadrat', category: 'aplikasi', image: 'icon/persamaan-kuadrat.jpg', url: 'persamaan-kuadrat.html' },
             { id: 'doa', title: 'Doa Harian Anak Muslim', category: 'aplikasi', image: 'https://i.pinimg.com/736x/a1/c0/24/a1c0242920163c5ae88ee9113dce53f5.jpg', url: 'https://gjls-bgt.github.io/doa/' },
             { id: 'sandi', title: 'Pramuka : Sandi', category: 'aplikasi', image: 'https://i.pinimg.com/736x/55/ff/0b/55ff0b5c3038eeae29f9827e479ce1eb.jpg', url: 'https://gjls-bgt.github.io/sandi/' },
             { id: 'rectangle', title: 'Buat Segi Empat', category: 'game', image: 'icon/rectangle.jpg', url: 'make-rectangle.html' },
@@ -608,7 +614,7 @@
             { id: 'match_aksara_lampung', title: 'Match : Aksara Lampung', category: 'game', image: 'icon/match-aksara-lampung.png', url: 'https://32hendiirawan.github.io/match-aksara-lampung/' }
         ];
 
-        // Daftar Produk Afiliasi / Shopee
+        // Daftar Produk Afiliasi / Shopee (Bisa disesuaikan link, gambar, dan judulnya)
         const adsData = [
             { title: 'Atlas Geografi', store: 'Shopee', image: 'https://down-bs-id.img.susercontent.com/id-11134207-7r990-lovxt9mxd4el73.webp', url: 'https://s.shopee.co.id/7VFqHjma7L' },
             { title: 'Doa Harian Lengkap', store: 'Shopee', image: 'https://down-bs-id.img.susercontent.com/sg-11134201-7rdw8-mdd6gp7pk1toc8.webp', url: 'https://s.shopee.co.id/6VNJ66Xavn' },
@@ -798,7 +804,6 @@
 
             renderGrid(filtered);
         }
-
         function resetFilter() {
             document.getElementById('categorySelect').value = 'all';
             document.getElementById('searchInput').value = '';
@@ -806,14 +811,8 @@
             closePlayer();
         }
 
-        // Buka Player dengan pengecualian direct link untuk Kalkulator Matematika
+        // Buka Player dengan update Hash URL
         function openPlayer(item) {
-            // Pengecualian: Buka kalkulator-matematika secara langsung, bukan di iframe modal
-            if (item.id === 'kalkulator-matematika' || item.url.includes('kalkulator-matematika.html')) {
-                window.location.href = item.url;
-                return;
-            }
-
             currentItem = item;
             document.getElementById('appIframe').src = item.url;
             document.getElementById('playerModal').style.display = 'block';
@@ -873,14 +872,10 @@
             document.getElementById('devModal').style.display = show ? 'block' : 'none';
         }
 
-        // Fungsi Memeriksa Hash URL dengan pengecualian kalkulator-matematika
+        // Fungsi Memeriksa Hash URL
         function checkUrlHash() {
             const hash = decodeURIComponent(window.location.hash.replace('#', ''));
             if (hash) {
-                if (hash === 'kalkulator-matematika') {
-                    window.location.href = 'kalkulator-matematika.html';
-                    return;
-                }
                 const item = itemsData.find(i => i.id === hash);
                 if (item) {
                     openPlayer(item);
@@ -903,14 +898,14 @@
         renderGrid(itemsData);
         checkUrlHash();
 
-//        (function() {
-//            window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
-//            window.addEventListener('keydown', function(e) {
-//                if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
-//                if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
-//                if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
-//            }, true);
-//        })();
+        (function() {
+            window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+            window.addEventListener('keydown', function(e) {
+                if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            }, true);
+        })();
     </script>
 </body>
 </html>
