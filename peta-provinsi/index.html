@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=landscape">
+    <title>Kuis Peta Nusantara - 38 Provinsi</title>
+    <link rel="icon" type="image/png" href="favicon.png">    
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Fredoka', 'Segoe UI', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        body {
+            background-color: #a0ceff;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- RASIO 16:9 RESPONSIVE --- */
+        .game-container {
+            position: relative;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            border-radius: 8px; /* Sedikit lengkungan di pojok */
+        }
+
+        /* Media Query & Perhitungan Rasio untuk berbagai layar */
+        @media (min-aspect-ratio: 16/9) {
+            /* Layar Sangat Lebar (PC): Tinggi jadi patokan, lebar menyesuaikan 16:9 */
+            .game-container {
+                height: 90vh; /* Sisakan sedikit margin top/bottom */
+                width: calc(90vh * 16 / 9);
+            }
+        }
+
+        @media (max-aspect-ratio: 16/9) {
+            /* Layar HP/Tablet Kotak (Portrait/Square): Lebar jadi patokan, tinggi menyesuaikan 16:9 */
+            .game-container {
+                width: 95vw; /* Sisakan sedikit margin kiri/kanan */
+                height: calc(95vw * 9 / 16);
+            }
+        }
+
+        /* Fullscreen Mode override */
+        :fullscreen .game-container,
+        :-webkit-full-screen .game-container {
+            width: 100vw !important;
+            height: 100vh !important;
+            border-radius: 0;
+        }
+
+        /* --- PANEL ATAS --- */
+        .top-panel {
+            width: 100%;
+            height: 65px;
+            background: linear-gradient(180deg, #ffffff 0%, #f0f7ff 100%);
+            border-bottom: 3px solid #bce2ff;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            z-index: 10;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .game-title {
+            font-size: 1.1rem;
+            color: #0288d1;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-box {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .info-badge {
+            background-color: #ffffff;
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            border-radius: 12px;
+            border: 2px solid #bce2ff;
+            color: #455a64;
+        }
+
+        .info-badge span {
+            color: #f57c00;
+        }
+
+        .lives-container {
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+
+        /* --- PANEL BAWAH --- */
+        .bottom-panel {
+            width: 100%;
+            height: 70px;
+            background: #ffffff;
+            border-top: 3px solid #bce2ff;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            z-index: 10;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.05);
+        }
+
+        /* KARTU INSTRUKSI */
+        .instruction-card {
+            background-color: #e1f5fe;
+            border: 2px dashed #4fc3f7;
+            padding: 6px 20px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 10px;
+            flex-grow: 1;
+            max-width: 65%;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .instruction-card .hint-label {
+            font-size: 0.8rem;
+            color: #0288d1;
+            font-weight: 600;
+            text-transform: uppercase;
+            white-space: nowrap;
+            transition: color 0.2s ease;
+        }
+
+        .instruction-card .target-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #01579b;
+            transition: color 0.2s ease;
+        }
+
+        /* State Warna Kontras Tinggi */
+        .instruction-card.state-correct {
+            background-color: #e8f5e9 !important;
+            border-color: #81c784 !important;
+        }
+        .instruction-card.state-correct .hint-label { color: #2e7d32 !important; }
+        .instruction-card.state-correct .target-name { color: #1b5e20 !important; }
+
+        .instruction-card.state-wrong {
+            background-color: #ffebee !important;
+            border-color: #e57373 !important;
+        }
+        .instruction-card.state-wrong .hint-label { color: #c62828 !important; }
+        .instruction-card.state-wrong .target-name { color: #b71c1c !important; }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+            margin-left: 15px;
+        }
+
+        .btn-zoom {
+            width: 45px;
+            height: 45px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            background-color: #fff;
+            color: #0288d1;
+            border: 3px solid #bce2ff;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 3px 0px #bce2ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.1s;
+        }
+
+        .btn-zoom:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0px #bce2ff;
+        }
+
+        /* --- AREA PETA --- */
+        .map-area {
+            flex: 1;
+            width: 100%;
+            background-color: #A0CEFF;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #peta-wrapper {
+            width: 100%;
+            height: 100%;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        svg g path {
+            transition: fill 0.15s ease;
+            cursor: pointer; /* Menunjukkan bisa diklik */
+            pointer-events: auto;
+        }
+
+        /* Animasi Flash Peta */
+        @keyframes flash-green {
+            0%, 100% { fill: #4caf50; }
+            50% { fill: #b9f6ca; }
+        }
+
+        @keyframes flash-red {
+            0%, 100% { fill: #f44336; }
+            50% { fill: #ff8a80; }
+        }
+
+        .correct-flash path {
+            animation: flash-green 0.3s ease 2;
+        }
+
+        .wrong-flash path {
+            animation: flash-red 0.3s ease 2;
+        }
+
+        /* --- OVERLAY SCREENS --- */
+        .overlay-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #0288d1 0%, #01579b 100%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .overlay-screen h1 {
+            font-size: 2rem;
+            text-shadow: 0 4px 0px #013967;
+            margin-bottom: 5px;
+        }
+
+        .overlay-screen p {
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            color: #e1f5fe;
+        }
+
+        /* Wadah Penyelaras Tombol Menu Depan */
+        .menu-buttons {
+            display: flex;
+            flex-direction: row;
+            gap: 12px;
+            align-items: center;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .btn-action {
+            background-color: #ffb300;
+            color: #4e3400;
+            padding: 12px 0;
+            width: 100%;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 0 5px 0px #b78100;
+            transition: all 0.1s;
+            text-align: center;
+        }
+
+        .btn-action:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0px #b78100;
+        }
+
+        /* Gaya Khusus Tombol Tambahan */
+        .btn-fullscreen {
+            background-color: #26a69a;
+            color: white;
+            box-shadow: 0 5px 0px #00695c;
+        }
+        .btn-fullscreen:active {
+            box-shadow: 0 1px 0px #00695c;
+        }
+
+        .btn-leaderboard {
+            background-color: #00e5ff;
+            color: #004d40;
+            margin-top: 0; /* Dinormalisasi untuk layout vertikal menu-buttons */
+            box-shadow: 0 5px 0px #00b8d4;
+        }
+        .btn-leaderboard:active {
+            box-shadow: 0 1px 0px #00b8d4;
+        }
+
+        #result-screen {
+            background: linear-gradient(135deg, #ffffff 0%, #e1f5fe 100%);
+            color: #37474f;
+            display: none;
+        }
+
+        #result-screen h2 {
+            font-size: 1.8rem;
+            color: #0288d1;
+            margin-bottom: 5px;
+        }
+
+        .score-box {
+            font-size: 1.1rem;
+            margin: 10px 0;
+            color: blue;
+        }
+
+        .save-form {
+            background: white;
+            padding: 15px;
+            border-radius: 16px;
+            border: 2px solid #bce2ff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 280px;
+        }
+
+        .save-form input {
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #bce2ff;
+            font-size: 1rem;
+            text-align: center;
+            font-family: inherit;
+        }
+
+        .btn-save {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* --- MODAL TABEL TOP 5 LEADERBOARD --- */
+        .leaderboard-modal {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 24px;
+            padding: 20px;
+            border: 4px solid #bce2ff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-content h3 {
+            color: #0288d1;
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .ranking-table th {
+            background-color: #0288d1;
+            color: white;
+            padding: 8px;
+            font-weight: 600;
+        }
+
+        .ranking-table td {
+            padding: 8px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
+            color: #37474f;
+            font-weight: 600;
+        }
+
+        .ranking-table tr:nth-child(even) {
+            background-color: #f1f9ff;
+        }
+
+        .ranking-table tr:nth-child(2) td:first-child {
+            background-color: #fff8e1;
+            color: #ffb300;
+        }
+
+        .btn-close-modal {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 25px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 0px #b71c1c;
+        }
+        .btn-close-modal:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0px #b71c1c;
+        }
+    </style>
+</head>
+<body oncontextmenu="return false;"> <div class="game-container" id="main-fullscreen-area">
+        
+        <div class="overlay-screen" id="menu-screen">
+            <h1>Detektif Peta Indonesia</h1>
+            <p>Temukan Lokasi 38 Provinsi di Indonesia dalam peta</p>
+            
+            <div class="menu-buttons">
+                <button class="btn-action" onclick="startGame()">MULAI</button>
+                <!--
+                    <button class="btn-action btn-fullscreen" id="btn-toggle-fs" onclick="toggleFullscreen()">🖥️ LAYAR PENUH</button>
+                -->
+                <button class="btn-action btn-leaderboard" onclick="bukaLeaderboard()">🏆 LIHAT TOP 5</button>
+            </div>
+            <a href="https://s.shopee.co.id/1gIJOjZM9D" target="_blank" style="margin-top: 15px; color: #0288d1; font-size: 0.9rem; text-decoration: underline;"><img src="https://down-bs-id.img.susercontent.com/id-11134207-822wk-mpyntdtwpnnm91.webp" alt="Shopee" style="width: 100px; height: auto; border-radius: 10px"></a>
+        </div>
+
+        <div class="top-panel">
+            <div class="game-title">Misi 38 Provinsi</div>
+            <div class="status-box">
+                <div class="lives-container" id="lives-display">❤️❤️❤️❤️❤️</div>
+                <div class="info-badge">Waktu: <span id="timer-display">00:00</span></div>
+                <div class="info-badge">Soal: <span id="current-question">1</span>/38</div>
+                <div class="info-badge">Skor: <span id="current-score">0</span></div>
+            </div>
+        </div>
+
+        <div class="map-area">
+            <div id="peta-wrapper"></div>
+            <button id="btn-reset-map" style="position: absolute; bottom: 15px; right: 15px; z-index: 50; background: rgba(255,255,255,0.8); border: 2px solid #bce2ff; width: 40px; height: 40px; border-radius: 50%; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center;">🔄</button>
+        </div>
+
+        <div class="bottom-panel">
+            <div class="instruction-card" id="card-papan-soal">
+                <div class="hint-label" id="hint-label-text">Cari & Sentuh:</div>
+                <div class="target-name" id="target-display">Memuat Peta...</div>
+            </div>
+
+            <div class="control-group">
+                <button class="btn-zoom" id="btn-in">+</button>
+                <button class="btn-zoom" id="btn-out">-</button>
+            </div>
+        </div>
+
+        <div class="overlay-screen" id="result-screen">
+            <h2 id="result-title">Misi Selesai! 🗺️</h2>
+            <div class="score-box">
+                <p style="color: red;">Provinsi Ditemukan: <strong id="final-provinces" style="color: #4caf50;">0/38</strong></p>
+                <p style="color: red;">Total Skor: <strong id="final-score" style="color: #ff9800;">0</strong></p>
+                <p style="color: red;">Catatan Waktu: <strong id="final-time" style="color: #0288d1;">00:00</strong></p>
+            </div>
+
+            <div class="save-form" id="form-container">
+                <input type="text" id="username" placeholder="Masukkan Namamu" maxlength="15">
+                <button class="btn-save" onclick="kirimKeGoogleSheet()">Simpan Skor Online</button>
+            </div>
+
+            <div class="menu-buttons" style="margin-top: 10px;">
+                <button class="btn-action" id="btn-restart" onclick="startGame()">MAIN LAGI</button>
+                <button class="btn-action btn-leaderboard" onclick="bukaLeaderboard()">🏆 TOP 5 SKOR</button>
+                <button class="btn-action" onclick="document.getElementById('menu-screen').style.display = 'flex'; document.getElementById('result-screen').style.display = 'none';">MENU</button>
+            </div>
+        </div>
+
+        <div class="leaderboard-modal" id="modal-leaderboard">
+            <div class="modal-content">
+                <h3>🏆 Top 5 Rekor Terbaik</h3>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>Pos</th>
+                            <th>Nama Detektif</th>
+                            <th>Skor</th>
+                            <th>Waktu</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-data-rows">
+                        <tr>
+                            <td colspan="4" style="color: #888; font-style: italic; padding: 20px;">Memuat data dari Google Sheet...</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button class="btn-close-modal" onclick="tutupLeaderboard()">KEMBALI</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwXkw2l3q7ro52hbTuX7HYBrcJddA7TrXjKe3sa13T0HRz9KZ13Jgl3gg_vgc2DbLRu5w/exec";
+
+        const namaProvinsi = {
+            "papuabaratdaya": "Papua Barat Daya",
+            "papuabarat": "Papua Barat"
+        };
+
+        let daftarProvinsi = [];
+        let sesiSoal = [];
+        let indeksSoal = 0;
+        let skor = 0;
+        let nyawa = 5;
+        let targetAktif = "";
+        let isChecking = false;
+        let panZoomInstance = null;
+        
+        let totalDetik = 0;
+        let intervalTimer = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            fetch('svgnusantara.html')
+                .then(response => response.text())
+                .then(htmlText => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(htmlText, 'text/html');
+                    const svgElement = doc.querySelector('svg');
+
+                    if (svgElement) {
+                        const rectBg = svgElement.querySelector('rect');
+                        if (rectBg) rectBg.remove();
+
+                        const wrapper = document.getElementById('peta-wrapper');
+                        wrapper.innerHTML = "";
+                        wrapper.appendChild(svgElement);
+
+                        const groups = svgElement.querySelectorAll('g');
+                        groups.forEach(g => {
+                            const id = g.getAttribute('id');
+                            if (id) {
+                                daftarProvinsi.push(id);
+                                g.removeAttribute('onclick');
+                            }
+                        });
+
+                        initPinchAndPan(svgElement);
+                        document.getElementById('target-display').innerText = "Siap Bermain!";
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById('target-display').innerText = "Gagal memuat peta.";
+                });
+
+            document.getElementById('btn-reset-map').addEventListener('click', (e) => {
+                e.preventDefault();
+                if(panZoomInstance) {
+                    panZoomInstance.resize(); panZoomInstance.fit(); panZoomInstance.center();
+                }
+            });
+
+            // Listener pendeteksi perubahan status fullscreen
+            document.addEventListener('fullscreenchange', handleFsChange);
+            document.addEventListener('webkitfullscreenchange', handleFsChange);
+
+            // CEGAH SALIN TEKS (Copy)
+            document.addEventListener('copy', (e) => { e.preventDefault(); return false; });
+            // CEGAH SERET GAMBAR/ELEMEN
+            document.addEventListener('dragstart', (e) => { e.preventDefault(); return false; });
+        });
+
+        /* --- LOGIKA LAYAR PENUH --- */
+        function toggleFullscreen() {
+            const elem = document.getElementById('main-fullscreen-area');
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (elem.requestFullscreen) { elem.requestFullscreen(); } 
+                else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
+            } else {
+                if (document.exitFullscreen) { document.exitFullscreen(); } 
+                else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+            }
+        }
+
+        function handleFsChange() {
+            const btnFs = document.getElementById('btn-toggle-fs');
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                btnFs.innerText = "📺 KELUAR FULLSCREEN";
+            } else {
+                btnFs.innerText = "🖥️ LAYAR PENUH";
+            }
+            setTimeout(() => {
+                if(panZoomInstance) { panZoomInstance.resize(); panZoomInstance.fit(); panZoomInstance.center(); }
+            }, 300);
+        }
+
+        /* --- LOGIKA DUA MODE: MOUSE & TOUCHSCREEN ( HammerJS Universal ) --- */
+        function initPinchAndPan(svgElement) {
+            const eventsHandler = {
+                haltEventListeners: ['touchstart', 'touchend', 'touchmove', 'touchleave', 'touchcancel'],
+                init: function(options) {
+                    const instance = options.instance;
+                    let initialScale = 1; let pannedX = 0; let pannedY = 0;
+
+                    // Menggunakan PointerEventInput agar mendeteksi mouse dan sentuhan secara universal
+                    this.hammer = Hammer(options.svgElement, {
+                        inputClass: Hammer.SUPPORT_POINTER_EVENTS ? Hammer.PointerEventInput : Hammer.TouchAllInput
+                    });
+                    this.hammer.get('pinch').set({enable: true});
+
+                    this.hammer.on('panstart panmove', function(ev) {
+                        if (ev.type === 'panstart') { pannedX = 0; pannedY = 0; }
+                        instance.panBy({x: ev.deltaX - pannedX, y: ev.deltaY - pannedY});
+                        pannedX = ev.deltaX; pannedY = ev.deltaY;
+                    });
+
+                    this.hammer.on('pinchstart pinchmove', function(ev) {
+                        if (ev.type === 'pinchstart') { initialScale = instance.getZoom(); }
+                        instance.zoomAtPoint(initialScale * ev.scale, {x: ev.center.x, y: ev.center.y});
+                    });
+
+                    // Event handler 'tap' dioptimalkan untuk klik mouse kiri & sentuhan jari tanpa delay/ganda
+                    this.hammer.on('tap', function(ev) {
+                        // Jika dipicu mouse, pastikan hanya merespons klik kiri utama (cegah klik tengah/kanan memicu tap)
+                        if (ev.pointerType === 'mouse' && ev.srcEvent.button !== 0) return;
+
+                        const targetPath = ev.target;
+                        const targetGroup = targetPath.closest('g'); 
+                        if (targetGroup) {
+                            const id = targetGroup.getAttribute('id');
+                            if (id && !isChecking && nyawa > 0) {
+                                handleProvinceClick(id, targetGroup);
+                            }
+                        }
+                    });
+
+                    options.svgElement.addEventListener('touchmove', function(e){ 
+                        if(e.scale !== 1) { e.preventDefault(); } 
+                    }, {passive: false});
+                },
+                destroy: function() { this.hammer.destroy(); }
+            };
+
+            panZoomInstance = svgPanZoom(svgElement, {
+                zoomEnabled: true, controlIconsEnabled: false, fit: true, center: true, minZoom: 1, maxZoom: 15,
+                customEventsHandler: eventsHandler,
+                beforePan: function(oldPan, newPan) {
+                    const gutterWidth = this.getSizes().width * 0.6; 
+                    const gutterHeight = this.getSizes().height * 0.6;
+                    const leftLimit = -((this.getSizes().viewBox.x + this.getSizes().viewBox.width) * this.getSizes().realZoom) + gutterWidth;
+                    const rightLimit = this.getSizes().width - gutterWidth - (this.getSizes().viewBox.x * this.getSizes().realZoom);
+                    const topLimit = -((this.getSizes().viewBox.y + this.getSizes().viewBox.height) * this.getSizes().realZoom) + gutterHeight;
+                    const bottomLimit = this.getSizes().height - gutterHeight - (this.getSizes().viewBox.y * this.getSizes().realZoom);
+
+                    return { x: Math.max(leftLimit, Math.min(rightLimit, newPan.x)), y: Math.max(topLimit, Math.min(bottomLimit, newPan.y)) };
+                }
+            });
+
+            document.getElementById('btn-in').addEventListener('click', () => panZoomInstance.zoomIn());
+            document.getElementById('btn-out').addEventListener('click', () => panZoomInstance.zoomOut());
+        }
+
+        function startGame() {
+            if (daftarProvinsi.length === 0) return;
+            
+            document.getElementById('menu-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('form-container').style.display = 'flex';
+            document.getElementById('username').value = "";
+            
+            skor = 0;
+            nyawa = 5;
+            indeksSoal = 0;
+            isChecking = false;
+            updateHeartsDisplay();
+
+            sesiSoal = [...daftarProvinsi].sort(() => Math.random() - 0.5);
+            if (sesiSoal.length > 38) sesiSoal = sesiSoal.slice(0, 38); 
+
+            panZoomInstance.resize(); panZoomInstance.fit(); panZoomInstance.center();
+
+            totalDetik = 0;
+            document.getElementById('timer-display').innerText = "00:00";
+            clearInterval(intervalTimer);
+            intervalTimer = setInterval(updateTimer, 1000);
+
+            loadQuestion();
+        }
+
+        function updateTimer() {
+            totalDetik++;
+            const menit = String(Math.floor(totalDetik / 60)).padStart(2, '0');
+            const detik = String(totalDetik % 60).padStart(2, '0');
+            document.getElementById('timer-display').innerText = `${menit}:${detik}`;
+        }
+
+        function updateHeartsDisplay() {
+            document.getElementById('lives-display').innerText = "❤️".repeat(nyawa) + "🖤".repeat(5 - nyawa);
+        }
+
+        function loadQuestion() {
+            isChecking = false;
+            const papanSoal = document.getElementById('card-papan-soal');
+            papanSoal.className = "instruction-card"; 
+
+            document.getElementById('hint-label-text').innerText = "Cari & Sentuh:";
+            document.getElementById('current-question').innerText = indeksSoal + 1;
+            document.getElementById('current-score').innerText = skor;
+
+            targetAktif = sesiSoal[indeksSoal];
+            const namaTampil = namaProvinsi[targetAktif] || targetAktif.toUpperCase();
+            document.getElementById('target-display').innerText = namaTampil;
+        }
+
+        function handleProvinceClick(idDiklik, elemenG) {
+            if (isChecking) return;
+            isChecking = true;
+
+            const papanSoal = document.getElementById('card-papan-soal');
+
+            if (idDiklik === targetAktif) {
+                skor += 25;
+                papanSoal.classList.add('state-correct');
+                document.getElementById('hint-label-text').innerText = "Status:";
+                document.getElementById('target-display').innerText = "✨ JAWABAN BENAR! ✨";
+                elemenG.classList.add('correct-flash');
+
+                setTimeout(() => {
+                    elemenG.classList.remove('correct-flash');
+                    indeksSoal++;
+                    if (indeksSoal < sesiSoal.length) {
+                        loadQuestion();
+                    } else {
+                        endGame(true);
+                    }
+                }, 1400);
+
+            } else {
+                nyawa--;
+                updateHeartsDisplay();
+                papanSoal.classList.add('state-wrong');
+                document.getElementById('hint-label-text').innerText = "Evaluasi:";
+                
+                const salahTunjuk = namaProvinsi[idDiklik] || idDiklik.toUpperCase();
+                document.getElementById('target-display').innerText = `Salah, itu ${salahTunjuk}! Coba lagi 😓`;
+                elemenG.classList.add('wrong-flash');
+
+                setTimeout(() => {
+                    elemenG.classList.remove('wrong-flash');
+                    if (nyawa <= 0) {
+                        endGame(false);
+                    } else {
+                        isChecking = false;
+                        papanSoal.className = "instruction-card"; 
+                        document.getElementById('hint-label-text').innerText = "Cari & Sentuh:";
+                        const namaTampil = namaProvinsi[targetAktif] || targetAktif.toUpperCase();
+                        document.getElementById('target-display').innerText = namaTampil;
+                    }
+                }, 1400);
+            }
+        }
+
+        function endGame(isWin) {
+            clearInterval(intervalTimer);
+            document.getElementById('result-screen').style.display = 'flex';
+            
+            document.getElementById('result-title').innerText = isWin ? "Misi Selesai Sempurna! 🏆" : "Game Over! Kesempatan Habis 🗺️";
+            document.getElementById('final-provinces').innerText = `${indeksSoal}/${sesiSoal.length}`;
+            document.getElementById('final-score').innerText = skor;
+            document.getElementById('final-time').innerText = document.getElementById('timer-display').innerText;
+        }
+
+        function kirimKeGoogleSheet() {
+            const nama = document.getElementById('username').value.trim();
+            if (!nama) {
+                alert("Harap masukkan nama terlebih dahulu!");
+                return;
+            }
+
+            const dataGame = {
+                action: "simpanSkor",
+                nama: nama,
+                provinsi: indeksSoal,
+                skor: skor,
+                waktu: document.getElementById('timer-display').innerText,
+                detik: totalDetik
+            };
+
+            const btnSave = document.querySelector('.btn-save');
+            btnSave.innerText = "Mengirim...";
+            btnSave.disabled = true;
+
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(dataGame)
+            })
+            .then(() => {
+                alert("Skor Anda berhasil dicatat online!");
+                document.getElementById('form-container').style.display = 'none';
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Kendala jaringan. Gagal mengirim skor.");
+                btnSave.innerText = "Simpan Skor Online";
+                btnSave.disabled = false;
+            });
+        }
+
+        function bukaLeaderboard() {
+            const containerTabel = document.getElementById('leaderboard-data-rows');
+            containerTabel.innerHTML = `<tr><td colspan="4" style="color: #0288d1; font-style: italic; padding: 20px;">Memuat data ....</td></tr>`;
+            document.getElementById('modal-leaderboard').style.display = 'flex';
+
+            fetch(`${WEB_APP_URL}?action=getTop5`)
+                .then(response => response.json())
+                .then(data => {
+                    containerTabel.innerHTML = "";
+                    if (data.length === 0) {
+                        containerTabel.innerHTML = `<tr><td colspan="4" style="color: #888; padding: 20px;">Belum ada rekor tercatat.</td></tr>`;
+                        return;
+                    }
+                    data.forEach((row, index) => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${index + 1} ${index === 0 ? '👑' : ''}</td>
+                            <td>${row.nama}</td>
+                            <td>${row.skor}</td>
+                            <td>${row.waktu || '00:00'}</td>
+                        `;
+                        containerTabel.appendChild(tr);
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                    containerTabel.innerHTML = `<tr><td colspan="4" style="color: #f44336; padding: 20px;">Gagal memuat data online.</td></tr>`;
+                });
+        }
+
+        function tutupLeaderboard() {
+            document.getElementById('modal-leaderboard').style.display = 'none';
+        }
+        // GLOBAL BULLETPROOF SECURITY LAYER
+        (function() {
+            window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+            window.addEventListener('keydown', function(e) {
+                if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            }, true);
+        })();        
+    </script>
+</body>
+</html>
