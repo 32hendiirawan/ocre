@@ -1,0 +1,17 @@
+{
+  "title": "Antonim",
+  "cols": 13,
+  "rows": 12,
+  "questions": [
+    { "id": 1, "direction": "across", "row": 0, "col": 8, "answer": "MAJU", "clue": "Antonim mundur." },
+    { "id": 1, "direction": "down", "row": 0, "col": 8, "answer": "MAHAL", "clue": "Antonim murah." },
+    { "id": 2, "direction": "down", "row": 1, "col": 6, "answer": "SENANG", "clue": "Antonim sedih." },
+    { "id": 3, "direction": "across", "row": 3, "col": 4, "answer": "PANJANG", "clue": "Antonim pendek." },
+    { "id": 4, "direction": "down", "row": 3, "col": 10, "answer": "GELAP", "clue": "Antonim terang." },
+    { "id": 5, "direction": "down", "row": 3, "col": 12, "answer": "KASAR", "clue": "Antonim halus." },
+    { "id": 6, "direction": "across", "row": 6, "col": 1, "answer": "KERING", "clue": "Antonim basah." },
+    { "id": 6, "direction": "down", "row": 6, "col": 1, "answer": "KELUAR", "clue": "Antonim masuk." },
+    { "id": 7, "direction": "across", "row": 7, "col": 8, "answer": "LAPAR", "clue": "Antonim kenyang." },
+    { "id": 8, "direction": "across", "row": 10, "col": 0, "answer": "JAUH", "clue": "Antonim dekat." }
+  ]
+}

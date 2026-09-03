@@ -1,0 +1,27 @@
+{
+  "title": "Transportasi",
+  "rows": 16,
+  "cols": 17,
+  "questions": [
+    { "id": 1, "row": 0, "col": 1, "direction": "down", "answer": "SOPIR", "clue": "Pengemudi kendaraan mobil/bus" },
+    { "id": 2, "row": 0, "col": 11, "direction": "down", "answer": "NAHKODA", "clue": "Orang yang memimpin pelayaran/perjalanan laut" },
+    { "id": 3, "row": 1, "col": 8, "direction": "down", "answer": "HELIKOPTER", "clue": "Alat transportasi udara dengan baling-baling besar di atasnya" },
+    { "id": 4, "row": 1, "col": 10, "direction": "across", "answer": "BANDARA", "clue": "Tempat pesawat lepas landas dan mendarat" },
+    { "id": 5, "row": 2, "col": 1, "direction": "across", "answer": "PILOT", "clue": "Pengemudi pesawat terbang" },
+    { "id": 6, "row": 2, "col": 7, "direction": "across", "answer": "REL", "clue": "Jalan yang digunakan kereta api" },
+    { "id": 7, "row": 3, "col": 13, "direction": "down", "answer": "TIKET", "clue": "Bukti pembayaran untuk dapat menggunakan layanan transportasi" },
+    { "id": 8, "row": 3, "col": 16, "direction": "down", "answer": "TERMINAL", "clue": "Tempat pemberhentian kendaraan bus/angkot" },
+    { "id": 9, "row": 4, "col": 0, "direction": "across", "answer": "PRAMUGARI", "clue": "Orang yang melayani penumpang di dalam pesawat" },
+    { "id": 10, "row": 5, "col": 8, "direction": "across", "answer": "KONDEKTUR", "clue": "Orang yang bertugas memeriksa tiket di kereta/bus" },
+    { "id": 11, "row": 8, "col": 1, "direction": "across", "answer": "BUS", "clue": "Kendaraan transportasi darat umum dengan ukuran besar" },
+    { "id": 12, "row": 8, "col": 3, "direction": "down", "answer": "STASIUN", "clue": "Tempat pemberhentian kereta" },
+    { "id": 13, "row": 8, "col": 8, "direction": "across", "answer": "TAKSI", "clue": "Transportasi darat sewaan yang umum digunakan di kota" },
+    { "id": 14, "row": 8, "col": 10, "direction": "down", "answer": "KERETA", "clue": "Alat transportasi darat yang panjang" },
+    { "id": 15, "row": 10, "col": 2, "direction": "across", "answer": "HANGGAR", "clue": "Tempat penyimpanan pesawat terbang" },
+    { "id": 16, "row": 10, "col": 14, "direction": "down", "answer": "JALAN", "clue": "Lintasan kendaraan di darat" },
+    { "id": 17, "row": 11, "col": 1, "direction": "down", "answer": "KAPAL", "clue": "Alat transportasi laut" },
+    { "id": 18, "row": 11, "col": 9, "direction": "across", "answer": "PESAWAT", "clue": "Alat transportasi udara" },
+    { "id": 19, "row": 12, "col": 0, "direction": "across", "answer": "MASINIS", "clue": "Pengemudi kereta" },
+    { "id": 20, "row": 13, "col": 7, "direction": "across", "answer": "PELABUHAN", "clue": "Tempat untuk kapal bersandar" }
+  ]
+}

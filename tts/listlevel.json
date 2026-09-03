@@ -1,0 +1,32 @@
+[
+  {
+    "id": "01",
+    "name": "Level 1: Dasar Web",
+    "description": "Menguji pemahaman dasar tentang dunia web",
+    "file": "levels/level1.json"
+  },
+  {
+    "id": "02",
+    "name": "Antonim",
+    "description": "Tantangan kosakata lawan kata Bahasa Indonesia",
+    "file": "levels/antonim.json"
+  },
+  {
+    "id": "03",
+    "name": "Tata Surya",
+    "description": "Uji wawasanmu seputar astronomi dan planet",
+    "file": "levels/tatasurya.json"
+  },
+  {
+    "id": "04",
+    "name": "Transportasi",
+    "description": "Uji wawasanmu seputar transportasi",
+    "file": "levels/transportasi.json"
+  },
+  {
+    "id": "05",
+    "name": "Family",
+    "description": "Uji wawasanmu seputar transportasi",
+    "file": "levels/family.json"
+  }
+]

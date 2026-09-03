@@ -1,0 +1,27 @@
+{
+  "title": "Family (English)",
+  "rows": 19,
+  "cols": 19,
+  "questions": [
+    { "id": 1, "row": 0, "col": 10, "direction": "down", "answer": "UNCLE", "clue": "Paman" },
+    { "id": 2, "row": 1, "col": 5, "direction": "down", "answer": "HUSBAND", "clue": "Suami" },
+    { "id": 3, "row": 1, "col": 8, "direction": "across", "answer": "SON", "clue": "Anak laki-laki" },
+    { "id": 3, "row": 1, "col": 8, "direction": "down", "answer": "SISTER", "clue": "Saudara perempuan" },
+    { "id": 4, "row": 1, "col": 14, "direction": "down", "answer": "PARENT", "clue": "Orang tua" },
+    { "id": 5, "row": 2, "col": 13, "direction": "across", "answer": "FATHER", "clue": "Ayah" },
+    { "id": 6, "row": 4, "col": 5, "direction": "across", "answer": "BROTHER", "clue": "Saudara laki-laki" },
+    { "id": 7, "row": 5, "col": 1, "direction": "down", "answer": "MOTHER", "clue": "Ibu" },
+    { "id": 8, "row": 5, "col": 17, "direction": "down", "answer": "GRANDMOTHER", "clue": "Nenek" },
+    { "id": 9, "row": 6, "col": 0, "direction": "across", "answer": "COUSIN", "clue": "Sepupu" },
+    { "id": 10, "row": 6, "col": 7, "direction": "across", "answer": "GRANDFATHER", "clue": "Kakek" },
+    { "id": 10, "row": 6, "col": 7, "direction": "down", "answer": "GRANDCHILD", "clue": "Cucu" },
+    { "id": 11, "row": 6, "col": 10, "direction": "down", "answer": "NIECE", "clue": "Keponakan perempuan" },
+    { "id": 12, "row": 6, "col": 12, "direction": "down", "answer": "FAMILY", "clue": "Keluarga" },
+    { "id": 13, "row": 8, "col": 3, "direction": "down", "answer": "CHILDREN", "clue": "Anak (Jamak)" },
+    { "id": 14, "row": 9, "col": 0, "direction": "across", "answer": "NEPHEW", "clue": "Keponakan laki-laki" },
+    { "id": 15, "row": 9, "col": 10, "direction": "across", "answer": "CHILD", "clue": "Anak (Tunggal)" },
+    { "id": 16, "row": 13, "col": 6, "direction": "across", "answer": "WIFE", "clue": "Istri" },
+    { "id": 17, "row": 15, "col": 7, "direction": "across", "answer": "DAUGHTER", "clue": "Anak perempuan" },
+    { "id": 18, "row": 15, "col": 8, "direction": "down", "answer": "AUNT", "clue": "Bibi" }
+  ]
+}

@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Edukasi: Pelontar Roket Satuan Panjang</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #0f172a;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+
+        /* Kontainer Utama dengan Aspek Rasio 800x450 */
+        #game-container {
+            width: 800px;
+            height: 450px;
+            background: linear-gradient(to bottom, #0b132b 0%, #1c2541 60%, #3a506b 100%);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            border: 6px solid #ffffff;
+            border-radius: 1.5rem;
+            transform-origin: center center;
+        }
+
+        /* Animasi Bintang Kelap-Kelip */
+        .star {
+            position: absolute;
+            background-color: #ffffff;
+            border-radius: 50%;
+            animation: twinkle 2s infinite ease-in-out;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        /* Animasi Roket Meluncur */
+        .rocket-fly {
+            transition: transform 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* Efek Berdenyut untuk Tombol */
+        .btn-pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Animasi Asap Roket */
+        .smoke-particle {
+            position: absolute;
+            background: rgba(241, 245, 249, 0.6);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: smokeUp 0.8s forwards ease-out;
+        }
+        @keyframes smokeUp {
+            0% { transform: scale(0.5) translateY(0); opacity: 0.8; }
+            100% { transform: scale(2) translateY(20px); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        
+        <div id="stars-container" class="absolute inset-0 pointer-events-none"></div>
+
+        <div id="front-controls" class="absolute top-4 right-4 flex gap-3 z-30">
+            <button id="btn-mute" onclick="toggleMute()" class="bg-white/20 hover:bg-white/40 text-white p-2.5 rounded-xl border border-white/30 shadow-md transition transform active:scale-95 cursor-pointer flex items-center justify-center w-11 h-11 text-xl" title="Mute/Unmute">
+                🔊
+            </button>
+            <button id="btn-fullscreen" onclick="toggleFullscreen()" class="bg-white/20 hover:bg-white/40 text-white p-2.5 rounded-xl border border-white/30 shadow-md transition transform active:scale-95 cursor-pointer flex items-center justify-center w-11 h-11 text-xl" title="Layar Penuh">
+                📺
+            </button>
+        </div>
+        
+        <div id="screen-splash" class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 z-10">
+            <div class="text-6xl mb-3 animate-bounce">🚀</div>
+            <h1 class="text-5xl font-extrabold text-white drop-shadow-[0_4px_4px_rgba(0,0,0,0.4)] mb-2 tracking-wide">
+                ROKET SATUAN PANJANG
+            </h1>
+            <p class="text-cyan-300 text-xl font-medium mb-8 drop-shadow">Konversi Satuan Panjang & Luncurkan Roket Tepat ke Planet Sasaran!</p>
+            
+            <button onclick="changeScreen('screen-menu')" class="btn-pulse bg-cyan-500 hover:bg-cyan-400 text-white font-bold text-2xl py-4 px-10 rounded-2xl border-b-4 border-cyan-700 shadow-lg transform active:scale-95 transition cursor-pointer">
+                MULAI BERMAIN
+            </button>
+        </div>
+
+        <div id="screen-menu" class="absolute inset-0 hidden flex flex-col items-center justify-center p-6 z-10">
+            <h2 class="text-3xl font-bold text-white mb-6 drop-shadow-md">PILIH TIPE TANTANGAN</h2>
+            <div class="grid grid-cols-3 gap-6 w-full max-w-2xl px-4">
+                <button onclick="startGame(1)" class="bg-emerald-500 hover:bg-emerald-400 border-b-4 border-emerald-700 p-5 rounded-2xl text-white flex flex-col items-center justify-between shadow-lg transform active:scale-95 transition cursor-pointer h-40">
+                    <span class="text-xl font-bold bg-emerald-700 px-3 py-1 rounded-full text-sm mb-2">TIPE 1</span>
+                    <span class="text-center text-sm font-medium leading-tight">Konversi dasar 1 papan jarak utama ke satuan target</span>
+                </button>
+                <button onclick="startGame(2)" class="bg-amber-500 hover:bg-amber-400 border-b-4 border-amber-700 p-5 rounded-2xl text-white flex flex-col items-center justify-between shadow-lg transform active:scale-95 transition cursor-pointer h-40">
+                    <span class="text-xl font-bold bg-amber-700 px-3 py-1 rounded-full text-sm mb-2">TIPE 2</span>
+                    <span class="text-center text-sm font-medium leading-tight">Gabungan penjumlahan 2 papan jarak berbeda satuan</span>
+                </button>
+                <button onclick="startGame(3)" class="bg-purple-500 hover:bg-purple-400 border-b-4 border-purple-700 p-5 rounded-2xl text-white flex flex-col items-center justify-between shadow-lg transform active:scale-95 transition cursor-pointer h-40">
+                    <span class="text-xl font-bold bg-purple-700 px-3 py-1 rounded-full text-sm mb-2">TIPE 3</span>
+                    <span class="text-center text-sm font-medium leading-tight">Mencari sisa jarak tangki bahan bakar misteri (4 satuan berbeda)</span>
+                </button>
+            </div>
+            <button onclick="changeScreen('screen-splash')" class="mt-6 text-white bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-xl text-sm font-semibold cursor-pointer">
+                Kembali
+            </button>
+        </div>
+
+        <div id="screen-game" class="absolute inset-0 hidden flex flex-col justify-between p-4 z-10">
+            <div class="flex justify-between items-center bg-black/40 px-4 py-2 rounded-xl text-white text-base font-bold border border-white/10">
+                <div>Misi Tipe: <span id="hud-type" class="text-cyan-300">-</span></div>
+                <div>Target: <span id="hud-progress" class="text-cyan-300">0/5</span></div>
+                <div class="flex items-center gap-1">
+                    <span>Nyawa:</span>
+                    <span id="hud-hearts" class="text-red-500 text-xl tracking-tighter">⭐⭐•</span>
+                </div>
+                <div>Skor: <span id="hud-score" class="text-green-400">0</span></div>
+            </div>
+
+            <div class="flex-1 relative w-full flex items-center justify-center">
+                <div id="feedback-bubble" class="absolute top-4 bg-white text-slate-800 text-xs font-bold px-4 py-2 rounded-xl shadow-md opacity-0 transition-all duration-300 z-20 border border-slate-300">
+                    Siap meluncur...
+                </div>
+
+                <div id="countdown-display" class="absolute top-14 text-2xl font-black text-red-400 tracking-wider drop-shadow bg-black/40 px-4 py-1 rounded-full border border-red-500/30">
+                    ⏱️ WAKTU: <span id="timer-seconds">5</span>s
+                </div>
+
+                <div class="w-full h-48 relative overflow-visible mt-6">
+                    <div class="absolute bottom-0 left-6 flex flex-col items-center">
+                        <div id="distance-panel-left" class="flex gap-1.5 mb-12 items-center">
+                            </div>
+                        <div class="w-24 h-4 bg-slate-600 rounded-t-md border-t-2 border-slate-400"></div>
+                    </div>
+
+                    <div id="rocket-element" class="absolute bottom-4 left-12 text-4xl origin-center z-10 transition-transform" style="transform: translate(0px, 0px) rotate(0deg);">
+                        🚀
+                    </div>
+
+                    <div class="absolute bottom-0 right-6 flex flex-col items-center">
+                        <div id="distance-panel-right" class="w-24 h-14 bg-amber-500/20 border-2 border-dashed border-amber-400 rounded-xl flex items-center justify-center font-black text-xs text-yellow-300 animate-pulse text-center p-1 mb-2">
+                            ...
+                        </div>
+                        <div class="w-20 h-20 bg-gradient-to-br from-red-500 to-amber-600 rounded-full shadow-lg border-2 border-orange-400 flex items-center justify-center text-xl text-white font-bold">
+                            🪐
+                        </div>
+                    </div>
+
+                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-slate-700 via-slate-500 to-slate-700"></div>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-center gap-2 mb-1">
+                <p class="text-white text-sm font-medium drop-shadow bg-black/30 px-4 py-1 rounded-full border border-white/5">Pilih daya/panjang yang tepat agar roket mendarat sempurna di planet target:</p>
+                <div id="options-container" class="grid grid-cols-4 gap-4 w-full max-w-xl px-4">
+                    </div>
+            </div>
+        </div>
+
+        <div id="screen-end" class="absolute inset-0 hidden flex flex-col items-center justify-center text-center p-6 z-10">
+            <div id="end-icon" class="text-6xl mb-2 animate-bounce">🎉</div>
+            <h2 id="end-title" class="text-4xl font-extrabold text-white mb-2 drop-shadow">MISI SELESAI!</h2>
+            <p id="end-message" class="text-xl text-cyan-200 mb-6 font-medium">Kamu berhasil mengantarkan roket melintasi galaksi.</p>
+            
+            <div class="bg-black/30 border border-white/10 p-4 rounded-2xl mb-8 flex gap-8 justify-center min-w-[250px]">
+                <div>
+                    <div class="text-sm text-slate-300">Skor Misi</div>
+                    <div id="end-score" class="text-4xl font-black text-green-400">0</div>
+                </div>
+                <div class="border-l border-white/10"></div>
+                <div>
+                    <div class="text-sm text-slate-300">Tepat Sasaran</div>
+                    <div id="end-correct" class="text-4xl font-black text-yellow-300">0/5</div>
+                </div>
+            </div>
+
+            <div class="flex gap-4">
+                <button onclick="changeScreen('screen-menu')" class="bg-cyan-500 hover:bg-cyan-400 border-b-4 border-cyan-700 text-white font-bold text-lg py-3 px-6 rounded-xl shadow-md transform active:scale-95 transition cursor-pointer">
+                    Main Lagi
+                </button>
+                <button onclick="changeScreen('screen-splash')" class="bg-slate-600 hover:bg-slate-500 text-white font-bold text-lg py-3 px-6 rounded-xl shadow-md transform active:scale-95 transition cursor-pointer">
+                    Menu Utama
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Konfigurasi Auto Scaling Layout ---
+        const gameContainer = document.getElementById('game-container');
+        function doResize() {
+            const baseWidth = 800;
+            const baseHeight = 450;
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            
+            let scale = Math.min(windowWidth / baseWidth, windowHeight / baseHeight);
+            if (scale > 2) scale = 2;
+            
+            gameContainer.style.transform = `scale(${scale})`;
+        }
+        window.addEventListener('resize', doResize);
+        window.addEventListener('DOMContentLoaded', doResize);
+
+        // Buat efek bintang kelap kelip secara acak di latar belakang angkasa
+        const starsContainer = document.getElementById('stars-container');
+        for (let i = 0; i < 40; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = `${Math.random() * 3 + 1}px`;
+            star.style.height = star.style.width;
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.animationDelay = `${Math.random() * 2}s`;
+            starsContainer.appendChild(star);
+        }
+
+        // --- Proteksi Salin Kode / Klik Kanan ---
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.ctrlKey && (e.key === 'c' || e.key === 'C' || e.key === 'u' || e.key === 'U' || e.key === 'i' || e.key === 'I')) {
+                e.preventDefault();
+            }
+        });
+
+        // ================= SISTEM AUDIO ENGINE (FILE MP3 LOKAL) =================
+        let isMuted = false;
+        let isAudioInitialized = false;
+
+        const bgMusic = new Audio('sound/music_bg.mp3');
+        const sndClick = new Audio('sound/click.mp3');
+        const sndCorrect = new Audio('sound/correct.mp3');
+        const sndWrong = new Audio('sound/wrong.mp3');
+        const sndWin = new Audio('sound/win.mp3');
+
+        bgMusic.loop = true;
+        bgMusic.volume = 0.35;
+
+        function initAudio() {
+            if (!isAudioInitialized) {
+                isAudioInitialized = true;
+                if (!isMuted) {
+                    bgMusic.play().catch(() => {});
+                }
+            }
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            const btn = document.getElementById('btn-mute');
+            if (isMuted) {
+                btn.innerText = '🔇';
+                btn.classList.add('bg-red-500/40');
+                bgMusic.pause();
+                bgMusic.volume = 0;
+            } else {
+                btn.innerText = '🔊';
+                btn.classList.remove('bg-red-500/40');
+                bgMusic.volume = 0.35;
+                if (isAudioInitialized) bgMusic.play().catch(() => {});
+            }
+        }
+
+        function playSoundClick() { if (!isMuted) { sndClick.currentTime = 0; sndClick.play().catch(() => {}); } }
+        function playSoundCorrect() { if (!isMuted) { sndCorrect.currentTime = 0; sndCorrect.play().catch(() => {}); } }
+        function playSoundWrong() { if (!isMuted) { sndWrong.currentTime = 0; sndWrong.play().catch(() => {}); } }
+        function playSoundWinGame() { if (!isMuted) { sndWin.currentTime = 0; sndWin.play().catch(() => {}); } }
+
+        function toggleFullscreen() {
+            playSoundClick();
+            let doc = window.document;
+            let docEl = doc.documentElement;
+            let requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+            let cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+            if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+                requestFullScreen.call(docEl);
+                document.getElementById('btn-fullscreen').innerText = '❌';
+            } else {
+                cancelFullScreen.call(doc);
+                document.getElementById('btn-fullscreen').innerText = '📺';
+            }
+        }
+
+        // ================= LOGIKA UTAMA GAME MATEMATIKA =================
+        let currentType = 1;
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let lives = 3;
+        let correctAnswersCount = 0;
+        let questionsPool = [];
+        let currentQuestion = null;
+
+        // Pengontrol Timer Global Berpikir
+        let countdownTimer = null;
+        let timeLeft = 5;
+
+        // Daftar Satuan Panjang Standar Tangga Konversi
+        const lengthUnits = ['km', 'hm', 'dam', 'm', 'dm', 'cm', 'mm'];
+
+        // Ambil rasio faktor perkalian antar tangga
+        function getLengthRatio(fromIdx, toIdx) {
+            return Math.pow(10, toIdx - fromIdx);
+        }
+
+        // Fungsi pembuat opsi pengecoh pintar dengan perbedaan nilai 0 atau angka terbalik
+        function generateSmartOptions(jawaban, type) {
+            let opsiSet = new Set();
+            opsiSet.add(jawaban);
+
+            if (type === 1) {
+                let strJawaban = jawaban.toString();
+                let angkaDasar = strJawaban.replace(/0+$/, '');
+                let numDasar = parseInt(angkaDasar);
+
+                opsiSet.add(numDasar);
+                opsiSet.add(numDasar * 10);
+                opsiSet.add(numDasar * 100);
+                opsiSet.add(numDasar * 1000);
+            } else {
+                let strJawaban = jawaban.toString();
+                let angkaMurni = strJawaban.replace(/0+$/, '');
+                
+                if (angkaMurni.length >= 2) {
+                    let angkaTerbalik = angkaMurni.split('').reverse().join('');
+                    let valMurni = parseInt(angkaMurni);
+                    let valTerbalik = parseInt(angkaTerbalik);
+
+                    opsiSet.add(valMurni);
+                    opsiSet.add(valMurni * 10);
+                    opsiSet.add(valMurni * 100);
+                    opsiSet.add(valTerbalik);
+                    opsiSet.add(valTerbalik * 10);
+                    opsiSet.add(valTerbalik * 100);
+                } else {
+                    let base = parseInt(angkaMurni);
+                    opsiSet.add(base);
+                    opsiSet.add(base * 10);
+                    opsiSet.add(base * 100);
+                    opsiSet.add(base * 1000);
+                }
+            }
+
+            let finalOpsi = Array.from(opsiSet).filter(x => x > 0 && x <= 99999);
+            while (finalOpsi.length < 4) {
+                let offset = Math.floor(Math.random() * 3) + 1;
+                finalOpsi.push(jawaban + (offset * 10));
+                finalOpsi = Array.from(new Set(finalOpsi));
+            }
+
+            if (!finalOpsi.includes(jawaban)) finalOpsi[0] = jawaban;
+            return finalOpsi.slice(0, 4);
+        }
+
+        // Generator Soal Acak Berdasarkan Tipe
+        function generateQuestions(type) {
+            let generated = [];
+            let safety = 0;
+
+            while (generated.length < 5 && safety < 3000) {
+                safety++;
+
+                if (type === 1) {
+                    let fromIdx = Math.floor(Math.random() * 6);
+                    let toIdx = Math.floor(Math.random() * (Math.min(fromIdx + 3, 6) - (fromIdx + 1) + 1)) + (fromIdx + 1);
+                    
+                    let ratio = getLengthRatio(fromIdx, toIdx);
+                    let valKiri = Math.floor(Math.random() * 9) + 1;
+                    let jawaban = valKiri * ratio;
+
+                    if (jawaban >= 1 && jawaban <= 9999) {
+                        generated.push({
+                            kiri: [{ val: valKiri, unit: lengthUnits[fromIdx] }],
+                            targetText: `... ${lengthUnits[toIdx]}`,
+                            jawaban: jawaban,
+                            opsi: generateSmartOptions(jawaban, 1)
+                        });
+                    }
+                } 
+                else if (type === 2) {
+                    let toIdx = Math.floor(Math.random() * 5) + 2;
+                    let fromIdx1 = Math.floor(Math.random() * toIdx);
+                    let fromIdx2 = Math.floor(Math.random() * toIdx);
+                    if (fromIdx1 === fromIdx2) continue;
+
+                    let ratio1 = getLengthRatio(fromIdx1, toIdx);
+                    let ratio2 = getLengthRatio(fromIdx2, toIdx);
+                    let val1 = Math.floor(Math.random() * 5) + 1;
+                    let val2 = Math.floor(Math.random() * 5) + 1;
+
+                    let jawaban = (val1 * ratio1) + (val2 * ratio2);
+                    if (jawaban >= 10 && jawaban <= 9999) {
+                        generated.push({
+                            kiri: [{ val: val1, unit: lengthUnits[fromIdx1] }, { val: val2, unit: lengthUnits[fromIdx2] }],
+                            targetText: `... ${lengthUnits[toIdx]}`,
+                            jawaban: jawaban,
+                            opsi: generateSmartOptions(jawaban, 2)
+                        });
+                    }
+                } 
+                else if (type === 3) {
+                    let picked = [];
+                    while(picked.length < 4) {
+                        let rIdx = Math.floor(Math.random() * 7);
+                        if (!picked.includes(rIdx)) picked.push(rIdx);
+                    }
+                    picked.sort((a, b) => a - b);
+
+                    let fromIdx1 = picked[0]; 
+                    let fromIdx2 = picked[1]; 
+                    let kananTetapIdx = picked[2]; 
+                    let toIdx = picked[3]; 
+
+                    let ratio1 = getLengthRatio(fromIdx1, toIdx);
+                    let ratio2 = getLengthRatio(fromIdx2, toIdx);
+                    let ratioKanan = getLengthRatio(kananTetapIdx, toIdx);
+
+                    let val1 = Math.floor(Math.random() * 2) + 1;
+                    let val2 = Math.floor(Math.random() * 3) + 1;
+                    let totalKiri = (val1 * ratio1) + (val2 * ratio2);
+
+                    let maxKanan = Math.floor(totalKiri / ratioKanan);
+                    if (maxKanan > 1) {
+                        let valKanan = Math.floor(Math.random() * (maxKanan - 1)) + 1;
+                        let jawaban = totalKiri - (valKanan * ratioKanan);
+
+                        if (jawaban >= 10 && jawaban <= 9999) {
+                            generated.push({
+                                kiri: [{ val: val1, unit: lengthUnits[fromIdx1] }, { val: val2, unit: lengthUnits[fromIdx2] }],
+                                kananKiri: { val: valKanan, unit: lengthUnits[kananTetapIdx] },
+                                targetText: `... ${lengthUnits[toIdx]}`,
+                                jawaban: jawaban,
+                                opsi: generateSmartOptions(jawaban, 3)
+                            });
+                        }
+                    }
+                }
+            }
+            return generated;
+        }
+
+        function changeScreen(screenId) {
+            ['screen-splash', 'screen-menu', 'screen-game', 'screen-end'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(screenId).classList.remove('hidden');
+            
+            if (screenId === 'screen-splash') {
+                document.getElementById('front-controls').classList.remove('hidden');
+            } else {
+                document.getElementById('front-controls').classList.add('hidden');
+                initAudio();
+            }
+        }
+
+        function shuffleArray(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function startGame(type) {
+            currentType = type;
+            currentQuestionIndex = 0;
+            score = 0;
+            lives = 3;
+            correctAnswersCount = 0;
+            questionsPool = generateQuestions(type);
+            
+            updateHUD();
+            changeScreen('screen-game');
+            loadQuestion();
+        }
+
+        function updateHUD() {
+            document.getElementById('hud-type').innerText = currentType === 1 ? "Konversi Dasar" : currentType === 2 ? "Penjumlahan" : "Sisa Jarak";
+            document.getElementById('hud-progress').innerText = `${currentQuestionIndex + 1}/5`;
+            document.getElementById('hud-score').innerText = score;
+            
+            let hearts = '';
+            for(let i=0; i<3; i++) hearts += i < lives ? '❤️' : '🖤';
+            document.getElementById('hud-hearts').innerHTML = hearts;
+        }
+
+        function loadQuestion() {
+            const rocket = document.getElementById('rocket-element');
+            const bubble = document.getElementById('feedback-bubble');
+            const timerDisplay = document.getElementById('countdown-display');
+            
+            // Hentikan timer sebelumnya jika masih aktif
+            if (countdownTimer) clearInterval(countdownTimer);
+            
+            // Kembalikan Posisi Roket ke Pad Peluncuran Kiri
+            rocket.style.transition = 'none';
+            rocket.style.transform = 'translate(0px, 0px) rotate(0deg)';
+            
+            bubble.className = "absolute top-4 bg-white text-slate-800 text-xs font-bold px-4 py-2 rounded-xl shadow-md opacity-0 border border-slate-300";
+            bubble.innerText = "Siap meluncur...";
+
+            // Atur batas waktu berpikir berdasarkan tipe level (Level 3 = 10 detik, Level 1 & 2 = 5 detik)
+            timeLeft = (currentType === 3) ? 15 : 10;
+            document.getElementById('timer-seconds').innerText = timeLeft;
+            timerDisplay.className = "absolute top-14 text-2xl font-black text-red-400 tracking-wider drop-shadow bg-black/40 px-4 py-1 rounded-full border border-red-500/30 animate-none";
+
+            currentQuestion = questionsPool[currentQuestionIndex];
+
+            // Render Indikator Jarak Kiri / Peluncur
+            const leftPanel = document.getElementById('distance-panel-left');
+            leftPanel.innerHTML = '';
+            currentQuestion.kiri.forEach(item => {
+                leftPanel.innerHTML += `
+                    <div class="bg-slate-800 text-white border-2 border-cyan-400 font-bold px-2 py-1 rounded-lg text-xs shadow text-center">
+                        <div>${item.val}</div>
+                        <div class="text-[10px] text-cyan-300">${item.unit}</div>
+                    </div>
+                `;
+            });
+
+            // Render Indikator Jarak Kanan / Planet Sasaran
+            const rightPanel = document.getElementById('distance-panel-right');
+            rightPanel.innerHTML = '';
+            if (currentType === 3 && currentQuestion.kananKiri) {
+                rightPanel.innerHTML += `
+                    <div class="bg-slate-800 text-white border border-purple-400 font-bold px-1.5 py-0.5 rounded-md text-[10px] mb-1">
+                        ${currentQuestion.kananKiri.val} ${currentQuestion.kananKiri.unit}
+                    </div>
+                `;
+            }
+            rightPanel.innerHTML += `<div class="font-extrabold text-center text-[11px] text-yellow-300 px-1">${currentQuestion.targetText}</div>`;
+
+            // Render Kotak Pilihan Amunisi Jarak
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            let shuffled = shuffleArray(currentQuestion.opsi);
+            shuffled.forEach(opt => {
+                container.innerHTML += `
+                    <button onclick="launchRocket(${opt}, this)" class="bg-white hover:bg-cyan-50 text-slate-800 font-bold text-xl py-3 rounded-xl border-2 border-slate-300 shadow-md transform active:scale-95 transition cursor-pointer text-center">
+                        ${opt}
+                    </button>
+                `;
+            });
+
+            // JALANKAN PROSES COUNTDOWN HITUNG MUNDUR
+            countdownTimer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer-seconds').innerText = timeLeft;
+                
+                // Efek bergetar darurat saat kritis (tinggal 2 detik)
+                if (timeLeft <= 2) {
+                    timerDisplay.classList.add('animate-pulse');
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdownTimer);
+                    // Panggil fungsi meluncur dengan parameter null yang memicu ledakan waktu habis
+                    launchRocket(null, null);
+                }
+            }, 1000);
+        }
+
+        // Efek semburan asap saat roket berjalan meluncur
+        function makeSmoke() {
+            const rocket = document.getElementById('rocket-element');
+            const container = rocket.parentElement;
+            let rect = rocket.getBoundingClientRect();
+            let containerRect = container.getBoundingClientRect();
+            
+            let p = document.createElement('div');
+            p.className = 'smoke-particle';
+            p.style.left = `${rect.left - containerRect.left + 15}px`;
+            p.style.top = `${rect.top - containerRect.top + 20}px`;
+            container.appendChild(p);
+            setTimeout(() => p.remove(), 800);
+        }
+
+        function launchRocket(selectedVal, buttonElement) {
+            // Hentikan timer berpikir segera saat jawaban dipilih / waktu habis
+            if (countdownTimer) clearInterval(countdownTimer);
+
+            const buttons = document.getElementById('options-container').getElementsByTagName('button');
+            for(let b of buttons) b.disabled = true;
+
+            const rocket = document.getElementById('rocket-element');
+            const bubble = document.getElementById('feedback-bubble');
+
+            // ================= LOGIKA JIKA WAKTU BERPIKIR HABIS =================
+            if (selectedVal === null) {
+                playSoundWrong();
+                lives--;
+                
+                // Ubah penampilan roket menjadi ledakan besar hancur di tempat peluncuran
+                rocket.innerText = "💥";
+                rocket.style.transform = "scale(1.8)";
+                
+                // Beri warna hijau pada tombol jawaban yang benar
+                for(let b of buttons) {
+                    if (parseInt(b.innerText.trim()) === currentQuestion.jawaban) {
+                        b.classList.remove('bg-white');
+                        b.classList.add('bg-emerald-500', 'text-white', 'border-emerald-700');
+                    }
+                }
+
+                updateHUD();
+
+                setTimeout(() => {
+                    bubble.innerText = "WAKTU HABIS! Roket Meledak di Pad Peluncuran!";
+                    bubble.className = "absolute top-4 bg-red-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md opacity-100 border border-red-700 animate-bounce";
+                }, 200);
+
+                // Tunggu 3 detik lalu bersiap ganti soal berikutnya
+                setTimeout(() => {
+                    rocket.innerText = "🚀"; // Reset emoji semula
+                    rocket.style.transform = "scale(1)";
+                    if (lives <= 0) {
+                        endGame(false);
+                    } else {
+                        currentQuestionIndex++;
+                        if (currentQuestionIndex < 5) {
+                            updateHUD();
+                            loadQuestion();
+                        } else {
+                            endGame(true);
+                        }
+                    }
+                }, 3000);
+                
+                return; // Keluar dari fungsi agar tidak menjalankan animasi terbang melengkung di bawah
+            }
+
+            // ================= LOGIKA NORMAL JIKA BERHASIL MENJAWAB =================
+            let smokeTimer = setInterval(makeSmoke, 40);
+            rocket.style.transition = 'none';
+
+            // --- KONFIGURASI LINTASAN LINGKARAN (BUSUR PARABOLA) ---
+            let startX = 0;
+            let startY = 0;
+            
+            let targetX = 580; 
+            let targetY = -20; 
+
+            if (selectedVal < currentQuestion.jawaban) {
+                targetX = 280;
+                targetY = 120; 
+            } else if (selectedVal > currentQuestion.jawaban) {
+                targetX = 720;
+                targetY = -180;
+            }
+
+            let midX = (startX + targetX) / 2;
+            let midY = (startY + targetY) / 2;
+            
+            let k = 1.8; 
+            let centerX = midX - k * (targetY - startY);
+            let centerY = midY + k * (targetX - startX);
+
+            let radius = Math.sqrt(Math.pow(startX - centerX, 2) + Math.pow(startY - centerY, 2));
+
+            let startAngle = Math.atan2(startY - centerY, startX - centerX);
+            let targetAngle = Math.atan2(targetY - centerY, targetX - centerX);
+
+            let startTime = null;
+            const duration = 1800; 
+
+            let isCorrect = (selectedVal === currentQuestion.jawaban);
+            if (isCorrect) {
+                playSoundCorrect();
+                score += 20;
+                correctAnswersCount++;
+                buttonElement.classList.remove('bg-white', 'hover:bg-cyan-50');
+                buttonElement.classList.add('bg-emerald-500', 'text-white', 'border-emerald-700');
+            } else {
+                playSoundWrong();
+                lives--;
+                buttonElement.classList.remove('bg-white', 'hover:bg-cyan-50');
+                buttonElement.classList.add('bg-red-500', 'text-white', 'border-red-700');
+
+                for(let b of buttons) {
+                    if (parseInt(b.innerText.trim()) === currentQuestion.jawaban) {
+                        b.classList.remove('bg-white');
+                        b.classList.add('bg-emerald-500', 'text-white', 'border-emerald-700');
+                    }
+                }
+            }
+
+            function animateRocket(timestamp) {
+                if (!startTime) startTime = timestamp;
+                let elapsed = timestamp - startTime;
+                let progress = Math.min(elapsed / duration, 1); 
+
+                let easeProgress = 1 - Math.pow(1 - progress, 3); 
+
+                let currentAngle = startAngle + (targetAngle - startAngle) * easeProgress;
+
+                let currentX = centerX + radius * Math.cos(currentAngle);
+                let currentY = centerY + radius * Math.sin(currentAngle);
+
+                let tangentAngle = currentAngle + Math.PI / 2;
+                let rotateDeg = tangentAngle * (180 / Math.PI);
+
+                if (isCorrect) {
+                    if (easeProgress > 0.5) {
+                        let nengokBawahFactor = (easeProgress - 0.5) * 2; 
+                        rotateDeg = rotateDeg + (nengokBawahFactor * 80); 
+                    }
+                } else if (selectedVal < currentQuestion.jawaban) {
+                    if (easeProgress > 0.4) {
+                        let jatuhFactor = (easeProgress - 0.4) * 1.6;
+                        rotateDeg = rotateDeg + (jatuhFactor * 120);
+                    }
+                }
+                rocket.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${rotateDeg}deg)`;
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateRocket);
+                } else {
+                    clearInterval(smokeTimer);
+                    if (isCorrect) {
+                        bubble.innerText = "MISI BERHASIL! Roket Mendarat Sempurna!";
+                        bubble.className = "absolute top-4 bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md opacity-100 border border-emerald-600 animate-bounce";
+                    } else {
+                        if (selectedVal < currentQuestion.jawaban) {
+                            bubble.innerText = "GAGAL! Daya Lemah, Roket Jatuh Sebelum Target!";
+                        } else {
+                            bubble.innerText = "GAGAL! Daya Berlebih, Roket Bablas Keluar Lintasan!";
+                        }
+                        bubble.className = "absolute top-4 bg-red-500 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-md opacity-100 border border-red-600";
+                    }
+                }
+            }
+
+            requestAnimationFrame(animateRocket);
+            updateHUD();
+
+            setTimeout(() => {
+                clearInterval(smokeTimer);
+                if (lives <= 0) {
+                    endGame(false);
+                } else {
+                    currentQuestionIndex++;
+                    if (currentQuestionIndex < 5) {
+                        updateHUD();
+                        loadQuestion();
+                    } else {
+                        endGame(true);
+                    }
+                }
+            }, duration + 1500);
+        }
+
+        function endGame(isWin) {
+            const icon = document.getElementById('end-icon');
+            const title = document.getElementById('end-title');
+            const msg = document.getElementById('end-message');
+            
+            if (isWin && correctAnswersCount >= 3) {
+                playSoundWinGame();
+                icon.innerText = '🚀🎉';
+                title.innerText = "MISI SUKSES!";
+                title.className = "text-4xl font-extrabold text-green-400 mb-2 drop-shadow";
+                msg.innerText = `Luar biasa komandan! Roket berhasil menaklukkan jalur Satuan Panjang Tipe ${currentType}.`;
+            } else if (!isWin) {
+                icon.innerText = '💥';
+                title.innerText = "MISI GAGAL";
+                title.className = "text-4xl font-extrabold text-red-500 mb-2 drop-shadow";
+                msg.innerText = "Roket hancur atau kehabisan kendali di luar angkasa. Coba lagi!";
+            } else {
+                icon.innerText = '👨‍🚀';
+                title.innerText = "COBA LAGI!";
+                title.className = "text-4xl font-extrabold text-yellow-400 mb-2 drop-shadow";
+                msg.innerText = "Hampir sempurna! Tingkatkan fokus konversimu agar meraih poin maksimal.";
+            }
+
+            document.getElementById('end-score').innerText = score;
+            document.getElementById('end-correct').innerText = `${correctAnswersCount}/5`;
+            changeScreen('screen-end');
+        }
+    </script>
+</body>
+</html>

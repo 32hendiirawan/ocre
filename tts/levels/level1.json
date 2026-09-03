@@ -1,0 +1,11 @@
+{
+  "title": "Level 1",
+  "cols": 10,
+  "rows": 7,
+  "questions": [
+    { "id": 1, "direction": "across", "row": 0, "col": 0, "answer": "HTML", "clue": "Bahasa markup standar untuk membuat halaman Web." },
+    { "id": 1, "direction": "down", "row": 0, "col": 0, "answer": "HOSTING", "clue": "Tempat untuk menyimpan data website agar bisa diakses online." },
+    { "id": 2, "direction": "across", "row": 3, "col": 2, "answer": "CSS", "clue": "Bahasa stylesheet untuk mengatur tampilan/gaya elemen web." },
+    { "id": 3, "direction": "across", "row": 5, "col": 5, "answer": "GRID", "clue": "Sistem tata letak dua dimensi pada CSS." }
+  ]
+}

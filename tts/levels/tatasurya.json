@@ -1,0 +1,27 @@
+{
+  "title": "Tata Surya",
+  "cols": 20,
+  "rows": 18,
+  "questions": [
+    { "id": 1, "direction": "across", "row": 1, "col": 6, "answer": "JUPITER", "clue": "Planet terbesar di Sistem Tatasurya" },
+    { "id": 2, "direction": "down", "row": 1, "col": 7, "answer": "URANUS", "clue": "Planet yang memiliki sumbu rotasi yang sangat miring" },
+    { "id": 3, "direction": "across", "row": 3, "col": 6, "answer": "GALAKSI", "clue": "Sistem besar yang berisi bintang, debu, dan gas antarbintang" },
+    { "id": 4, "direction": "down", "row": 3, "col": 10, "answer": "KOMET", "clue": "Benda langit yang mempunyai ekor dan mengorbit Matahari" },
+    { "id": 5, "direction": "down", "row": 4, "col": 14, "answer": "BUMI", "clue": "Planet yang memiliki kehidupan" },
+    { "id": 6, "direction": "across", "row": 5, "col": 4, "answer": "VENUS", "clue": "Planet terdekat kedua dari Matahari" },
+    { "id": 7, "direction": "across", "row": 5, "col": 10, "answer": "MERKURIUS", "clue": "Planet terdekat dari Matahari" },
+    { "id": 8, "direction": "down", "row": 5, "col": 18, "answer": "SATELIT", "clue": "Benda yang berputar mengelilingi planet" },
+    { "id": 9, "direction": "down", "row": 7, "col": 6, "answer": "ORBIT", "clue": "Jalur yang ditempuh oleh benda langit mengelilingi bintang atau planet" },
+    { "id": 10, "direction": "across", "row": 7, "col": 8, "answer": "ASTEROID", "clue": "Batu kecil yang mengorbit Matahari" },
+    { "id": 11, "direction": "down", "row": 7, "col": 9, "answer": "SATURNUS", "clue": "Planet dengan cincin yang paling mencolok" },
+    { "id": 12, "direction": "across", "row": 8, "col": 1, "answer": "METEOR", "clue": "Bongkahan batu yang memasuki atmosfer Bumi" },
+    { "id": 12, "direction": "down", "row": 8, "col": 1, "answer": "MATAHARI", "clue": "Bintang di pusat Sistem Tatasurya kita" },
+    { "id": 13, "direction": "down", "row": 8, "col": 3, "answer": "TATASURYA", "clue": "Kumpulan benda langit yang terdiri dari sebuah bintang (Matahari) sebagai pusat dan semua objek yang terikat oleh gaya gravitasinya" },
+    { "id": 14, "direction": "across", "row": 9, "col": 6, "answer": "BINTANG", "clue": "Benda langit berupa bola gas yang memancarkan cahaya dan panasnya sendiri" },
+    { "id": 15, "direction": "across", "row": 11, "col": 9, "answer": "ROTASI", "clue": "Gerakan benda langit yang berputar pada porosnya" },
+    { "id": 16, "direction": "down", "row": 12, "col": 7, "answer": "BULAN", "clue": "Satu-stunya satelit alami bumi" },
+    { "id": 17, "direction": "down", "row": 13, "col": 14, "answer": "MARS", "clue": "Planet keempat dari Matahari yang sering disebut sebagai Planet Merah" },
+    { "id": 18, "direction": "across", "row": 14, "col": 3, "answer": "REVOLUSI", "clue": "Gerak benda langit yang berputar mengelilingi pusat atau objek lain melewati orbit tertentu" },
+    { "id": 19, "direction": "across", "row": 16, "col": 7, "answer": "NEPTUNUS", "clue": "Planet terjauh kedelapan dari Matahari" }
+  ]
+}

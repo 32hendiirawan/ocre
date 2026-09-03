@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pattern Master Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="levels.js"></script>
+    
+    <style>
+        [x-cloak] { display: none !important; }
+        
+        body {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            background-color: #0f172a;
+            overflow: hidden;
+        }
+
+        #app-viewport {
+            width: 800px;
+            height: 450px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: center center;
+            overflow: hidden;
+            background-color: #f8fafc;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .animate-shake { animation: shake 0.2s ease-in-out 2; }
+    </style>
+</head>
+<body class="w-screen h-screen flex justify-center items-center" x-data="gameSystem()" x-init="initGame()">
+
+    <div id="app-viewport" class="shadow-2xl rounded-lg flex flex-col justify-between">
+        
+        <header class="bg-indigo-600 text-white p-3 flex justify-between items-center h-12 select-none">
+            <div class="flex items-center space-x-2">
+                <button x-show="screen === 'game'" @click="screen = 'menu'" class="bg-indigo-700 hover:bg-indigo-800 px-2 py-1 rounded text-xs font-semibold transition">
+                    🏠︎ Home
+                </button>
+                <h1 class="text-base font-bold tracking-wide">🔢 Pattern Master Pro</h1>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <div class="text-xs bg-indigo-700 px-2 py-1 rounded font-medium">
+                    Skor: <span class="text-yellow-300 font-bold" x-text="totalScore">0</span>
+                </div>
+                <button @click="toggleFullscreen()" class="bg-slate-800 hover:bg-slate-900 px-2.5 py-1 rounded text-xs font-semibold transition flex items-center gap-1">
+                    <span x-text="isFullscreen ? '×' : '⛶'"></span>
+                </button>
+            </div>
+        </header>
+
+        <main class="flex-grow p-4 relative overflow-y-auto flex flex-col justify-center">
+            
+            <div x-show="screen === 'menu'" x-cloak class="h-full flex flex-col justify-between">
+                <div class="text-center mb-2">
+                    <h2 class="text-lg font-bold text-slate-800">Pilih Level</h2>
+                    <p class="text-slate-400 text-xs">Jawab dengan benar untuk membuka level berikutnya.</p>
+                </div>
+
+                <div class="grid grid-cols-4 gap-3 my-auto max-w-xl mx-auto w-full">
+                    <template x-for="(level, index) in levels" :key="level.id">
+                        <button 
+                            @click="startLevel(index)"
+                            :disabled="isLocked(index)"
+                            :class="{
+                                'bg-emerald-50 border-emerald-300 text-emerald-700': level.status === 'correct',
+                                'bg-rose-50 border-rose-300 text-rose-700': level.status === 'wrong',
+                                'bg-white border-indigo-200 text-indigo-600 shadow-sm': level.status === 'unlocked',
+                                'bg-slate-100 border-slate-200 text-slate-400 pointer-events-none': isLocked(index)
+                            }"
+                            class="h-16 rounded-xl border-2 font-bold flex flex-col items-center justify-center transition-all duration-150 active:scale-95"
+                        >
+                            <span class="text-lg" x-text="'Lvl ' + level.id"></span>
+                            <span class="text-[10px] mt-0.5">
+                                <span x-show="level.status === 'correct'">✔ Benar</span>
+                                <span x-show="level.status === 'wrong'">❌ Salah</span>
+                                <span x-show="level.status === 'unlocked'">Main</span>
+                                <span x-show="isLocked(index)">🔒 Kunci</span>
+                            </span>
+                        </button>
+                    </template>
+                </div>
+                <div class="h-2"></div>
+            </div>
+
+            <div x-show="screen === 'game'" x-cloak class="h-full flex flex-col justify-between items-center">
+                
+                <div class="w-full text-center my-auto">
+                    <div class="text-sm font-bold text-indigo-600 tracking-wider">
+                        LEVEL <span x-text="currentLevelData ? currentLevelData.id : ''"></span>
+                    </div>
+
+                    <div x-show="currentLevelData && currentLevelData.gambar" x-cloak class="mt-2 mb-1 flex justify-center">
+                        <img :src="currentLevelData && currentLevelData.gambar ? currentLevelData.gambar : ''" 
+                             class="h-16 object-contain rounded-lg border border-slate-200 bg-white p-1 shadow-sm"
+                             alt="Stimulus Soal">
+                    </div>
+                    
+                    <div class="flex flex-wrap justify-center items-center gap-2 mt-3 mb-3">
+                        <template x-for="(num, idx) in currentSequence" :key="idx">
+                            <div class="flex items-center">
+                                <template x-if="idx === currentLevelData.targetIdx">
+                                    <div 
+                                        :class="feedbackActive ? (isCorrectAnswer ? 'bg-emerald-500 border-emerald-600 text-white animate-bounce' : 'bg-rose-500 border-rose-600 text-white animate-shake') : 'bg-amber-100 border-amber-400 border-dashed text-amber-700'"
+                                        class="w-14 h-14 border-2 border-b-4 rounded-xl flex items-center justify-center shadow overflow-hidden p-1 transition-all duration-200"
+                                    >
+                                        <template x-if="feedbackActive && isImage(currentLevelData.jawaban)">
+                                            <img :src="currentLevelData.jawaban" class="w-full h-full object-contain rounded-md bg-white">
+                                        </template>
+                                        <template x-if="!feedbackActive || !isImage(currentLevelData.jawaban)">
+                                            <span class="font-black text-xl" x-text="feedbackActive ? currentLevelData.jawaban : '?'"></span>
+                                        </template>
+                                    </div>
+                                </template>
+
+                                <template x-if="idx !== currentLevelData.targetIdx">
+                                    <div class="w-14 h-14 bg-white border-2 border-b-4 border-slate-300 text-slate-800 font-bold text-sm rounded-xl flex items-center justify-center shadow-sm p-1">
+                                        <span x-text="num"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div class="min-h-[50px] flex flex-col justify-center items-center px-4">
+                        <div x-show="feedbackActive && isCorrectAnswer" class="text-emerald-600 font-bold text-base">
+                            🎉 Benar!
+                        </div>
+                        <div x-show="feedbackActive && !isCorrectAnswer" class="text-rose-600 text-center flex flex-col items-center">
+                            <div class="font-bold text-sm flex items-center gap-2">
+                                <span>Salah! Nilai yang benar adalah:</span>
+                                <template x-if="currentLevelData && isImage(currentLevelData.jawaban)">
+                                    <img :src="currentLevelData.jawaban" class="w-8 h-8 object-contain inline-block border rounded bg-white p-0.5">
+                                </template>
+                                <template x-if="currentLevelData && !isImage(currentLevelData.jawaban)">
+                                    <span class="underline text-base" x-text="currentLevelData.jawaban"></span>
+                                </template>
+                            </div>
+                            <p class="text-slate-500 text-xs mt-1 italic font-medium bg-slate-200/60 px-3 py-1 rounded-md inline-block" x-text="currentLevelData ? currentLevelData.tipe : ''"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full max-w-md mb-2">
+                    <div x-show="!feedbackActive" class="grid grid-cols-4 gap-2">
+                        <template x-for="option in currentOptions" :key="option">
+                            <button 
+                                @click="submitAnswer(option)"
+                                class="h-14 bg-white border border-b-4 border-slate-300 hover:border-indigo-400 text-slate-800 font-bold text-base rounded-xl flex items-center justify-center shadow p-1.5 transition-all active:border-b-0 active:translate-y-1 overflow-hidden"
+                            >
+                                <template x-if="isImage(option)">
+                                    <img :src="option" class="w-full h-full object-contain rounded-md">
+                                </template>
+                                <template x-if="!isImage(option)">
+                                    <span x-text="option"></span>
+                                </template>
+                            </button>
+                        </template>
+                    </div>
+
+                    <div x-show="feedbackActive" class="w-full px-4">
+                        <button 
+                            @click="nextLevel()"
+                            class="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition transform active:scale-95 flex items-center justify-center text-sm"
+                        >
+                            <span x-text="currentIndex === levels.length - 1 ? 'Selesai' : '>> Berikutnya >>'"></span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <footer class="bg-slate-800 text-slate-400 text-[10px] text-center py-1 select-none">
+            @ 2026 Pattern Master By : O'Cre Studio.
+        </footer>
+
+        <div x-show="modal.show" x-cloak class="absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-200">
+            <div @click.away="modal.show = false" class="bg-white rounded-2xl p-5 shadow-2xl border border-slate-100 max-w-sm w-full text-center flex flex-col items-center">
+                <div :class="modal.type === 'error' ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'" class="w-12 h-12 rounded-full flex items-center justify-center text-2xl mb-3">
+                    <span x-text="modal.type === 'error' ? '⚠️' : '🏆'"></span>
+                </div>
+                <h3 :class="modal.type === 'error' ? 'text-rose-600' : 'text-slate-800'" class="text-base font-bold mb-1" x-text="modal.title"></h3>
+                <p class="text-xs text-slate-500 mb-4 leading-relaxed" x-text="modal.message"></p>
+                <button @click="modal.show = false" :class="modal.type === 'error' ? 'bg-rose-600 hover:bg-rose-700' : 'bg-indigo-600 hover:bg-indigo-700'" class="w-full py-2 text-white font-bold text-xs rounded-xl shadow transition active:scale-95">
+                    Mengerti
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function adjustAppScale() {
+            const viewport = document.getElementById('app-viewport');
+            const baseWidth = 800;
+            const baseHeight = 450;
+            const scale = Math.min(window.innerWidth / baseWidth, window.innerHeight / baseHeight);
+            viewport.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        }
+        
+        window.addEventListener('resize', adjustAppScale);
+        window.addEventListener('DOMContentLoaded', adjustAppScale);
+
+        // Security Protections
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && (e.key === 'c' || e.key === 's' || e.key === 'u' || e.key === 'p') || e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C'))) {
+                e.preventDefault();
+                return false;
+            }
+            if (e.key === 'PrintScreen') {
+                navigator.clipboard.writeText("");
+                window.dispatchEvent(new CustomEvent('show-system-modal', {
+                    detail: { title: 'Keamanan Ketat', message: 'Aksi tangkapan layar dinonaktifkan demi melindungi materi game.', type: 'error' }
+                }));
+                e.preventDefault();
+            }
+        });
+
+        function gameSystem() {
+            return {
+                screen: 'menu',
+                levels: [],
+                currentIndex: 0,
+                currentLevelData: null,
+                currentSequence: [],
+                currentOptions: [],
+                selectedAnswer: null,
+                feedbackActive: false,
+                isCorrectAnswer: false,
+                totalScore: 0,
+                isFullscreen: false,
+                
+                modal: {
+                    show: false,
+                    title: '',
+                    message: '',
+                    type: 'info'
+                },
+
+                initGame() {
+                    if (typeof CUSTOM_LEVELS !== 'undefined') {
+                        const savedProgress = localStorage.getItem('patternMasterProgress');
+                        let progressArray = null;
+
+                        if (savedProgress) {
+                            try { progressArray = JSON.parse(savedProgress); } catch (e) { console.error(e); }
+                        }
+
+                        this.levels = CUSTOM_LEVELS.map((lvl, index) => {
+                            let defaultStatus = index === 0 ? 'unlocked' : 'locked';
+                            if (progressArray && progressArray[index]) {
+                                defaultStatus = progressArray[index];
+                            }
+                            return { ...lvl, status: defaultStatus };
+                        });
+
+                        this.calculateCurrentScore();
+                    }
+
+                    window.addEventListener('show-system-modal', (e) => {
+                        this.showAlertModal(e.detail.title, e.detail.message, e.detail.type);
+                    });
+                },
+
+                // Fungsi helper mengecek apakah string adalah path gambar (.png, .jpg, dll)
+                isImage(str) {
+                    if (typeof str !== 'string') return false;
+                    return /\.(png|jpg|jpeg|gif|webp)$/i.test(str);
+                },
+
+                showAlertModal(title, message, type = 'info') {
+                    this.modal.title = title;
+                    this.modal.message = message;
+                    this.modal.type = type;
+                    this.modal.show = true;
+                },
+
+                isLocked(index) {
+                    if (index === 0) return false;
+                    return this.levels[index].status === 'locked';
+                },
+
+                countWrongLevels() {
+                    return this.levels.filter(lvl => lvl.status === 'wrong').length;
+                },
+
+                startLevel(index) {
+                    this.currentIndex = index;
+                    this.currentLevelData = this.levels[index];
+                    this.currentSequence = this.currentLevelData.sequence;
+                    this.feedbackActive = false;
+                    this.selectedAnswer = null;
+                    
+                    let rawOpts = [this.currentLevelData.jawaban, ...this.currentLevelData.opsi_lain];
+                    this.currentOptions = rawOpts.sort(() => Math.random() - 0.5);
+                    
+                    this.screen = 'game';
+                },
+
+                submitAnswer(chosen) {
+                    if (this.feedbackActive) return;
+                    this.selectedAnswer = chosen;
+                    this.feedbackActive = true;
+
+                    if (chosen === this.currentLevelData.jawaban) {
+                        this.isCorrectAnswer = true;
+                        this.levels[this.currentIndex].status = 'correct';
+                    } else {
+                        this.isCorrectAnswer = false;
+                        this.levels[this.currentIndex].status = 'wrong';
+                    }
+
+                    if (this.countWrongLevels() < 3) {
+                        if (this.currentIndex + 1 < this.levels.length) {
+                            if (this.levels[this.currentIndex + 1].status === 'locked') {
+                                this.levels[this.currentIndex + 1].status = 'unlocked';
+                            }
+                        }
+                    }
+
+                    this.calculateCurrentScore();
+                    this.saveProgressToCache();
+                },
+
+                nextLevel() {
+                    if (this.countWrongLevels() >= 3) {
+                        this.showAlertModal(
+                            'Akses Baru Dikunci!', 
+                            'Kamu mengumpulkan 3 jawaban salah. Silakan perbaiki dulu level yang bersilang merah di halaman menu sebelum diperbolehkan membuka level baru!', 
+                            'error'
+                        );
+                        this.screen = 'menu';
+                        return;
+                    }
+
+                    if (this.currentIndex + 1 < this.levels.length) {
+                        this.startLevel(this.currentIndex + 1);
+                    } else {
+                        this.screen = 'menu';
+                        this.showAlertModal(
+                            'Selamat!', 
+                            'Kamu sudah menyelesaikan semua tantangan saat ini, tunggu update level selanjutnya', 
+                            'success'
+                        );
+                    }
+                },
+
+                saveProgressToCache() {
+                    const statusToSave = this.levels.map(lvl => lvl.status);
+                    localStorage.setItem('patternMasterProgress', JSON.stringify(statusToSave));
+                },
+
+                calculateCurrentScore() {
+                    const correctCount = this.levels.filter(lvl => lvl.status === 'correct').length;
+                    this.totalScore = correctCount * 10;
+                },
+
+                toggleFullscreen() {
+                    if (!document.fullscreenElement) {
+                        document.documentElement.requestFullscreen().then(() => {
+                            this.isFullscreen = true;
+                            setTimeout(adjustAppScale, 150);
+                        }).catch(err => { alert(err.message); });
+                    } else {
+                        document.exitFullscreen().then(() => {
+                            this.isFullscreen = false;
+                            setTimeout(adjustAppScale, 150);
+                        });
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

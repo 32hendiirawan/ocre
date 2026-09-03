@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aplikasi Game Teka-Teki Silang Edukasi</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style>
+    /* Menghilangkan panah spinner input number */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      appearance: none;
+      margin: 0;
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+    /* Custom Scrollbar halus untuk area grid mobile */
+    .custom-scroll::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 8px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 8px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-linear-to-br from-slate-50 to-indigo-50/40 font-sans text-slate-800 min-h-screen flex flex-col antialiased">
+
+  <div id="home-screen" class="flex-1 max-w-4xl w-full mx-auto px-4 py-12 flex flex-col justify-center items-center">
+    <div class="text-center mb-10 animate-fade-in">
+      <div class="inline-flex items-center justify-center w-20 h-20 bg-linear-to-tr from-indigo-500 to-violet-600 text-white rounded-3xl shadow-xl shadow-indigo-200 mb-5 text-4xl transform rotate-6 hover:rotate-0 transition-transform duration-300">
+        🧩
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-transparent bg-clip-text bg-linear-to-r from-indigo-600 to-violet-600 mb-2">
+        TTS EDUKASI
+      </h1>
+    </div>
+
+    <div class="w-full bg-white/80 backdrop-blur-md p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-200/60">
+      <h2 class="text-md font-bold uppercase tracking-wider mb-5 text-slate-400 flex items-center gap-2">
+        📂 Pilih Tema
+      </h2>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="level-list-container">
+        <p class="text-slate-400 text-sm col-span-full text-center py-4">Memuat daftar level...</p>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="game-screen" class="flex-1 flex flex-col hidden">
+    <div class="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md shadow-xs border-b border-slate-200/80">
+      <header class="py-3 px-4 sm:px-6 border-b border-slate-100">
+        <div class="max-w-4xl mx-auto flex items-center justify-between gap-4">
+          <h1 class="text-lg font-bold tracking-tight text-indigo-600 flex items-center gap-2 select-none">
+            🧩 TTS: <span id="current-level-title"></span>
+          </h1>
+          <div class="flex items-center gap-2">
+              <button onclick="backToHome()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs sm:text-sm rounded-xl border border-slate-200 shadow-xs transition-all flex items-center gap-1.5 cursor-pointer transform active:scale-95">
+                  Home
+              </button>
+              <button onclick="checkAnswers()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer transform active:scale-95">
+                  Periksa
+              </button>
+              <button onclick="resetGrid()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs sm:text-sm rounded-xl border border-slate-200 shadow-xs transition-all flex items-center gap-1.5 cursor-pointer transform active:scale-95">
+                  Reset
+              </button>
+          </div>
+        </div>
+      </header>
+
+      <div class="max-w-xl mx-auto p-3 flex flex-col justify-center min-h-[70px]">
+        <div id="top-clue-display" class="flex flex-col gap-0.5 text-center">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">📖 Petunjuk Soal Aktif</p>
+          <p class="text-xs sm:text-sm font-semibold text-slate-400 italic">Ketuk salah satu kotak huruf untuk memuat pertanyaan.</p>
+        </div>
+      </div>
+    </div>
+
+    <main class="flex-1 max-w-4xl w-full mx-auto px-4 py-6 flex flex-col items-center justify-start">
+      <div class="w-full bg-slate-100/50 p-3 sm:p-4 rounded-3xl border border-slate-200/60 flex flex-col items-center">
+        <div class="w-full overflow-auto custom-scroll flex justify-start md:justify-center py-4 px-2 bg-slate-50 border border-slate-100 rounded-2xl">
+          <div id="grid-scroll-box" class="transition-all duration-300 shrink-0">
+            <div id="tts-grid" class="bg-slate-900 p-2 rounded-xl border-4 border-slate-800 shadow-inner grid gap-1 select-none">
+              </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+
+  <div id="result-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden">
+    <div id="result-modal-card" class="bg-white rounded-2xl max-w-xs sm:max-w-sm w-full shadow-xl p-6 text-center transform scale-95 transition-transform flex flex-col items-center animate-fade-in">
+      <div id="result-icon-box" class="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-2xl sm:text-3xl mb-4"></div>
+      <h3 id="result-title" class="text-lg sm:text-xl font-bold mb-1.5 text-slate-800">Evaluasi</h3>
+      <p id="result-message" class="text-xs sm:text-sm text-slate-500 mb-6 px-2">Pesan detail.</p>
+      <button onclick="closeResultModal()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-semibold text-sm rounded-xl transition-colors cursor-pointer">
+        Dimengerti
+      </button>
+    </div>
+  </div>
+
+
+  <script>
+    let currentLevelData = null;
+    let currentDirection = "across";
+    let activeInputCell = null;
+
+    // Dipanggil saat aplikasi pertama kali terbuka
+    window.addEventListener("DOMContentLoaded", loadLevelMenu);
+
+    // Ambil daftar level secara asinkron dari listlevel.json
+    async function loadLevelMenu() {
+      const container = document.getElementById("level-list-container");
+      try {
+        const response = await fetch("listlevel.json");
+        if (!response.ok) throw new Error("Gagal mengambil file listlevel.json");
+        const levels = await response.json();
+        
+        container.innerHTML = ""; // Bersihkan placeholder memuat data
+        
+        levels.forEach(lvl => {
+          const btn = document.createElement("button");
+          btn.onclick = () => selectLevel(lvl.file);
+          btn.className = "w-full p-4 rounded-2xl border border-slate-200/80 bg-white hover:border-indigo-500 shadow-xs hover:shadow-md hover:bg-indigo-50/20 text-left transition-all cursor-pointer group flex justify-between items-center";
+          
+          btn.innerHTML = `
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-indigo-100 group-hover:bg-indigo-600 text-indigo-600 group-hover:text-white flex items-center justify-center font-bold text-sm transition-colors shrink-0">
+                ${lvl.id}
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-700 group-hover:text-indigo-600 transition-colors text-sm sm:text-base">${lvl.name}</h3>
+                <p class="text-xs text-slate-400 mt-0.5 line-clamp-1">${lvl.description || 'Selesaikan tantangan kata level ini.'}</p>
+              </div>
+            </div>
+            <span class="text-lg text-slate-300 group-hover:text-indigo-500 group-hover:translate-x-1 transition-all pl-2">➡️</span>
+          `;
+          container.appendChild(btn);
+        });
+      } catch (error) {
+        console.error(error);
+        container.innerHTML = `<p class="text-rose-500 text-sm col-span-full text-center py-4">Gagal memuat daftar level. Pastikan file 'listlevel.json' tersedia.</p>`;
+      }
+    }
+
+    // Navigasi Screen
+    function selectLevel(url) {
+      document.getElementById("home-screen").classList.add("hidden");
+      document.getElementById("game-screen").classList.remove("hidden");
+      resetClueDisplay();
+      loadLevel(url);
+    }
+
+    function backToHome() {
+      document.getElementById("game-screen").classList.add("hidden");
+      document.getElementById("home-screen").classList.remove("hidden");
+    }
+
+    function resetClueDisplay() {
+      const display = document.getElementById("top-clue-display");
+      display.innerHTML = `
+        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">📖 Petunjuk Soal Aktif</p>
+        <p class="text-xs sm:text-sm font-semibold text-slate-400 italic">Ketuk salah satu kotak huruf untuk memuat pertanyaan.</p>
+      `;
+    }
+
+    async function loadLevel(url) {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Berkas level tidak ditemukan.");
+        currentLevelData = await response.json();
+        renderGame(currentLevelData);
+      } catch (error) {
+        console.error(error);
+        alert("Gagal memuat konfigurasi level.");
+        backToHome();
+      }
+    }
+
+    function renderGame(data) {
+      const gridContainer = document.getElementById("tts-grid");
+      const scrollBox = document.getElementById("grid-scroll-box");
+      
+      gridContainer.innerHTML = "";
+      document.getElementById("current-level-title").innerText = data.title || "Teka-Teki Silang";
+
+      const cellWidth = 36; 
+      const maxVisibleCols = 12;
+
+      scrollBox.parentElement.style.overflowX = "auto";
+
+      if (data.cols > maxVisibleCols) {
+        if (window.innerWidth < 768) {
+          scrollBox.style.width = `${maxVisibleCols * cellWidth}px`;
+          scrollBox.style.maxWidth = "100%";
+        } else {
+          scrollBox.style.width = "auto";
+          scrollBox.style.maxWidth = "none";
+        }
+      } else {
+        scrollBox.style.width = "auto";
+        scrollBox.style.maxWidth = "none";
+      }
+
+      gridContainer.className = "bg-slate-900 p-2 rounded-xl border-4 border-slate-800 shadow-inner grid gap-1 select-none w-max";
+      gridContainer.style.gridTemplateColumns = `repeat(${data.cols}, minmax(32px, 1fr))`;
+
+      let matrix = Array(data.rows).fill(null).map(() => 
+        Array(data.cols).fill(null).map(() => ({ blocked: true, answer: "", label: "", attachedQuestions: [] }))
+      );
+
+      data.questions.forEach(q => {
+        let r = q.row;
+        let c = q.col;
+        
+        if (!matrix[q.row][q.col].label) {
+          matrix[q.row][q.col].label = q.id;
+        } else if (matrix[q.row][q.col].label !== q.id) {
+          matrix[q.row][q.col].label += `,${q.id}`;
+        }
+
+        for (let i = 0; i < q.answer.length; i++) {
+          if (r < data.rows && c < data.cols) {
+            matrix[r][c].blocked = false;
+            matrix[r][c].answer = q.answer[i].toUpperCase();
+            matrix[r][c].attachedQuestions.push(q);
+            
+            if (q.direction === "across") c++;
+            else r++;
+          }
+        }
+      });
+
+      for (let r = 0; r < data.rows; r++) {
+        for (let c = 0; c < data.cols; c++) {
+          const cellWrapper = document.createElement("div");
+          cellWrapper.className = "relative w-8 h-8 flex items-center justify-center rounded-md transition-all shrink-0 aspect-square";
+
+          if (matrix[r][c].blocked) {
+            cellWrapper.className += " bg-slate-900";
+          } else {
+            cellWrapper.className += " bg-white border border-slate-300 shadow-xs";
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.size = 1;
+            input.className = "w-full h-full text-center p-0 font-black text-base text-slate-800 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 uppercase cursor-pointer transition-shadow select-all";
+            input.dataset.row = r;
+            input.dataset.col = c;
+            input.dataset.answer = matrix[r][c].answer;
+            input.dataset.clues = JSON.stringify(matrix[r][c].attachedQuestions);
+
+            // LOGIKA NAVIGASI TOMBOL PANAH & BACKSPACE OTOMATIS MUNDUR
+            input.addEventListener("keydown", function(e) {
+              const r = parseInt(this.dataset.row);
+              const c = parseInt(this.dataset.col);
+
+              if (e.key === "ArrowRight" || e.key === "ArrowLeft") currentDirection = "across";
+              if (e.key === "ArrowDown" || e.key === "ArrowUp") currentDirection = "down";
+              
+              // Aksi Tombol Backspace
+              if (e.key === "Backspace") {
+                if (this.value === "") {
+                  let prevInput = null;
+                  if (currentDirection === "across") {
+                    prevInput = document.querySelector(`input[data-row='${r}'][data-col='${c - 1}']`);
+                  } else {
+                    prevInput = document.querySelector(`input[data-row='${r - 1}'][data-col='${c}']`);
+                  }
+
+                  if (prevInput) {
+                    prevInput.focus();
+                    prevInput.value = "";
+                    prevInput.parentElement.classList.remove("bg-emerald-100/80", "bg-rose-100/80", "ring-2", "ring-emerald-400", "ring-rose-400");
+                    prevInput.parentElement.classList.add("bg-white");
+                  }
+                  e.preventDefault();
+                } else {
+                  this.parentElement.classList.remove("bg-emerald-100/80", "bg-rose-100/80", "ring-2", "ring-emerald-400", "ring-rose-400");
+                  this.parentElement.classList.add("bg-white");
+                }
+              }
+
+              if (e.key.length === 1 && e.key.match(/[a-z]/i)) {
+                this.value = ""; 
+              }
+            });
+
+            input.addEventListener("mousedown", function() {
+              activeInputCell = this;
+              const cluesData = JSON.parse(this.dataset.clues || "[]");
+              
+              if (document.activeElement === this && cluesData.length > 1) {
+                currentDirection = (currentDirection === "across") ? "down" : "across";
+              }
+              updateTopClueDisplay(cluesData);
+            });
+
+            input.addEventListener("focus", function() {
+              activeInputCell = this;
+              const cluesData = JSON.parse(this.dataset.clues || "[]");
+              updateTopClueDisplay(cluesData);
+            });
+
+            input.addEventListener("input", (e) => {
+              if (e.target.value.length >= 1) {
+                e.target.value = e.target.value.slice(-1).toUpperCase();
+                e.target.parentElement.classList.remove("bg-emerald-100/80", "bg-rose-100/80", "ring-2", "ring-emerald-400", "ring-rose-400");
+                e.target.parentElement.classList.add("bg-white");
+                
+                focusNextCell(parseInt(input.dataset.row), parseInt(input.dataset.col));
+              }
+            });
+
+            if (matrix[r][c].label) {
+              const labelSpan = document.createElement("span");
+              labelSpan.className = "absolute top-0.5 left-1 text-[9px] font-bold text-slate-400 pointer-events-none z-10 leading-none";
+              labelSpan.innerText = matrix[r][c].label;
+              cellWrapper.appendChild(labelSpan);
+            }
+
+            cellWrapper.appendChild(input);
+          }
+          gridContainer.appendChild(cellWrapper);
+        }
+      }
+    }
+
+    function updateTopClueDisplay(cluesData) {
+      const display = document.getElementById("top-clue-display");
+      if (cluesData.length === 0) return;
+
+      if (cluesData.length === 1) {
+        currentDirection = cluesData[0].direction;
+      }
+
+      let activeClue = cluesData.find(q => q.direction === currentDirection);
+      
+      if (!activeClue) {
+        activeClue = cluesData[0];
+        currentDirection = activeClue.direction;
+      }
+
+      const isAcross = activeClue.direction === "across";
+      const badgeColor = isAcross ? "bg-indigo-100 text-indigo-700 border-indigo-200" : "bg-emerald-100 text-emerald-700 border-emerald-200";
+      const directionText = isAcross ? "➡️ Mendatar" : "⬇️ Menurun";
+
+      display.innerHTML = `
+        <div class="flex items-center justify-center gap-2 mb-0.5">
+          <span class="px-1.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wide border ${badgeColor}">
+            ${directionText}
+          </span>
+          <span class="text-xs font-black text-slate-500">No. ${activeClue.id}</span>
+        </div>
+        <p class="text-xs sm:text-sm font-bold text-slate-700 leading-snug px-4">${activeClue.clue}</p>
+        ${cluesData.length > 1 ? '<p class="text-[9px] text-indigo-500 font-medium mt-0.5 animate-pulse">💡 Ketuk kotak lagi untuk mengubah arah isian</p>' : ''}
+      `;
+    }
+
+    function focusNextCell(currentRow, currentCol) {
+      let nextInput = null;
+      if (currentDirection === "across") {
+        nextInput = document.querySelector(`input[data-row='${currentRow}'][data-col='${currentCol + 1}']`);
+      } else {
+        nextInput = document.querySelector(`input[data-row='${currentRow + 1}'][data-col='${currentCol}']`);
+      }
+      
+      if (nextInput) {
+        nextInput.focus();
+      }
+    }
+
+    function checkAnswers() {
+      const inputs = document.querySelectorAll("#tts-grid input");
+      let correctCount = 0;
+      let hasWrongAnswer = false;
+
+      inputs.forEach(input => {
+        if (input.value.toUpperCase() === input.dataset.answer) {
+          input.parentElement.className = input.parentElement.className.replace(/bg-\w+-\d+/g, "") + " bg-emerald-100/80 ring-2 ring-emerald-400";
+          correctCount++;
+        } else if (input.value !== "") {
+          input.parentElement.className = input.parentElement.className.replace(/bg-\w+-\d+/g, "") + " bg-rose-100/80 ring-2 ring-rose-400";
+          hasWrongAnswer = true;
+        }
+      });
+
+      if (correctCount === inputs.length && inputs.length > 0) {
+        showResultModal(true, "Luar Biasa!", "🎉 Selamat! Semua jawaban Anda benar 100%. Anda berhasil menyelesaikan tantangan level ini.");
+      } else {
+        const message = hasWrongAnswer 
+          ? "Ada beberapa kotak/sel berwarna merah yang masih salah. Periksa kembali jawaban Anda!"
+          : "Papan permainan belum terisi penuh. Selesaikan seluruh jawaban terlebih dahulu.";
+        showResultModal(false, "Periksa Kotak/Sel", message);
+      }
+    }
+
+    function showResultModal(isSuccess, title, message) {
+      const modal = document.getElementById("result-modal");
+      const iconBox = document.getElementById("result-icon-box");
+      const titleEl = document.getElementById("result-title");
+      const messageEl = document.getElementById("result-message");
+
+      titleEl.innerText = title;
+      messageEl.innerText = message;
+
+      if (isSuccess) {
+        iconBox.className = "w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center bg-emerald-100 text-emerald-600 ring-8 ring-emerald-50";
+        iconBox.innerHTML = "🏆";
+      } else {
+        iconBox.className = "w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center bg-rose-100 text-rose-600 ring-8 ring-rose-50";
+        iconBox.innerHTML = "❌";
+      }
+
+      modal.classList.remove("hidden");
+    }
+
+    function closeResultModal() {
+      document.getElementById("result-modal").classList.add("hidden");
+    }
+
+    function resetGrid() {
+      const inputs = document.querySelectorAll("#tts-grid input");
+      inputs.forEach(input => {
+        input.value = "";
+        input.parentElement.classList.remove("bg-emerald-100/80", "bg-rose-100/80", "ring-2", "ring-emerald-400", "ring-rose-400");
+        input.parentElement.classList.add("bg-white");
+      });
+      resetClueDisplay();
+    }
+    
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+});
+  </script>
+</body>
+</html>
