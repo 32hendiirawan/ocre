@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Qur'an Digital</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .font-arabic { font-family: 'Amiri', serif; }
+    
+    /* Variable CSS untuk Pengaturan Dynamic */
+    .app-bg { background-color: var(--bg-color, #f8fafc); }
+    .card-bg { background-color: var(--card-bg-color, #ffffff); }
+    .app-text-main { color: var(--main-text-color, #1e293b); }
+    
+    .txt-arabic { 
+      font-size: var(--arabic-size, 28px); 
+      color: var(--arabic-color, #0f172a);
+    }
+    .txt-latin { 
+      font-size: var(--latin-size, 14px); 
+      color: var(--latin-color, #047857);
+    }
+    .txt-translation { 
+      font-size: var(--trans-size, 14px); 
+      color: var(--trans-color, #475569);
+    }
+  </style>
+</head>
+<body class="app-bg app-text-main font-sans min-h-screen flex justify-center selection:bg-emerald-200">
+
+  <!-- Mobile Container (Max-Width & Dynamic Layout) -->
+  <div class="w-full max-w-md min-h-screen flex flex-col shadow-lg relative border-x border-slate-200/50">
+
+    <!-- Header Mobile Sticky -->
+    <header class="bg-emerald-700 text-white sticky top-0 z-30 px-4 py-3.5 flex justify-between items-center shadow-md">
+      <div class="flex items-center gap-2 cursor-pointer" onclick="showView('hero-view')">
+        <span class="text-xl">📖</span>
+        <h1 class="text-lg font-bold tracking-wide">Qur'an Digital</h1>
+      </div>
+
+      <!-- Tombol Menu Navigasi Pojok Kanan Atas -->
+      <button onclick="toggleNavMenu(true)" class="p-2 hover:bg-emerald-800 rounded-lg transition flex items-center justify-center">
+        <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M3 6C3 5.44772 3.44772 5 4 5H20C20.5523 5 21 5.44772 21 6C21 6.55228 20.5523 7 20 7H4C3.44772 7 3 6.55228 3 6ZM3 12C3 11.4477 3.44772 11 4 11H20C20.5523 11 21 11.4477 21 12C21 12.5523 20.5523 13 20 13H4C3.44772 13 3 12.5523 3 12ZM3 18C3 17.4477 3.44772 17 4 17H20C20.5523 17 21 17.4477 21 18C21 18.5523 20.5523 19 20 19H4C3.44772 19 3 18.5523 3 18Z"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Main Area -->
+    <main class="flex-1 p-4 pb-8">
+
+      <!-- 1. HALAMAN AWAL (HERO) -->
+      <section id="hero-view" class="view-section text-center py-10 flex flex-col items-center justify-center min-h-[75vh]">
+        <img src="assets/al-quran.png" alt="Qur'an Icon" width="240px" height="240px">
+        <h2 class="text-2xl font-extrabold text-emerald-800 mb-3">
+          Al-Qur'an Digital
+        </h2>
+        <button onclick="showView('list-view')" class="w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3.5 px-6 rounded-xl shadow-lg shadow-emerald-600/30 transition active:scale-95">
+          Start
+        </button>
+      </section>
+
+      <!-- 2. HALAMAN DAFTAR ISI -->
+      <section id="list-view" class="view-section hidden space-y-4">
+        <div class="sticky top-14 z-20 pt-1 bg-inherit">
+          <input 
+            type="text" 
+            id="search-input" 
+            oninput="filterSurah()" 
+            placeholder="Cari surah (nama / nomor)..." 
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm shadow-sm"
+          >
+        </div>
+
+        <div id="surah-list-container" class="space-y-2.5">
+          <!-- Item Surah Di-render via JS -->
+        </div>
+      </section>
+
+      <!-- 3. HALAMAN BACA SURAH -->
+      <section id="detail-view" class="view-section hidden space-y-4">
+        <!-- Header Navigasi Surah (Prev - Title - Next) -->
+        <div class="flex justify-between items-center border-b pb-3 border-slate-200 gap-2">
+          <button id="btn-prev-surah" onclick="navigateSurah(-1)" class="text-emerald-700 text-xs sm:text-sm font-semibold flex items-center gap-1 p-1.5 hover:bg-emerald-50 rounded-lg active:scale-95 transition disabled:opacity-30 disabled:pointer-events-none">
+            ‹ Prev
+          </button>
+
+          <h2 id="surah-title" class="text-base sm:text-lg font-bold text-emerald-800 text-center flex-1 truncate">
+            Surah
+          </h2>
+
+          <button id="btn-next-surah" onclick="navigateSurah(1)" class="text-emerald-700 text-xs sm:text-sm font-semibold flex items-center gap-1 p-1.5 hover:bg-emerald-50 rounded-lg active:scale-95 transition disabled:opacity-30 disabled:pointer-events-none">
+            Next ›
+          </button>
+        </div>
+
+        <div id="loading" class="text-center py-12 hidden">
+          <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-emerald-600 border-t-transparent"></div>
+          <p class="mt-2 text-xs text-slate-500">Memuat ayat...</p>
+        </div>
+
+        <div id="error-message" class="hidden bg-red-100 text-red-700 p-3 rounded-xl text-xs text-center">
+          Gagal memuat data surah. Pastikan file JSON ada di folder <code class="bg-red-200 px-1 rounded">assets/</code>.
+        </div>
+
+        <div id="ayat-container" class="space-y-4">
+          <!-- Ayat Di-render via JS -->
+        </div>
+      </section>
+
+    </main>
+
+    <!-- DRAWER / MENU NAVIGASI (POJOK KANAN ATAS) -->
+    <div id="nav-drawer" class="fixed inset-0 bg-black/50 z-50 hidden flex justify-end transition-opacity">
+      <div class="bg-white w-3/4 max-w-xs h-full p-5 space-y-6 shadow-2xl flex flex-col justify-between">
+        <div class="space-y-6">
+          <div class="flex justify-between items-center border-b pb-3">
+            <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+              📌 Menu Utama
+            </h3>
+            <button onclick="toggleNavMenu(false)" class="text-slate-400 text-2xl font-bold p-1">&times;</button>
+          </div>
+
+          <nav class="space-y-2">
+            <button onclick="showView('hero-view'); toggleNavMenu(false);" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3">
+              🏠 <span>Beranda</span>
+            </button>
+            <button onclick="showView('list-view'); toggleNavMenu(false);" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3">
+              📚 <span>Daftar Surah</span>
+            </button>
+            <button onclick="toggleSettings(true); toggleNavMenu(false);" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3">
+              ⚙️ <span>Pengaturan</span>
+            </button>
+            <button onclick="toggleAbout(true); toggleNavMenu(false);" class="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-3">
+              ℹ️ <span>Tentang Web</span>
+            </button>
+          </nav>
+        </div>
+
+        <div class="text-xs text-center text-slate-400 border-t pt-4">
+          Qur'an Digital App
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL PENGATURAN -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-5 max-h-[85vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b pb-3">
+          <h3 class="font-bold text-slate-800 text-base">Pengaturan Tampilan</h3>
+          <button onclick="toggleSettings(false)" class="text-slate-400 text-xl font-bold p-1">&times;</button>
+        </div>
+
+        <!-- Visibilitas Teks -->
+        <div class="space-y-3 border-b pb-4">
+          <label class="block text-xs font-semibold text-slate-600">Visibilitas Teks</label>
+          
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-slate-700">Tampilkan Teks Latin</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="show-latin" class="sr-only peer" onchange="updateSettings()" checked>
+              <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+            </label>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-slate-700">Tampilkan Terjemahan</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="show-trans" class="sr-only peer" onchange="updateSettings()" checked>
+              <div class="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Theme Background -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-2">Warna Background</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="setTheme('light')" class="py-2 border rounded-lg text-xs font-medium bg-slate-50 text-slate-800 hover:border-emerald-500">Putih</button>
+            <button onclick="setTheme('sepia')" class="py-2 border rounded-lg text-xs font-medium bg-[#f4ecd8] text-[#433422] hover:border-emerald-500">Sepia</button>
+            <button onclick="setTheme('dark')" class="py-2 border rounded-lg text-xs font-medium bg-slate-900 text-white hover:border-emerald-500">Malam</button>
+          </div>
+        </div>
+
+        <!-- Teks Arab Settings -->
+        <div class="space-y-2 border-t pt-3">
+          <label class="block text-xs font-semibold text-slate-600">Teks Arab</label>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-slate-500 w-16">Ukuran:</span>
+            <input type="range" id="size-arabic" min="20" max="40" class="w-full accent-emerald-600" oninput="updateSettings()">
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-slate-500 w-16">Warna:</span>
+            <input type="color" id="color-arabic" class="w-8 h-8 rounded border cursor-pointer" onchange="updateSettings()">
+          </div>
+        </div>
+
+        <!-- Teks Latin Settings -->
+        <div class="space-y-2 border-t pt-3">
+          <label class="block text-xs font-semibold text-slate-600">Teks Latin</label>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-slate-500 w-16">Ukuran:</span>
+            <input type="range" id="size-latin" min="12" max="22" class="w-full accent-emerald-600" oninput="updateSettings()">
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-slate-500 w-16">Warna:</span>
+            <input type="color" id="color-latin" class="w-8 h-8 rounded border cursor-pointer" onchange="updateSettings()">
+          </div>
+        </div>
+
+        <!-- Terjemahan Settings -->
+        <div class="space-y-2 border-t pt-3">
+          <label class="block text-xs font-semibold text-slate-600">Terjemahan</label>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-slate-500 w-16">Ukuran:</span>
+            <input type="range" id="size-trans" min="12" max="22" class="w-full accent-emerald-600" oninput="updateSettings()">
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-slate-500 w-16">Warna:</span>
+            <input type="color" id="color-trans" class="w-8 h-8 rounded border cursor-pointer" onchange="updateSettings()">
+          </div>
+        </div>
+
+        <button onclick="resetSettings()" class="w-full py-2 bg-slate-100 text-slate-600 text-xs rounded-lg font-semibold">
+          Reset ke Bawaan
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL TENTANG WEB -->
+    <div id="about-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-4 max-h-[85vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b pb-3">
+          <h3 class="font-bold text-slate-800 text-base">Tentang Aplikasi</h3>
+          <button onclick="toggleAbout(false)" class="text-slate-400 text-xl font-bold p-1">&times;</button>
+        </div>
+
+        <div class="space-y-3 text-xs leading-relaxed text-slate-600">
+          <div>
+            <h4 class="font-bold text-slate-800 mb-1 text-sm">Deskripsi Aplikasi</h4>
+            <p>
+              Qur'an Digital adalah aplikasi web interaktif berbasis HTML, Tailwind CSS, dan JavaScript vanilla yang dirancang khusus untuk kemudahan membaca Al-Qur'an secara mobile.
+            </p>
+          </div>
+
+          <div class="border-t pt-3">
+            <h4 class="font-bold text-slate-800 mb-1 text-sm">Pengembang</h4>
+            <p>Dikembangkan secara independen menggunakan integrasi data JSON lokal untuk performa cepat dan responsif.</p>
+          </div>
+
+          <div class="border-t pt-3">
+            <h4 class="font-bold text-slate-800 mb-1 text-sm">Kontak & Informasi</h4>
+            <ul class="space-y-1">
+              <li>Email: <a href="mailto:32hendiirawan@gmail.com" class="text-emerald-700 underline">32hendiirawan@gmail.com</a></li>
+              <li>Website: <a href="https://ocre.my.id" class="text-emerald-700 underline" target="_blank">ocre.my.id</a></li>
+              <li>WhatsApp: <a href="https://wa.me/6282289015759" class="text-emerald-700 underline" target="_blank">6282289015759</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <button onclick="toggleAbout(false)" class="w-full py-2.5 bg-emerald-700 text-white text-xs rounded-xl font-semibold mt-2">
+          Tutup
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- JavaScript App Logic -->
+  <script>
+    let surahDataList = [];
+    let currentSurahId = 1;
+
+    // --- NAVIGATION SPA ---
+    function showView(viewId) {
+      document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+      document.getElementById(viewId).classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleNavMenu(show) {
+      const drawer = document.getElementById('nav-drawer');
+      if (show) drawer.classList.remove('hidden');
+      else drawer.classList.add('hidden');
+    }
+
+    function toggleSettings(show) {
+      const modal = document.getElementById('settings-modal');
+      if (show) modal.classList.remove('hidden');
+      else modal.classList.add('hidden');
+    }
+
+    function toggleAbout(show) {
+      const modal = document.getElementById('about-modal');
+      if (show) modal.classList.remove('hidden');
+      else modal.classList.add('hidden');
+    }
+
+    // --- LOAD & RENDER DAFTAR SURAH ---
+    async function loadSurahList() {
+      const container = document.getElementById('surah-list-container');
+      try {
+        const response = await fetch('assets/surah-list.json');
+        if(!response.ok) throw new Error('File surah-list.json tidak ditemukan');
+        surahDataList = await response.json();
+
+        renderSurahList(surahDataList);
+      } catch (err) {
+        container.innerHTML = `<div class="text-center text-red-500 text-xs py-4">Gagal memuat daftar isi surah. Pastikan file assets/surah-list.json tersedia.</div>`;
+        console.error(err);
+      }
+    }
+
+    function renderSurahList(list) {
+      const container = document.getElementById('surah-list-container');
+      container.innerHTML = '';
+
+      list.forEach(surah => {
+        const item = document.createElement('div');
+        item.className = 'surah-item card-bg p-3.5 rounded-xl border border-slate-200/80 shadow-sm hover:border-emerald-500 flex justify-between items-center cursor-pointer active:scale-[0.99] transition';
+        item.onclick = () => loadSurahDetail(surah.id, surah.name_latin);
+        item.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="w-9 h-9 bg-emerald-100 text-emerald-800 font-bold rounded-lg flex items-center justify-center text-xs">
+              ${surah.id}
+            </span>
+            <div>
+              <h3 class="font-bold text-slate-800 text-sm">${surah.name_latin}</h3>
+              <p class="text-[11px] text-slate-500">${surah.total_ayat} Ayat</p>
+            </div>
+          </div>
+          <span class="font-arabic text-xl text-emerald-700">${surah.name_arabic}</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // --- FILTER SEARCH ---
+    function filterSurah() {
+      const query = document.getElementById('search-input').value.toLowerCase().trim();
+      const filtered = surahDataList.filter(s => 
+        s.name_latin.toLowerCase().includes(query) || 
+        s.id.toString() === query
+      );
+      renderSurahList(filtered);
+    }
+
+    // --- NAVIGASI PREV / NEXT SURAH ---
+    function navigateSurah(direction) {
+      const targetId = currentSurahId + direction;
+      if (targetId >= 1 && targetId <= 114) {
+        const targetSurah = surahDataList.find(s => s.id === targetId);
+        const nameLatin = targetSurah ? targetSurah.name_latin : '';
+        loadSurahDetail(targetId, nameLatin);
+      }
+    }
+
+    // --- LOAD BACA SURAH ---
+    async function loadSurahDetail(id, name) {
+      currentSurahId = parseInt(id);
+      showView('detail-view');
+
+      const btnPrev = document.getElementById('btn-prev-surah');
+      const btnNext = document.getElementById('btn-next-surah');
+
+      if (btnPrev) btnPrev.disabled = (currentSurahId <= 1);
+      if (btnNext) btnNext.disabled = (currentSurahId >= 114);
+
+      if (!name && surahDataList.length > 0) {
+        const found = surahDataList.find(s => s.id === currentSurahId);
+        if (found) name = found.name_latin;
+      }
+
+      document.getElementById('surah-title').textContent = `${currentSurahId}. ${name || ''}`;
+      
+      const container = document.getElementById('ayat-container');
+      const loading = document.getElementById('loading');
+      const errorMsg = document.getElementById('error-message');
+
+      container.innerHTML = '';
+      errorMsg.classList.add('hidden');
+      loading.classList.remove('hidden');
+
+      try {
+        const response = await fetch(`assets/surah${currentSurahId}.json`);
+        if (!response.ok) throw new Error('File tidak ditemukan');
+        
+        const json = await response.json();
+        const ayatList = json.data.ayat;
+
+        loading.classList.add('hidden');
+
+        ayatList.forEach((item, index) => {
+          const ayatCard = document.createElement('div');
+          ayatCard.className = 'card-bg p-4 rounded-xl border border-slate-200/80 shadow-sm space-y-3';
+          
+          const latinHidden = !currentSettings.showLatin ? 'hidden' : '';
+          const transHidden = !currentSettings.showTrans ? 'hidden' : '';
+
+          ayatCard.innerHTML = `
+            <div class="flex justify-between items-start border-b border-slate-100 pb-2">
+              <span class="w-6 h-6 bg-slate-100 text-slate-600 font-bold rounded-full flex items-center justify-center text-[10px]">
+                ${index + 1}
+              </span>
+              <p class="font-arabic text-right leading-loose tracking-wide txt-arabic" dir="rtl">
+                ${item.arabic}
+              </p>
+            </div>
+            <p class="font-medium italic txt-latin ${latinHidden}">
+              ${item.latin}
+            </p>
+            <p class="leading-relaxed txt-translation ${transHidden}">
+              ${item.translation}
+            </p>
+          `;
+          container.appendChild(ayatCard);
+        });
+
+      } catch (err) {
+        loading.classList.add('hidden');
+        errorMsg.classList.remove('hidden');
+        console.error(err);
+      }
+    }
+
+    // --- PENGATURAN TAMPILAN (SETTINGS) ---
+    const defaultSettings = {
+      bgTheme: 'light',
+      showLatin: true,
+      showTrans: true,
+      arabicSize: 28,
+      arabicColor: '#0f172a',
+      latinSize: 14,
+      latinColor: '#047857',
+      transSize: 14,
+      transColor: '#475569'
+    };
+
+    let currentSettings = { ...defaultSettings };
+
+    function updateSettings() {
+      currentSettings.showLatin = document.getElementById('show-latin').checked;
+      currentSettings.showTrans = document.getElementById('show-trans').checked;
+      currentSettings.arabicSize = document.getElementById('size-arabic').value;
+      currentSettings.arabicColor = document.getElementById('color-arabic').value;
+      currentSettings.latinSize = document.getElementById('size-latin').value;
+      currentSettings.latinColor = document.getElementById('color-latin').value;
+      currentSettings.transSize = document.getElementById('size-trans').value;
+      currentSettings.transColor = document.getElementById('color-trans').value;
+
+      applySettings();
+      saveSettingsToStorage();
+
+      // Refresh tampilan jika sedang membuka halaman baca surah
+      if (!document.getElementById('detail-view').classList.contains('hidden')) {
+        loadSurahDetail(currentSurahId);
+      }
+    }
+
+    function setTheme(theme) {
+      currentSettings.bgTheme = theme;
+      applySettings();
+      saveSettingsToStorage();
+    }
+
+    function applySettings() {
+      const root = document.documentElement;
+
+      root.style.setProperty('--arabic-size', `${currentSettings.arabicSize}px`);
+      root.style.setProperty('--arabic-color', currentSettings.arabicColor);
+      root.style.setProperty('--latin-size', `${currentSettings.latinSize}px`);
+      root.style.setProperty('--latin-color', currentSettings.latinColor);
+      root.style.setProperty('--trans-size', `${currentSettings.transSize}px`);
+      root.style.setProperty('--trans-color', currentSettings.transColor);
+
+      if (currentSettings.bgTheme === 'dark') {
+        root.style.setProperty('--bg-color', '#0f172a');
+        root.style.setProperty('--card-bg-color', '#1e293b');
+        root.style.setProperty('--main-text-color', '#f8fafc');
+      } else if (currentSettings.bgTheme === 'sepia') {
+        root.style.setProperty('--bg-color', '#f4ecd8');
+        root.style.setProperty('--card-bg-color', '#fbf7ee');
+        root.style.setProperty('--main-text-color', '#433422');
+      } else {
+        root.style.setProperty('--bg-color', '#f8fafc');
+        root.style.setProperty('--card-bg-color', '#ffffff');
+        root.style.setProperty('--main-text-color', '#1e293b');
+      }
+
+      document.getElementById('show-latin').checked = currentSettings.showLatin;
+      document.getElementById('show-trans').checked = currentSettings.showTrans;
+      document.getElementById('size-arabic').value = currentSettings.arabicSize;
+      document.getElementById('color-arabic').value = currentSettings.arabicColor;
+      document.getElementById('size-latin').value = currentSettings.latinSize;
+      document.getElementById('color-latin').value = currentSettings.latinColor;
+      document.getElementById('size-trans').value = currentSettings.transSize;
+      document.getElementById('color-trans').value = currentSettings.transColor;
+    }
+
+    function saveSettingsToStorage() {
+      localStorage.setItem('quran_settings', JSON.stringify(currentSettings));
+    }
+
+    function loadSettingsFromStorage() {
+      const saved = localStorage.getItem('quran_settings');
+      if (saved) {
+        currentSettings = { ...defaultSettings, ...JSON.parse(saved) };
+      }
+      applySettings();
+    }
+
+    function resetSettings() {
+      currentSettings = { ...defaultSettings };
+      applySettings();
+      saveSettingsToStorage();
+      if (!document.getElementById('detail-view').classList.contains('hidden')) {
+        loadSurahDetail(currentSurahId);
+      }
+    }
+
+    // Inisialisasi
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSettingsFromStorage();
+      loadSurahList();
+    });
+  </script>
+</body>
+</html>
