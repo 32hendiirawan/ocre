@@ -5,6 +5,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Nonogram</title>
   <style>
+    :root {
+      /* Tema Gelap (Default) */
+      --bg-main: #0d0e15;
+      --bg-panel: #121420;
+      --bg-container: #1a1d2d;
+      --bg-cell: #121420;
+      --bg-board: #262a3d;
+      --text-main: #e2e8f0;
+      --accent-color: #00f3ff;
+      --accent-shadow: rgba(0, 243, 255, 0.6);
+      --accent-shadow-subtle: rgba(0, 243, 255, 0.2);
+      --border-color: rgba(0, 243, 255, 0.3);
+      --border-grid: #1a1d2d;
+      --grid-thick-border: #00f3ff;
+      --grid-outer-border: #00f3ff;
+      --cell-hover: #00f3ff;
+      --cell-filled: #00f3ff;
+      --cell-crossed: #ff0055;
+      --text-muted: #475569;
+    }
+
+    body.light-theme {
+      /* Tema Cerah */
+      --bg-main: #f0f4f8;
+      --bg-panel: #ffffff;
+      --bg-container: #e2e8f0;
+      --bg-cell: #ffffff;
+      --bg-board: #cbd5e1;
+      --text-main: #1e293b;
+      --accent-color: #0284c7;
+      --accent-shadow: rgba(2, 132, 199, 0.4);
+      --accent-shadow-subtle: rgba(2, 132, 199, 0.15);
+      --border-color: rgba(2, 132, 199, 0.4);
+      --border-grid: #cbd5e1;
+      --grid-thick-border: #334155;
+      --grid-outer-border: #0f172a;
+      --cell-hover: #0284c7;
+      --cell-filled: #0284c7;
+      --cell-crossed: #e11d48;
+      --text-muted: #94a3b8;
+    }
+
     * {
       box-sizing: border-box;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -12,14 +54,14 @@
       padding: 0;
     }
 
-    /* Mengunci tampilan setinggi 100vh tanpa scrollbar */
     html, body {
       width: 100vw;
       height: 100vh;
       overflow: hidden;
-      background-color: #0d0e15;
-      color: #e2e8f0;
+      background-color: var(--bg-main);
+      color: var(--text-main);
       user-select: none;
+      transition: background-color 0.3s, color 0.3s;
     }
 
     body {
@@ -31,23 +73,23 @@
     }
 
     h1 {
-      color: #00f3ff;
-      text-shadow: 0 0 10px rgba(0, 243, 255, 0.6);
+      color: var(--accent-color);
+      text-shadow: 0 0 10px var(--accent-shadow);
       letter-spacing: 2px;
       font-size: clamp(1.2rem, 3.5vh, 2rem);
       text-align: center;
       flex-shrink: 0;
     }
 
-    /* Status Bar (Timer, Best Time, Hearts) */
+    /* Status Bar */
     .status-bar {
       display: flex;
       gap: clamp(10px, 3vw, 25px);
-      background-color: #121420;
+      background-color: var(--bg-panel);
       padding: clamp(4px, 1vh, 8px) clamp(12px, 2vw, 20px);
       border-radius: 8px;
-      border: 1px solid rgba(0, 243, 255, 0.3);
-      box-shadow: 0 0 10px rgba(0, 243, 255, 0.1);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 0 10px var(--accent-shadow-subtle);
       flex-shrink: 0;
     }
 
@@ -66,16 +108,17 @@
     }
 
     .timer-display, .best-time-display {
-      color: #00f3ff;
-      text-shadow: 0 0 8px rgba(0, 243, 255, 0.6);
+      color: var(--accent-color);
+      text-shadow: 0 0 8px var(--accent-shadow);
     }
 
-    /* Panel Kontrol & Mode Toggle */
+    /* Panel Kontrol */
     .controls {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       align-items: center;
       justify-content: center;
+      flex-wrap: wrap;
       flex-shrink: 0;
     }
 
@@ -84,42 +127,42 @@
       font-size: clamp(11px, 1.6vh, 14px);
       font-weight: bold;
       border-radius: 6px;
-      border: 1px solid #00f3ff;
-      background-color: #161925;
-      color: #00f3ff;
+      border: 1px solid var(--accent-color);
+      background-color: var(--bg-panel);
+      color: var(--accent-color);
       cursor: pointer;
       outline: none;
-      box-shadow: 0 0 8px rgba(0, 243, 255, 0.2);
+      box-shadow: 0 0 8px var(--accent-shadow-subtle);
       transition: all 0.2s ease;
     }
 
     select:hover, button:hover {
-      background-color: #00f3ff;
-      color: #0d0e15;
-      box-shadow: 0 0 15px rgba(0, 243, 255, 0.8);
+      background-color: var(--accent-color);
+      color: var(--bg-main);
+      box-shadow: 0 0 15px var(--accent-shadow);
     }
 
     .mode-container {
       display: flex;
       gap: 4px;
-      background-color: #161925;
+      background-color: var(--bg-panel);
       padding: 3px;
       border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-color);
     }
 
     .mode-btn {
       border: none;
       box-shadow: none;
-      color: #94a3b8;
+      color: var(--text-muted);
       background: transparent;
       padding: clamp(4px, 1vh, 8px) clamp(8px, 1.5vw, 12px);
     }
 
     .mode-btn.active-fill {
-      background-color: #00f3ff;
-      color: #0d0e15;
-      box-shadow: 0 0 12px rgba(0, 243, 255, 0.8);
+      background-color: var(--accent-color);
+      color: var(--bg-main);
+      box-shadow: 0 0 12px var(--accent-shadow);
     }
 
     .mode-btn.active-cross {
@@ -128,14 +171,14 @@
       box-shadow: 0 0 12px rgba(255, 0, 85, 0.8);
     }
 
-    /* Area Utama Papan Permainan */
+    /* Board Area */
     .board-wrapper {
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
       width: 100%;
-      min-height: 0; /* Penting agar flex item dapat mengecil */
+      min-height: 0;
     }
 
     .nonogram-container {
@@ -143,21 +186,21 @@
       gap: 1px;
       padding: 4px;
       border-radius: 8px;
-      background-color: #1a1d2d;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 243, 255, 0.1);
-      border: 1px solid rgba(0, 243, 255, 0.2);
+      background-color: var(--bg-container);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.4), 0 0 10px var(--accent-shadow-subtle);
+      border: 1px solid var(--border-color);
       max-height: 100%;
       max-width: 100%;
     }
 
     .corner {
-      background-color: #121420;
+      background-color: var(--bg-panel);
       border-radius: 4px 0 0 0;
     }
 
     .col-clues-header {
       display: flex;
-      background-color: #121420;
+      background-color: var(--bg-panel);
     }
 
     .col-clue {
@@ -167,18 +210,23 @@
       justify-content: flex-end;
       align-items: center;
       padding: 2px 1px;
-      border-right: 1px solid #1a1d2d;
+      border-right: 1px solid var(--border-grid);
       font-size: var(--clue-font-size, 11px);
       font-weight: bold;
-      color: #00f3ff;
-      text-shadow: 0 0 5px rgba(0, 243, 255, 0.5);
+      color: var(--accent-color);
+      text-shadow: 0 0 5px var(--accent-shadow-subtle);
       transition: color 0.3s, opacity 0.3s;
+    }
+
+    /* Penambahan pembatas tebal pada petunjuk kolom */
+    .col-clue.thick-border-right {
+      border-right: 2px solid var(--grid-thick-border) !important;
     }
 
     .row-clues-header {
       display: flex;
       flex-direction: column;
-      background-color: #121420;
+      background-color: var(--bg-panel);
     }
 
     .row-clue {
@@ -187,31 +235,39 @@
       justify-content: flex-end;
       align-items: center;
       padding: 1px 6px;
-      border-bottom: 1px solid #1a1d2d;
+      border-bottom: 1px solid var(--border-grid);
       font-size: var(--clue-font-size, 11px);
       font-weight: bold;
-      color: #00f3ff;
-      text-shadow: 0 0 5px rgba(0, 243, 255, 0.5);
+      color: var(--accent-color);
+      text-shadow: 0 0 5px var(--accent-shadow-subtle);
       gap: 4px;
       transition: color 0.3s, opacity 0.3s;
     }
 
+    /* Penambahan pembatas tebal pada petunjuk baris */
+    .row-clue.thick-border-bottom {
+      border-bottom: 2px solid var(--grid-thick-border) !important;
+    }
+
     .clue-completed {
-      color: #475569 !important;
+      color: var(--text-muted) !important;
       text-shadow: none !important;
       opacity: 0.5;
     }
 
+    /* Style Papan Utama & Garis Terluar Tebal */
     .board {
       display: grid;
       gap: 1px;
-      background-color: #262a3d;
+      background-color: var(--bg-board);
+      border: 3px solid var(--grid-outer-border);
+      box-shadow: 0 0 10px var(--accent-shadow-subtle);
     }
 
     .cell {
       width: var(--cell-size, 30px);
       height: var(--cell-size, 30px);
-      background-color: #121420;
+      background-color: var(--bg-cell);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -221,19 +277,28 @@
       transition: background-color 0.15s, box-shadow 0.15s;
     }
 
+    /* Penambahan Garis Tebal Setiap 5 Sel */
+    .cell.thick-border-right {
+      border-right: 2px solid var(--grid-thick-border) !important;
+    }
+
+    .cell.thick-border-bottom {
+      border-bottom: 2px solid var(--grid-thick-border) !important;
+    }
+
     .cell:hover {
-      border: 1px solid #00f3ff;
+      border: 1px solid var(--cell-hover);
     }
 
     .cell.filled {
-      background-color: #00f3ff;
-      box-shadow: inset 0 0 8px #ffffff, 0 0 8px rgba(0, 243, 255, 0.8);
+      background-color: var(--cell-filled);
+      box-shadow: inset 0 0 8px #ffffff, 0 0 8px var(--accent-shadow);
     }
 
     .cell.crossed {
-      color: #ff0055;
+      color: var(--cell-crossed);
       text-shadow: 0 0 8px rgba(255, 0, 85, 0.8);
-      background-color: #121420;
+      background-color: var(--bg-cell);
     }
 
     .cell.error {
@@ -298,6 +363,7 @@
       <button id="btn-mode-cross" class="mode-btn" onclick="setMode('cross')">Silang (✕)</button>
     </div>
 
+    <button id="theme-toggle-btn" onclick="toggleTheme()">☀️ Terang</button>
     <button onclick="initGame()">New</button>
   </div>
 
@@ -324,6 +390,12 @@
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.addEventListener('mouseup', () => { isMouseDown = false; });
     window.addEventListener('resize', calculateDynamicSizes);
+
+    function toggleTheme() {
+      const isLight = document.body.classList.toggle('light-theme');
+      const themeBtn = document.getElementById('theme-toggle-btn');
+      themeBtn.innerText = isLight ? '🌙 Gelap' : '☀️ Terang';
+    }
 
     function setMode(mode) {
       currentMode = mode;
@@ -371,7 +443,6 @@
       return { rowClues, colClues };
     }
 
-    // Menghitung ukuran sel & teks secara dinamis berdasarkan tinggi & lebar layar
     function calculateDynamicSizes() {
       const wrapper = document.querySelector('.board-wrapper');
       if (!wrapper) return;
@@ -379,7 +450,6 @@
       const availHeight = wrapper.clientHeight - 20;
       const availWidth = wrapper.clientWidth - 20;
 
-      // Estimasi porsi grid (clues + cells)
       const clueRatio = currentSize === 15 ? 0.35 : (currentSize === 10 ? 0.3 : 0.25);
       const totalUnits = currentSize * (1 + clueRatio);
 
@@ -387,7 +457,7 @@
       const maxCellW = availWidth / totalUnits;
       
       let cellSize = Math.floor(Math.min(maxCellH, maxCellW));
-      cellSize = Math.max(14, Math.min(cellSize, 42)); // Batas min 14px & max 42px
+      cellSize = Math.max(14, Math.min(cellSize, 42));
 
       let fontClue = Math.floor(cellSize * 0.4);
       fontClue = Math.max(9, Math.min(fontClue, 13));
@@ -485,6 +555,9 @@
       colClues.forEach((clues, colIdx) => {
         const colDiv = document.createElement('div');
         colDiv.className = 'col-clue';
+        if ((colIdx + 1) % 5 === 0 && colIdx < currentSize - 1) {
+          colDiv.classList.add('thick-border-right');
+        }
         colDiv.id = `col-clue-${colIdx}`;
         colDiv.innerHTML = clues.join('<br>');
         colCluesHeader.appendChild(colDiv);
@@ -498,6 +571,9 @@
       rowClues.forEach((clues, rowIdx) => {
         const rowDiv = document.createElement('div');
         rowDiv.className = 'row-clue';
+        if ((rowIdx + 1) % 5 === 0 && rowIdx < currentSize - 1) {
+          rowDiv.classList.add('thick-border-bottom');
+        }
         rowDiv.id = `row-clue-${rowIdx}`;
         rowDiv.innerText = clues.join(' ');
         rowCluesHeader.appendChild(rowDiv);
@@ -517,6 +593,14 @@
           const cell = document.createElement('div');
           cell.className = 'cell';
           cell.id = `cell-${r}-${c}`;
+
+          // Tambahkan border tebal untuk tiap kelipatan 5 kolom & baris (kecuali paling ujung)
+          if ((c + 1) % 5 === 0 && c < currentSize - 1) {
+            cell.classList.add('thick-border-right');
+          }
+          if ((r + 1) % 5 === 0 && r < currentSize - 1) {
+            cell.classList.add('thick-border-bottom');
+          }
 
           cell.addEventListener('mousedown', (e) => {
             if (e.button !== 0 || isGameOver) return;
