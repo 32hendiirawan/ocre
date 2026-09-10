@@ -5,5 +5,6 @@
     { "id": "buah", "nama": "Nama Buah" },
     { "id": "antariksa", "nama": "Luar Angkasa" },
     { "id": "bulan", "nama": "Nama Bulan" },
-    { "id": "asean", "nama": "Negara di Asean" }
+    { "id": "asean", "nama": "Negara di Asean" },
+    { "id": "olahraga", "nama": "Olahraga"}
 ]
