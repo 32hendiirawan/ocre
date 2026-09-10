@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Latihan Pembagian Porogapit Mobile</title>
+    <!-- Include html2canvas library for saving page as image -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border: 2px solid #ff6b6b;
+            border-radius: 15px;
+            padding: 12px 8px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            border-bottom: 2px dashed #ff6b6b;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .name-field {
+            font-size: 13px;
+            font-weight: bold;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .name-field input {
+            border: none;
+            border-bottom: 1.5px solid #333;
+            outline: none;
+            font-size: 13px;
+            padding: 2px 4px;
+            width: 150px;
+            text-align: center;
+        }
+
+        .quiz-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px 6px;
+            margin-bottom: 15px;
+        }
+
+        .question-card {
+            background-color: #fffcfc;
+            border: 1.5px solid #ffd8d8;
+            border-radius: 10px;
+            padding: 8px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .q-number {
+            position: absolute;
+            top: 3px;
+            left: 5px;
+            font-size: 10px;
+            color: #888;
+            font-weight: bold;
+        }
+
+        .status-icon {
+            position: absolute;
+            top: 1px;
+            right: 4px;
+            font-size: 15px;
+            font-weight: bold;
+            display: none;
+        }
+
+        /* Porogapit Layout Precision Grid */
+        .porogapit-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-top: 15px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #222;
+        }
+
+        .p-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: 2px;
+        }
+
+        .porogapit-body {
+            display: flex;
+            align-items: center;
+        }
+
+        .pembagi-val {
+            padding-right: 2px;
+            font-size: 15px;
+        }
+
+        .porogapit-symbol {
+            border-left: 2px solid #333;
+            border-top: 2px solid #333;
+            border-top-left-radius: 4px;
+            padding-left: 2px;
+            padding-top: 1px;
+            display: flex;
+        }
+
+        .cell {
+            width: 18px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .sign-cell {
+            width: 14px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: bold;
+            color: #222;
+        }
+
+        .line-p-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            width: 100%;
+            margin: 1px 0;
+        }
+
+        .line-p {
+            height: 1.5px;
+            background-color: #333;
+            flex-grow: 1;
+        }
+
+        .box-input {
+            width: 18px;
+            height: 22px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: bold;
+            border: 1px solid #999;
+            border-radius: 3px;
+            outline: none;
+            padding: 0;
+            background-color: #fff;
+            color: #222;
+        }
+
+        .box-input:focus {
+            border-color: #ff6b6b;
+            background-color: #fff0f0;
+        }
+
+        .box-input.wrong-fill {
+            background-color: #ffe6e6 !important;
+            color: #d63031 !important;
+            border-color: #e74c3c !important;
+            font-weight: bold;
+        }
+
+        .question-card.correct {
+            border-color: #2ecc71;
+            background-color: #f0fff4;
+        }
+
+        .question-card.correct .status-icon {
+            display: block;
+            color: #2ecc71;
+        }
+
+        .question-card.incorrect {
+            border-color: #e74c3c;
+            background-color: #fff0f0;
+        }
+
+        .question-card.incorrect .status-icon {
+            display: block;
+            color: #e74c3c;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            width: 100%;
+        }
+
+        button {
+            flex: 1 1 calc(50% - 4px);
+            padding: 10px 4px;
+            font-size: 12px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        .btn-submit {
+            background-color: #ff6b6b;
+            color: white;
+        }
+
+        .btn-reset {
+            background-color: #4ecdc4;
+            color: white;
+        }
+
+        .btn-save {
+            background-color: #2ecc71;
+            color: white;
+            flex: 1 1 100%;
+        }
+
+        .btn-save:hover {
+            background-color: #27ae60;
+        }
+
+        .result-box {
+            font-size: 15px;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+            display: none;
+            padding: 8px;
+            background-color: #eef2f5;
+            border-radius: 6px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="printableArea">
+    <div class="header">
+        <h1>LATIHAN PEMBAGIAN BERSUSUN</h1>
+        <div class="name-field">
+            NAMA: <input type="text" id="studentName" placeholder="     ">
+        </div>
+    </div>
+
+    <div class="quiz-grid" id="quizGrid"></div>
+
+    <div class="controls">
+        <div class="button-group" data-html2canvas-ignore="true">
+            <button class="btn-submit" id="btnSubmit" onclick="checkAnswers()">Kumpulkan</button>
+            <button class="btn-reset" onclick="generateQuiz()">Reset Soal</button>
+            <button class="btn-save" onclick="saveAsImage()">Simpan Hasil (Gambar)</button>
+        </div>
+        <div class="result-box" id="resultBox"></div>
+    </div>
+</div>
+
+<script>
+    let questionsData = [];
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function generatePorogapitPair() {
+        while (true) {
+            const pembagi = getRandomInt(2, 9);
+            const hasil = getRandomInt(12, 49);
+            const yangDibagi = pembagi * hasil;
+
+            if (yangDibagi >= 10 && yangDibagi <= 99) {
+                const d1 = Math.floor(yangDibagi / 10);
+                const d2 = yangDibagi % 10;
+
+                const h1 = Math.floor(d1 / pembagi);
+                const perkalian1 = h1 * pembagi;
+                const sisa1 = d1 - perkalian1;
+
+                if (h1 > 0 && sisa1 > 0) {
+                    const h2 = Math.floor((sisa1 * 10 + d2) / pembagi);
+                    const perkalian2 = h2 * pembagi;
+                    
+                    return {
+                        yangDibagi: yangDibagi,
+                        pembagi: pembagi,
+                        d1: d1,
+                        d2: d2,
+                        h1: h1,
+                        perkalian1: perkalian1,
+                        sisa1: sisa1,
+                        h2: h2,
+                        perkalian2: perkalian2,
+                        hasil: hasil
+                    };
+                }
+            }
+        }
+    }
+
+    function generateQuiz() {
+        const quizGrid = document.getElementById('quizGrid');
+        const resultBox = document.getElementById('resultBox');
+        
+        quizGrid.innerHTML = '';
+        resultBox.style.display = 'none';
+        
+        const submitBtn = document.getElementById('btnSubmit');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.style.cursor = 'pointer';
+        }
+
+        questionsData = [];
+
+        for (let i = 0; i < 10; i++) {
+            const data = generatePorogapitPair();
+            questionsData.push({ id: i, ...data });
+
+            const card = document.createElement('div');
+            card.className = 'question-card';
+            card.id = `card-${i}`;
+
+            card.innerHTML = `
+                <span class="q-number">#${i + 1}</span>
+                <span class="status-icon" id="icon-${i}"></span>
+                
+                <div class="porogapit-container">
+                    <!-- Baris Hasil Atas -->
+                    <div class="p-row">
+                        <input type="tel" maxlength="1" class="box-input" id="ans_h1-${i}">
+                        <input type="tel" maxlength="1" class="box-input" id="ans_h2-${i}">
+                        <span class="sign-cell"></span>
+                    </div>
+
+                    <!-- Baris Porogapit Utama -->
+                    <div class="porogapit-body">
+                        <span class="pembagi-val">${data.pembagi}</span>
+                        <div class="porogapit-symbol">
+                            <div class="cell">${data.d1}</div>
+                            <div class="cell">${data.d2}</div>
+                        </div>
+                        <span class="sign-cell"></span>
+                    </div>
+
+                    <!-- Baris Perkalian 1 -->
+                    <div class="p-row">
+                        <input type="tel" maxlength="1" class="box-input" id="ans_p1-${i}">
+                        <div class="cell"></div>
+                        <span class="sign-cell">-</span>
+                    </div>
+
+                    <!-- Garis Pengurangan 1 -->
+                    <div class="line-p-container">
+                        <div class="line-p"></div>
+                        <span class="sign-cell"></span>
+                    </div>
+
+                    <!-- Baris Sisa Pengurangan 1 & Turun Angka Kedua -->
+                    <div class="p-row">
+                        <input type="tel" maxlength="1" class="box-input" id="ans_s1-${i}">
+                        <input type="tel" maxlength="1" class="box-input" id="ans_drop-${i}">
+                        <span class="sign-cell"></span>
+                    </div>
+
+                    <!-- Baris Perkalian 2 -->
+                    <div class="p-row">
+                        <input type="tel" maxlength="1" class="box-input" id="ans_p2_1-${i}">
+                        <input type="tel" maxlength="1" class="box-input" id="ans_p2_2-${i}">
+                        <span class="sign-cell">-</span>
+                    </div>
+
+                    <!-- Garis Pengurangan 2 -->
+                    <div class="line-p-container">
+                        <div class="line-p"></div>
+                        <span class="sign-cell"></span>
+                    </div>
+
+                    <!-- Baris Hasil Sisa Akhir (0) -->
+                    <div class="p-row">
+                        <div class="cell"></div>
+                        <input type="tel" maxlength="1" class="box-input" id="ans_zero-${i}">
+                        <span class="sign-cell"></span>
+                    </div>
+                </div>
+            `;
+
+            quizGrid.appendChild(card);
+        }
+    }
+
+    function getVal(id) {
+        const el = document.getElementById(id);
+        return el ? el.value.trim() : '';
+    }
+
+    function checkAnswers() {
+        let correctCount = 0;
+        const total = questionsData.length;
+
+        questionsData.forEach((q, i) => {
+            const cardEl = document.getElementById(`card-${i}`);
+            const iconEl = document.getElementById(`icon-${i}`);
+
+            const val_h1 = getVal(`ans_h1-${i}`);
+            const val_h2 = getVal(`ans_h2-${i}`);
+            const val_p1 = getVal(`ans_p1-${i}`);
+            const val_s1 = getVal(`ans_s1-${i}`);
+            const val_drop = getVal(`ans_drop-${i}`);
+            const val_p2_1 = getVal(`ans_p2_1-${i}`);
+            const val_p2_2 = getVal(`ans_p2_2-${i}`);
+            const val_zero = getVal(`ans_zero-${i}`);
+
+            const is_h1_correct = val_h1 === q.h1.toString();
+            const is_h2_correct = val_h2 === q.h2.toString();
+            const is_p1_correct = val_p1 === q.perkalian1.toString();
+            const is_s1_correct = val_s1 === (q.sisa1 !== undefined ? q.sisa1.toString() : '');
+            const is_drop_correct = val_drop === q.d2.toString();
+
+            // Pengecekan Perkalian 2
+            let is_p2_correct = false;
+            if (q.perkalian2 >= 10) {
+                const target_p2_1 = Math.floor(q.perkalian2 / 10).toString();
+                const target_p2_2 = (q.perkalian2 % 10).toString();
+                is_p2_correct = (val_p2_1 === target_p2_1) && (val_p2_2 === target_p2_2);
+            } else {
+                is_p2_correct = (val_p2_1 === '' || val_p2_1 === '0') && (val_p2_2 === q.perkalian2.toString());
+            }
+
+            const is_zero_correct = val_zero === '0';
+
+            const isCorrect = is_h1_correct && is_h2_correct && is_p1_correct && is_s1_correct && is_drop_correct && is_p2_correct && is_zero_correct;
+
+            if (cardEl) cardEl.classList.remove('correct', 'incorrect');
+
+            const boxIds = [`ans_h1-${i}`, `ans_h2-${i}`, `ans_p1-${i}`, `ans_s1-${i}`, `ans_drop-${i}`, `ans_p2_1-${i}`, `ans_p2_2-${i}`, `ans_zero-${i}`];
+            boxIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('wrong-fill');
+            });
+
+            if (isCorrect) {
+                correctCount++;
+                if (cardEl) cardEl.classList.add('correct');
+                if (iconEl) {
+                    iconEl.innerText = '✓';
+                    iconEl.style.display = 'block';
+                }
+            } else {
+                if (cardEl) cardEl.classList.add('incorrect');
+                if (iconEl) {
+                    iconEl.innerText = '✗';
+                    iconEl.style.display = 'block';
+                }
+
+                setWrongFill(`ans_h1-${i}`, q.h1);
+                setWrongFill(`ans_h2-${i}`, q.h2);
+                setWrongFill(`ans_p1-${i}`, q.perkalian1);
+                setWrongFill(`ans_s1-${i}`, q.sisa1);
+                setWrongFill(`ans_drop-${i}`, q.d2);
+
+                if (q.perkalian2 >= 10) {
+                    setWrongFill(`ans_p2_1-${i}`, Math.floor(q.perkalian2 / 10));
+                    setWrongFill(`ans_p2_2-${i}`, q.perkalian2 % 10);
+                } else {
+                    setWrongFill(`ans_p2_1-${i}`, '');
+                    setWrongFill(`ans_p2_2-${i}`, q.perkalian2);
+                }
+                setWrongFill(`ans_zero-${i}`, 0);
+            }
+        });
+
+        const score = Math.round((correctCount / total) * 100);
+        const nameInput = document.getElementById('studentName');
+        const name = nameInput ? nameInput.value.trim() : '';
+
+        const resultBox = document.getElementById('resultBox');
+        if (resultBox) {
+            resultBox.style.display = 'block';
+            resultBox.innerHTML = `Nilai ${name ? name : 'Siswa'}: <span style="color: ${score >= 70 ? '#2ecc71' : '#e74c3c'}">${score}</span> / 100<br><small>(Benar ${correctCount} dari ${total})</small>`;
+        }
+    }
+
+    function setWrongFill(id, value) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.classList.add('wrong-fill');
+            el.value = (value !== undefined && value !== null) ? value : '';
+        }
+    }
+
+    function saveAsImage() {
+        const area = document.getElementById('printableArea');
+        const nameInput = document.getElementById('studentName');
+        const nameVal = nameInput ? nameInput.value.trim() : '';
+        const fileName = `Hasil_Porogapit_${(nameVal || 'Siswa').replace(/\s+/g, '_')}.png`;
+
+        html2canvas(area, {
+            scale: 2,
+            useCORS: true,
+            logging: false
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = fileName;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    }
+
+    window.onload = generateQuiz;
+</script>
+
+</body>
+</html>

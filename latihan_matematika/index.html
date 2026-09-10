@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Menu Latihan Matematika</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        /* Container Menu Utama */
+        .menu-container {
+            background-color: #ffffff;
+            border: 2px solid #ff6b6b;
+            border-radius: 15px;
+            padding: 24px 16px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .menu-card {
+            background-color: #ffffff;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 18px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .menu-card:active {
+            transform: scale(0.96);
+        }
+
+        .symbol {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Warna spesifik tiap menu */
+        .card-add { border-color: #ff7675; color: #d63031; }
+        .card-sub { border-color: #74b9ff; color: #0984e3; }
+        .card-mul { border-color: #ffeaa7; color: #fdcb6e; }
+        .card-div { border-color: #55efc4; color: #00b894; }
+
+        .card-add:hover { background-color: #fff5f5; }
+        .card-sub:hover { background-color: #f0f8ff; }
+        .card-mul:hover { background-color: #fffdf0; }
+        .card-div:hover { background-color: #f0fffb; }
+
+        /* Fullscreen Overlay & Iframe */
+        .iframe-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #ffffff;
+            z-index: 9999;
+            display: none;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Floating Button "X" untuk Menutup Iframe */
+        .btn-close {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            width: 44px;
+            height: 44px;
+            background-color: #e74c3c;
+            color: #ffffff;
+            border: none;
+            border-radius: 50%;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            z-index: 10000;
+        }
+
+        .btn-close:active {
+            transform: scale(0.9);
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Menu Container -->
+    <div class="menu-container" id="menuContainer">
+        <h1>Latihan Matematika</h1>
+        <div class="menu-grid">
+            <div class="menu-card card-add" onclick="openExercise('latihan_penjumlahan.html')">
+                <span class="symbol">+</span>
+                <span class="label">Penjumlahan</span>
+            </div>
+            <div class="menu-card card-sub" onclick="openExercise('latihan_pengurangan.html')">
+                <span class="symbol">-</span>
+                <span class="label">Pengurangan</span>
+            </div>
+            <div class="menu-card card-mul" onclick="openExercise('latihan_perkalian.html')">
+                <span class="symbol">×</span>
+                <span class="label">Perkalian</span>
+            </div>
+            <div class="menu-card card-div" onclick="openExercise('latihan_pembagian.html')">
+                <span class="symbol">÷</span>
+                <span class="label">Pembagian</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container Iframe Modal -->
+    <div class="iframe-wrapper" id="iframeWrapper">
+        <button class="btn-close" onclick="closeExercise()" title="Tutup">✕</button>
+        <iframe id="quizFrame" src=""></iframe>
+    </div>
+
+    <script>
+        function openExercise(pageUrl) {
+            const wrapper = document.getElementById('iframeWrapper');
+            const frame = document.getElementById('quizFrame');
+            
+            frame.src = pageUrl;
+            wrapper.style.display = 'block';
+        }
+
+        function closeExercise() {
+            const wrapper = document.getElementById('iframeWrapper');
+            const frame = document.getElementById('quizFrame');
+            
+            wrapper.style.display = 'none';
+            frame.src = ''; // Menghentikan & me-reset isi iframe
+        }
+
+        (function() {
+            window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+            window.addEventListener('keydown', function(e) {
+                if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            }, true);
+        })();        
+    </script>
+
+</body>
+</html>
