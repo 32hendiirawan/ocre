@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="screen-splash" class="screen active">
+        <div class="splash-content">
+            <h1>Detective Conan Puzzle</h1>
+            <p>Koleksi Karakter Detective Conan</p>
+            <div class="menu-buttons">
+                <button onclick="switchScreen('screen-level')">Play</button>
+                <button onclick="openGallery()">Galeri</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-level" class="screen">
+        <div class="container">
+            <h2>Pilih Level</h2>
+            <div id="level-grid" class="level-grid"></div>
+            <div class="page-controls">
+                <button class="btn-page" id="btn-prev-page" onclick="navigatePage(-1)" title="Halaman Sebelumnya">❮</button>
+                <button class="btn-secondary" onclick="switchScreen('screen-splash')">Kembali</button>
+                <button class="btn-page" id="btn-next-page" onclick="navigatePage(1)" title="Halaman Berikutnya">❯</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-game" class="screen">
+        <div class="container">
+            <h2 id="game-title">Level X</h2>
+            <div id="puzzle-board"></div>
+            <div class="game-controls">
+                <button id="reset-btn">Acak Ulang</button>
+                <button class="btn-secondary" onclick="switchScreen('screen-level')">Menu Level</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-gallery" class="screen">
+        <div class="container">
+            <h2>Galeri</h2>
+            <div id="gallery-grid" class="gallery-grid"></div>
+            <button class="btn-secondary" onclick="switchScreen('screen-splash')">Menu</button>
+        </div>
+    </div>
+
+    <div id="preview-modal" class="modal" onclick="closeModal()">
+        <span class="close-modal">&times;</span>
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <img id="modal-img" src="" alt="Preview">
+            <a id="download-btn" class="btn-download" download="puzzle-reward.jpg">Unduh Gambar</a>
+        </div>
+    </div>
+
+    <div id="win-modal" class="modal" onclick="closeWinModal()">
+        <div class="win-modal-content" onclick="event.stopPropagation()">
+            <div class="win-icon">🎉</div>
+            <h2>Gambar Terbuka!</h2>
+            <p>Buka menu galeri untuk melihat dan mengunduh gambar yang telah kamu selesaikan.</p>
+            
+            <div class="win-navigation">
+                <button class="btn-nav" id="btn-prev-lvl" onclick="navigateLevel(-1)" title="Level Sebelumnya">❮</button>
+                <button class="btn-nav btn-close" onclick="closeWinModal()" title="Tetap di Sini">✖</button>
+                <button class="btn-nav" id="btn-next-lvl" onclick="navigateLevel(1)" title="Level Berikutnya">❯</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
