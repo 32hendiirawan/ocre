@@ -410,8 +410,8 @@
       <button id="btn-mode-cross" class="mode-btn" onclick="setMode('cross')">Silang (✕)</button>
     </div>
 
-    <button id="btn-pause" onclick="pauseGame()">⏸ Pause</button>
-    <button id="theme-toggle-btn" onclick="toggleTheme()">☀️ Terang</button>
+    <button id="btn-pause" onclick="pauseGame()"> ⏸ </button>
+    <button id="theme-toggle-btn" onclick="toggleTheme()"> ☀️ </button>
     <button onclick="initGame()">New</button>
   </div>
 
@@ -449,7 +449,7 @@
     function toggleTheme() {
       const isLight = document.body.classList.toggle('light-theme');
       const themeBtn = document.getElementById('theme-toggle-btn');
-      themeBtn.innerText = isLight ? '🌙 Gelap' : '☀️ Terang';
+      themeBtn.innerText = isLight ? ' 🌙 ' : ' ☀️ ';
     }
 
     function setMode(mode) {
