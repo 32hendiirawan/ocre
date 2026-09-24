@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lembar Kerja Membaca Jam Analog</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Pustaka html2pdf.js untuk export PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --bg-page: #FFFDF5;
+            --dark-text: #4A3E3D;
+            --pink-accent: #FFB7B2;
+            --yellow-accent: #FFDAC1;
+            --blue-accent: #A2E1DB;
+            --purple-accent: #C7CEEA;
+            --green-accent: #B5EAD7;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Nunito', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #eef2f5;
+            margin: 0;
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--dark-text);
+        }
+
+        /* Panel Kontrol Akses Cepat */
+        .action-bar {
+            width: 100%;
+            max-width: 210mm;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-ctrl {
+            padding: 10px 18px;
+            border: 2px solid #333;
+            border-radius: 12px;
+            font-family: 'Fredoka One', cursive;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            box-shadow: 0 4px 0 #333;
+        }
+
+        .btn-ctrl:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #333;
+        }
+
+        .btn-pdf { background: #FF9AA2; color: #fff; }
+        .btn-check { background: #B5EAD7; color: #2D4030; }
+        .btn-reset { background: #E2F0CB; color: #333; }
+
+        /* Container Lembar Kerja */
+        .a4-page {
+            width: 100%;
+            max-width: 210mm;
+            min-height: auto;
+            background: var(--bg-page);
+            padding: 16px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-radius: 16px;
+        }
+
+        /* Header Lembar Kerja */
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .name-box {
+            border: 2px solid #E5D4C0;
+            background: #FFF;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 13px;
+            width: 100%;
+            max-width: 280px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .name-input {
+            border: none;
+            border-bottom: 2px dotted #888;
+            outline: none;
+            background: transparent;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            color: #333;
+            width: 100%;
+            padding: 2px 4px;
+        }
+
+        .name-input:focus {
+            border-bottom-color: #FF9AA2;
+        }
+
+        .title-container {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .main-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 26px;
+            color: #4A3E3D;
+            letter-spacing: 1px;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .sub-badge {
+            display: inline-block;
+            background: #FF9AA2;
+            color: white;
+            padding: 3px 14px;
+            border-radius: 12px;
+            font-family: 'Fredoka One', cursive;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .instruction {
+            text-align: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: #6C5B5B;
+            margin-bottom: 12px;
+        }
+
+        /* Grid Soal */
+        .quiz-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px 12px;
+            flex-grow: 1;
+        }
+
+        /* Tampilan Mobile: 1 Kolom Memanjang */
+        @media screen and (max-width: 600px) {
+            body {
+                padding: 10px 5px;
+            }
+
+            .a4-page {
+                border-radius: 12px;
+                padding: 14px 10px;
+            }
+
+            .quiz-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .question-card {
+                padding: 12px 8px;
+            }
+        }
+
+        .question-card {
+            background: #FFFFFF;
+            border-radius: 14px;
+            border: 2px solid #E5D4C0;
+            padding: 6px 8px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-border-0 { border-color: #FFB7B2; background: #FFF9F9; }
+        .card-border-1 { border-color: #A2E1DB; background: #F4FCFC; }
+        .card-border-2 { border-color: #FFDAC1; background: #FFFDF9; }
+        .card-border-3 { border-color: #C7CEEA; background: #F8F9FE; }
+        .card-border-4 { border-color: #B5EAD7; background: #F5FCF9; }
+
+        .q-badge {
+            position: absolute;
+            top: 6px;
+            left: 8px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #FF9AA2;
+            color: white;
+            font-family: 'Fredoka One', cursive;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .clock-box {
+            margin: 4px 0;
+        }
+
+        /* Input Waktu Jam & Menit */
+        .time-box {
+            background: #FFFFFF;
+            border: 2px dashed #B5B5B5;
+            border-radius: 10px;
+            padding: 2px 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .time-input {
+            width: 40px;
+            height: 30px;
+            border: 1px solid #CCC;
+            border-radius: 6px;
+            text-align: center;
+            font-family: 'Fredoka One', cursive;
+            font-size: 15px;
+            outline: none;
+            background: #FFFDF0;
+            color: #333;
+
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+            margin: 0;
+        }
+
+        .time-input::-webkit-outer-spin-button,
+        .time-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .time-input:focus {
+            border-color: #FF9AA2;
+            background: #FFF;
+        }
+
+        .colon {
+            font-family: 'Fredoka One', cursive;
+            font-size: 16px;
+        }
+
+        /* Footer Catatan */
+        .footer-note {
+            margin-top: 10px;
+            background: #FFF8E7;
+            border: 2px solid #FFE082;
+            border-radius: 12px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .footer-note span {
+            color: #D84315;
+            font-family: 'Fredoka One', cursive;
+        }
+
+        .score-display {
+            display: none;
+            margin-top: 6px;
+            text-align: center;
+            font-family: 'Fredoka One', cursive;
+            font-size: 16px;
+            color: #2E7D32;
+        }
+
+        /* Gaya Khusus Mode Ekspor PDF / Cetak (Paksa A4 & 3 Kolom Presisi) */
+        .pdf-export-mode {
+            width: 210mm !important;
+            height: 295mm !important;
+            max-height: 295mm !important;
+            padding: 8mm 12mm 6mm 12mm !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            overflow: hidden !important;
+        }
+
+        .pdf-export-mode .quiz-grid {
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 6px 10px !important;
+        }
+
+        .pdf-export-mode .question-card {
+            padding: 4px 6px !important;
+        }
+
+        .pdf-export-mode .header-section {
+            flex-wrap: nowrap !important;
+            margin-bottom: 4px !important;
+        }
+
+        .pdf-export-mode .instruction {
+            margin-bottom: 6px !important;
+        }
+
+        .pdf-export-mode .footer-note {
+            margin-top: 6px !important;
+            padding: 6px 12px !important;
+        }
+
+        /* Sembunyikan placeholder saat diekspor ke PDF/Cetak jika belum diisi */
+        .pdf-export-mode .hide-placeholder::placeholder {
+            color: transparent !important;
+        }
+
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+            .action-bar {
+                display: none !important;
+            }
+            .a4-page {
+                box-shadow: none;
+                width: 210mm !important;
+                height: 295mm !important;
+                padding: 8mm 12mm 6mm 12mm !important;
+            }
+            .quiz-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+            }
+        }
+
+        /* Sembunyikan placeholder angka 00 dan beri latar bersih saat diekspor ke PDF */
+        .pdf-export-mode .time-input::placeholder {
+            color: transparent !important;
+        }
+
+        .pdf-export-mode .time-input {
+            background: #FFF !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Tombol Aksi -->
+    <div class="action-bar">
+        <button class="btn-ctrl btn-pdf" onclick="exportToPDF()">📄 SIMPAN SEBAGAI PDF (A4)</button>
+        <button class="btn-ctrl btn-check" onclick="checkAnswers()">PERIKSA JAWABAN</button>
+        <button class="btn-ctrl btn-reset" onclick="generateQuiz()">ACAK SOAL</button>
+    </div>
+
+    <!-- Halaman Utama -->
+    <div class="a4-page" id="printable-page">
+        
+        <div>
+            <div class="header-section">
+                <div class="name-box">
+                    <span>Nama:</span>
+                    <input type="text" class="name-input" id="studentName" placeholder="" />
+                </div>
+                <div style="font-family: 'Fredoka One', cursive; color: #FF9AA2; font-size: 15px;">
+                    ★ Ayo Belajar! ★
+                </div>
+            </div>
+
+            <div class="title-container">
+                <h1 class="main-title">JAM ANALOG</h1>
+                <div class="sub-badge">Latihan Membaca Jam Analog</div>
+            </div>
+
+            <div class="instruction">
+                Tuliskan waktu di bawah setiap jam sesuai dengan jarum yang ditunjukkan!
+            </div>
+        </div>
+
+        <!-- Container 10 Soal -->
+        <div class="quiz-grid" id="quiz-grid"></div>
+
+        <div>
+            <div class="footer-note">
+                <div style="font-size: 16px;">💡</div>
+                <div>
+                    <span>Ingat ya!</span> Jarum pendek menunjukkan <b>Jam</b>, sedangkan jarum panjang menunjukkan <b>Menit</b> (setiap angka bernilai 5 menit).
+                </div>
+            </div>
+
+            <div id="scoreDisplay" class="score-display"></div>
+        </div>
+    </div>
+
+<script>
+let quizData = [];
+const colorClasses = ['card-border-0', 'card-border-1', 'card-border-2', 'card-border-3', 'card-border-4'];
+const badgeColors = ['#FF9AA2', '#4ECDC4', '#FFD166', '#A2E1DB', '#B5EAD7'];
+
+function renderClockSVG(hour, minute) {
+    const cx = 48;
+    const cy = 48;
+    const r = 42;
+
+    let svg = `<svg width="92" height="92" viewBox="0 0 96 96">`;
+    svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#FFFFFF" stroke="#333333" stroke-width="2.5"/>`;
+    svg += `<circle cx="${cx}" cy="${cy}" r="${r - 2}" fill="none" stroke="#F5F5F5" stroke-width="1.5"/>`;
+
+    for (let i = 1; i <= 12; i++) {
+        let angle = (i * 30 - 90) * (Math.PI / 180);
+        let x1 = cx + (r - 3) * Math.cos(angle);
+        let y1 = cy + (r - 3) * Math.sin(angle);
+        let x2 = cx + (r - 6) * Math.cos(angle);
+        let y2 = cy + (r - 6) * Math.sin(angle);
+        svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#333" stroke-width="1.2" stroke-linecap="round"/>`;
+
+        let tx = cx + (r - 13) * Math.cos(angle);
+        let ty = cy + (r - 13) * Math.sin(angle);
+        svg += `<text x="${tx}" y="${ty + 3}" font-family="'Fredoka One', cursive" font-size="8.5" fill="#333" text-anchor="middle">${i}</text>`;
+    }
+
+    let minuteAngle = (minute * 6 - 90) * (Math.PI / 180);
+    let hourAngle = (((hour % 12) * 30) + (minute * 0.5) - 90) * (Math.PI / 180);
+
+    let hx = cx + 20 * Math.cos(hourAngle);
+    let hy = cy + 20 * Math.sin(hourAngle);
+    svg += `<line x1="${cx}" y1="${cy}" x2="${hx}" y2="${hy}" stroke="#2D3436" stroke-width="3.5" stroke-linecap="round"/>`;
+
+    let mx = cx + 30 * Math.cos(minuteAngle);
+    let my = cy + 30 * Math.sin(minuteAngle);
+    svg += `<line x1="${cx}" y1="${cy}" x2="${mx}" y2="${my}" stroke="#2D3436" stroke-width="2.2" stroke-linecap="round"/>`;
+
+    svg += `<circle cx="${cx}" cy="${cy}" r="2.8" fill="#2D3436"/>`;
+    svg += `</svg>`;
+    return svg;
+}
+
+// Format otomatis 1 digit menjadi 2 digit (misal 5 -> 05)
+function formatTwoDigits(input) {
+    let val = input.value.trim();
+    if (val !== '' && !isNaN(val)) {
+        let num = parseInt(val, 10);
+        if (num >= 0 && num <= 59) {
+            input.value = num.toString().padStart(2, '0');
+        }
+    }
+}
+
+function generateQuiz() {
+    document.getElementById('scoreDisplay').style.display = 'none';
+    quizData = [];
+    const container = document.getElementById('quiz-grid');
+    container.innerHTML = '';
+
+    const validMinutes = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+
+    while (quizData.length < 10) {
+        let hour = Math.floor(Math.random() * 12) + 1;
+        let minute = validMinutes[Math.floor(Math.random() * validMinutes.length)];
+
+        if (!quizData.some(q => q.hour === hour && q.minute === minute)) {
+            quizData.push({ hour, minute });
+        }
+    }
+
+    quizData.forEach((q, idx) => {
+        let card = document.createElement('div');
+        let colorClass = colorClasses[idx % colorClasses.length];
+        let badgeColor = badgeColors[idx % badgeColors.length];
+
+        card.className = `question-card ${colorClass}`;
+
+        let badge = `<div class="q-badge" style="background:${badgeColor}">${idx + 1}</div>`;
+        let clock = `<div class="clock-box">${renderClockSVG(q.hour, q.minute)}</div>`;
+
+        let inputGroup = `
+            <div class="time-box">
+                <input type="number" class="time-input hide-placeholder" id="h-input-${idx}" min="1" max="12" placeholder="   " onblur="formatTwoDigits(this)">
+                <span class="colon">:</span>
+                <input type="number" class="time-input hide-placeholder" id="m-input-${idx}" min="0" max="59" placeholder="   " onblur="formatTwoDigits(this)">
+            </div>
+        `;
+
+        card.innerHTML = badge + clock + inputGroup;
+        container.appendChild(card);
+    });
+}
+
+function checkAnswers() {
+    let score = 0;
+
+    quizData.forEach((q, idx) => {
+        let hEl = document.getElementById(`h-input-${idx}`);
+        let mEl = document.getElementById(`m-input-${idx}`);
+
+        formatTwoDigits(hEl);
+        formatTwoDigits(mEl);
+
+        let valH = parseInt(hEl.value, 10);
+        let valM = parseInt(mEl.value, 10);
+
+        let hCorrect = (valH === q.hour);
+        let mCorrect = (valM === q.minute);
+
+        hEl.style.borderColor = hCorrect ? '#2ECC71' : '#E74C3C';
+        hEl.style.backgroundColor = hCorrect ? '#E8F8F5' : '#FADBD8';
+
+        mEl.style.borderColor = mCorrect ? '#2ECC71' : '#E74C3C';
+        mEl.style.backgroundColor = mCorrect ? '#E8F8F5' : '#FADBD8';
+
+        if (hCorrect && mCorrect) score += 10;
+    });
+
+    let scoreDiv = document.getElementById('scoreDisplay');
+    scoreDiv.style.display = 'block';
+    scoreDiv.textContent = `Nilai Akhir: ${score} / 100`;
+}
+
+function exportToPDF() {
+    const element = document.getElementById('printable-page');
+    const nameInput = document.getElementById('studentName');
+    
+    // Simpan nilai asli input nama
+    const originalNameValue = nameInput.value;
+    
+    // Jika nama belum diisi, kosongkan agar garis titik-titik placeholder terlihat bersih
+    if (nameInput.value.trim() === '') {
+        nameInput.value = '';
+    }
+
+    // Aktifkan mode ekspor PDF (menyembunyikan placeholder 00:00 via CSS)
+    element.classList.add('pdf-export-mode');
+
+    const opt = {
+        margin:       0,
+        filename:     'lembar-kerja-membaca-jam.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak:    { mode: 'avoid-all' }
+    };
+
+    html2pdf().set(opt).from(element).save().then(() => {
+        // Kembalikan tampilan ke mode semula setelah file PDF berhasil diunduh
+        element.classList.remove('pdf-export-mode');
+        nameInput.value = originalNameValue;
+    });
+}
+
+window.onload = generateQuiz;
+</script>
+</body>
+</html>
