@@ -570,7 +570,7 @@
     <script>
         const itemsData = [
             { id: 'puzzle_conan', title: 'Puzzle Conan', category: 'game', image: 'icon/conan-puzzle.png', url: 'dc-puzzle/index.html' },
-            { id: 'lambang_sila', title: 'Lambang Pancasila', category: 'Aplikaasi', image: 'pancasila/img/garuda.svg', url: 'pancasila/index.html' },
+            { id: 'lambang_sila', title: 'Lambang Pancasila', category: 'Aplikaasi', image: 'pancasila/img/garuda.svg', url: 'pancasila/index.html', hidden: true },
             { id: 'baca_jam', title: 'Membaca Jam Analog', category: 'Aplikaasi', image: 'icon/conan-puzzle.png', url: 'Membaca Jam Analog.html' },
             { id: 'gambar_jam', title: 'Menggambar Jam Analog', category: 'Aplikaasi', image: 'icon/conan-puzzle.png', url: 'Menggambar Jam Analog.html' },
             { id: 'buku-saku-pramuka', title: 'Buku Saku Pramuka', category: 'aplikasi', image: 'icon/buku-saku-pramuka.jpg', url: 'https://ocre-buku-saku-pramuka.vercel.app/' },
@@ -785,7 +785,7 @@
             const category = document.getElementById('categorySelect').value;
             const query = document.getElementById('searchInput').value.toLowerCase();
 
-            // Gabungkan data itemsData dengan adsData agar pencarian mencakup produk afiliasi
+            // Gabungkan data itemsData dengan adsData
             const convertedAds = adsData.map((ad, idx) => ({
                 id: 'ad-' + idx,
                 title: ad.title,
@@ -797,6 +797,9 @@
             const allCombinedItems = [...itemsData, ...convertedAds];
 
             const filtered = allCombinedItems.filter(item => {
+                // Abaikan/Sembunyikan item jika dipasang properti hidden: true
+                if (item.hidden) return false;
+
                 let matchesCat = false;
                 if (category === 'all') {
                     matchesCat = true;
@@ -812,10 +815,11 @@
 
             renderGrid(filtered);
         }
+
         function resetFilter() {
             document.getElementById('categorySelect').value = 'all';
             document.getElementById('searchInput').value = '';
-            renderGrid(itemsData);
+            filterItems(); // Memanggil filterItems() alih-alih renderGrid(itemsData)
             closePlayer();
         }
 
