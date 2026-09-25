@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LKPD - Mengenal Garuda Pancasila</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #f1f5f9;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .font-fredoka {
+            font-family: 'Fredoka', cursive, sans-serif;
+        }
+
+        .title-stroke {
+            color: #22c55e;
+            text-shadow: 
+                -1.5px -1.5px 0 #15803d,
+                 1.5px -1.5px 0 #15803d,
+                -1.5px  1.5px 0 #15803d,
+                 1.5px  1.5px 0 #15803d,
+                 0 3px 0 #166534;
+        }
+
+        .sheet-container {
+            max-width: 400px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* SVG Line overlay layer */
+        .lines-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        /* Card States & Hover Interactions */
+        .item-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .item-card.selected {
+            transform: scale(1.03);
+            box-shadow: 0 0 0 2px #3b82f6, 0 4px 10px rgba(59, 130, 246, 0.25);
+        }
+
+        .item-card.matched {
+            cursor: default;
+            opacity: 0.95;
+        }
+
+        /* Connection dots animation */
+        .dot-node {
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.4);
+        }
+
+        .dot-node.active {
+            transform: translate(0, -50%) scale(1.35) !important;
+            background-color: #3b82f6 !important;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.8);
+        }
+
+        .dot-node.matched {
+            background-color: #22c55e !important;
+            box-shadow: 0 0 6px rgba(34, 197, 94, 0.8);
+        }
+
+        /* Thin SVG line styling */
+        .connecting-line {
+            stroke-width: 1.5px;
+            stroke-linecap: round;
+            transition: stroke 0.2s ease;
+        }
+
+        /* Error feedback shake animation */
+        @keyframes errorShake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-4px); }
+            40%, 80% { transform: translateX(4px); }
+        }
+
+        .error-shake {
+            animation: errorShake 0.4s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-4 flex flex-col items-center justify-center p-2">
+
+    <!-- LKPD Container with max-width: 400px -->
+    <div id="lkpd-sheet" class="sheet-container w-full bg-white rounded-2xl border-[3px] border-blue-400 p-3.5 relative overflow-hidden flex flex-col gap-2.5">
+        
+        <!-- SVG Canvas for Connecting Lines -->
+        <svg id="svg-lines" class="lines-overlay">
+            <defs>
+                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="0.8" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+            </defs>
+        </svg>
+
+        <!-- HEADER SECTION -->
+        <div class="relative flex flex-col gap-2 pt-0.5">
+            <div class="flex items-center justify-between mt-0.5 px-1">
+                <div class="flex-1 text-center">
+                    <h1 class="font-fredoka text-lg font-black uppercase tracking-wide title-stroke leading-tight">
+                        MENGENAL LAMBANG<br>PANCASILA
+                    </h1>
+                </div>
+            </div>
+        </div>
+
+        <!-- INSTRUCTION BOX -->
+        <div class="bg-amber-50/90 border border-amber-200 rounded-xl p-2 text-[10.5px] leading-tight text-gray-700 shadow-sm">
+            <span class="font-bold text-red-600 block mb-0.5">Petunjuk:</span>
+            Klik/sentuh simbol Pancasila di sebelah kiri, lalu klik/sentuh bunyi sila yang sesuai di sebelah kanan!
+        </div>
+
+        <!-- GARUDA PANCASILA MAIN LOGO IMAGE -->
+        <div class="flex justify-center items-center py-0.5">
+            <div class="w-32 h-32 relative flex items-center justify-center filter drop-shadow-md hover:scale-105 transition-transform duration-300">
+                <img src="img/garuda.svg" alt="Garuda Pancasila" class="max-w-full max-h-full object-contain" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'text-amber-600 font-bold text-xs text-center border p-2 rounded bg-amber-50\'>🦅<br>Garuda Pancasila</div>';">
+            </div>
+        </div>
+
+        <!-- MATCHING GAME INTERFACE -->
+        <div class="grid grid-cols-2 gap-5 relative mt-0.5" id="game-grid">
+            
+            <!-- LEFT COLUMN: SIMBOL PANCASILA -->
+            <div class="flex flex-col gap-2">
+                <div class="bg-blue-600 text-white font-fredoka text-[11px] text-center py-1 px-2 rounded-lg shadow-sm font-semibold tracking-wide">
+                    Simbol Pancasila
+                </div>
+
+                <div class="flex flex-col gap-2" id="left-column">
+                    <!-- Dynamic rendering via JavaScript -->
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: SILA PANCASILA -->
+            <div class="flex flex-col gap-2">
+                <div class="bg-emerald-600 text-white font-fredoka text-[11px] text-center py-1 px-2 rounded-lg shadow-sm font-semibold tracking-wide">
+                    Sila Pancasila
+                </div>
+
+                <div class="flex flex-col gap-2" id="right-column">
+                    <!-- Dynamic rendering via JavaScript -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Action Controls -->
+        <div class="flex justify-between items-center mt-1 pt-1.5 border-t border-gray-100">
+            <button id="btn-reset" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 active:scale-95 text-gray-700 font-bold text-xs rounded-lg transition-all flex items-center gap-1 border border-gray-300 shadow-sm">
+                🔄 Reset & Acak
+            </button>
+            <div id="score-text" class="font-fredoka text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
+                Terhubung: 0 / 5
+            </div>
+        </div>
+
+        <!-- FOOTER SECTION -->
+        <div class="mt-0.5 bg-blue-50 border border-blue-200 rounded-xl p-1.5 flex items-center gap-2">
+            <div class="w-6 h-6 flex-shrink-0">
+                <svg viewBox="0 0 50 50" class="w-full h-full">
+                    <circle cx="25" cy="20" r="12" fill="#fbd38d"/>
+                    <path d="M 13 45 C 13 32 37 32 37 45 Z" fill="#ef4444"/>
+                    <line x1="38" y1="10" x2="38" y2="45" stroke="#475569" stroke-width="2"/>
+                    <rect x="38" y="10" width="10" height="5" fill="#ef4444"/>
+                    <rect x="38" y="15" width="10" height="5" fill="#ffffff"/>
+                </svg>
+            </div>
+            <p class="text-[9.5px] font-bold text-blue-950 leading-tight">
+                Ayo, belajar Pancasila dan amalkan dalam kehidupan sehari-hari! 🇮🇩
+            </p>
+        </div>
+
+    </div>
+
+    <!-- SUCCESS POPUP MODAL -->
+    <div id="success-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl p-5 text-center max-w-xs w-full shadow-2xl border-4 border-amber-300 transform scale-90 transition-transform duration-300" id="modal-card">
+            <div class="text-4xl mb-2">🎉🏆✨</div>
+            <h2 class="font-fredoka text-xl font-black text-emerald-600 mb-1">HEBAT SEKALI!</h2>
+            <p class="text-xs text-gray-600 font-semibold mb-4">Kamu berhasil memasangkan semua simbol dan sila Pancasila dengan benar!</p>
+            <button id="btn-modal-restart" class="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-fredoka font-bold text-sm rounded-xl shadow-lg hover:from-emerald-600 hover:to-green-700 active:scale-95 transition-all">
+                Main Lagi 🔄
+            </button>
+        </div>
+    </div>
+
+    <script>
+        /* Master Dataset */
+        const pancasilaData = [
+            {
+                id: 1,
+                symbolImg: "img/sila_1.png",
+                fallbackText: "Bintang",
+                fallbackBg: "bg-black text-yellow-400",
+                silaNum: 1,
+                title: "Ketuhanan<br>Yang Maha Esa",
+                badgeBg: "bg-red-500",
+                borderColor: "border-red-400",
+                hoverBg: "hover:bg-red-50/30",
+                lineColor: "#ef4444"
+            },
+            {
+                id: 2,
+                symbolImg: "img/sila_2.png",
+                fallbackText: "Rantai",
+                fallbackBg: "bg-red-600 text-yellow-300",
+                silaNum: 2,
+                title: "Kemanusiaan yang<br>Adil dan Beradab",
+                badgeBg: "bg-emerald-600",
+                borderColor: "border-emerald-400",
+                hoverBg: "hover:bg-emerald-50/30",
+                lineColor: "#059669"
+            },
+            {
+                id: 3,
+                symbolImg: "img/sila_3.png",
+                fallbackText: "Beringin",
+                fallbackBg: "bg-green-600 text-white",
+                silaNum: 3,
+                title: "Persatuan<br>Indonesia",
+                badgeBg: "bg-gray-800",
+                borderColor: "border-gray-400",
+                hoverBg: "hover:bg-gray-50",
+                lineColor: "#374151"
+            },
+            {
+                id: 4,
+                symbolImg: "img/sila_4.png",
+                fallbackText: "Banteng",
+                fallbackBg: "bg-red-600 text-white",
+                silaNum: 4,
+                title: "Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan...",
+                badgeBg: "bg-red-500",
+                borderColor: "border-red-400",
+                hoverBg: "hover:bg-red-50/30",
+                lineColor: "#dc2626"
+            },
+            {
+                id: 5,
+                symbolImg: "img/sila_5.png",
+                fallbackText: "Padi Kapas",
+                fallbackBg: "bg-emerald-600 text-white",
+                silaNum: 5,
+                title: "Keadilan Sosial bagi Seluruh Rakyat...",
+                badgeBg: "bg-emerald-600",
+                borderColor: "border-emerald-400",
+                hoverBg: "hover:bg-emerald-50/30",
+                lineColor: "#16a34a"
+            }
+        ];
+
+        /* Sound FX Engine */
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+
+            playSelect() {
+                this.init();
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.08);
+            }
+
+            playMatch() {
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                [523.25, 659.25, 783.99].forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+                    gain.gain.setValueAtTime(0.15, now + idx * 0.07);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.25);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.07);
+                    osc.stop(now + idx * 0.07 + 0.25);
+                });
+            }
+
+            playError() {
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, now);
+                osc.frequency.linearRampToValueAtTime(110, now + 0.22);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.22);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.22);
+            }
+
+            playVictory() {
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+                    gain.gain.setValueAtTime(0.2, now + idx * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.35);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.1);
+                    osc.stop(now + idx * 0.1 + 0.35);
+                });
+            }
+        }
+
+        const audio = new SoundFX();
+
+        // Game State Variables
+        let selectedLeftId = null;
+        let matchedPairs = new Map();
+        const totalPairs = 5;
+
+        // DOM Elements
+        const lkpdSheet = document.getElementById('lkpd-sheet');
+        const svgLines = document.getElementById('svg-lines');
+        const leftColumnEl = document.getElementById('left-column');
+        const rightColumnEl = document.getElementById('right-column');
+        const btnReset = document.getElementById('btn-reset');
+        const scoreText = document.getElementById('score-text');
+        const successModal = document.getElementById('success-modal');
+        const modalCard = document.getElementById('modal-card');
+        const btnModalRestart = document.getElementById('btn-modal-restart');
+
+        // Helper: Utility Array Shuffle
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        /* Render Columns with Shuffled Data & Constant Heights (h-[68px]) */
+        function initGame() {
+            matchedPairs.clear();
+            selectedLeftId = null;
+            svgLines.querySelectorAll('line').forEach(line => line.remove());
+            updateScore();
+
+            const leftShuffled = shuffleArray(pancasilaData);
+            const rightShuffled = shuffleArray(pancasilaData);
+
+            // Render Left Column (Tinggi tetap h-[68px])
+            leftColumnEl.innerHTML = leftShuffled.map(item => `
+                <div class="item-card bg-white border-2 border-blue-200 rounded-xl p-1 flex items-center justify-center h-[68px] cursor-pointer shadow-sm hover:border-blue-400 select-none relative" data-id="${item.id}" id="left-${item.id}">
+                    <div class="w-12 h-12 rounded-lg overflow-hidden flex items-center justify-center p-0.5 pointer-events-none">
+                        <img src="${item.symbolImg}" alt="Simbol ${item.id}" class="max-w-full max-h-full object-contain" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'text-[8px] font-bold p-1 rounded text-center ${item.fallbackBg}\'>${item.fallbackText}</div>';">
+                    </div>
+                    <!-- Connector Dot Point -->
+                    <div class="dot-node w-3.5 h-3.5 bg-gray-800 rounded-full absolute -right-1.5 top-1/2 -translate-y-1/2 border-2 border-white shadow-sm z-30 pointer-events-none" id="dot-left-${item.id}"></div>
+                </div>
+            `).join('');
+
+            // Render Right Column (Tinggi tetap h-[68px])
+            rightColumnEl.innerHTML = rightShuffled.map(item => `
+                <div class="item-card bg-white border-2 ${item.borderColor} rounded-xl p-1.5 flex items-center gap-1.5 h-[68px] cursor-pointer shadow-sm ${item.hoverBg} select-none relative" data-id="${item.id}" id="right-${item.id}">
+                    <!-- Connector Dot Point -->
+                    <div class="dot-node w-3.5 h-3.5 bg-gray-800 rounded-full absolute -left-1.5 top-1/2 -translate-y-1/2 border-2 border-white shadow-sm z-30 pointer-events-none" id="dot-right-${item.id}"></div>
+                    <div class="w-5 h-5 rounded-full ${item.badgeBg} text-white font-fredoka font-bold text-[11px] flex items-center justify-center flex-shrink-0 ml-1 pointer-events-none">
+                        ${item.silaNum}
+                    </div>
+                    <div class="text-[9.5px] font-bold text-gray-800 leading-tight pointer-events-none flex-1">
+                        ${item.title}
+                    </div>
+                </div>
+            `).join('');
+
+            attachEventListeners();
+        }
+
+        /* Calculate exact center coordinates of connector dots */
+        function getDotCenterCoordinates(dotId) {
+            const dot = document.getElementById(dotId);
+            if (!dot) return { x: 0, y: 0 };
+
+            const sheetRect = lkpdSheet.getBoundingClientRect();
+            const dotRect = dot.getBoundingClientRect();
+
+            return {
+                x: (dotRect.left + dotRect.width / 2) - sheetRect.left,
+                y: (dotRect.top + dotRect.height / 2) - sheetRect.top
+            };
+        }
+
+        /* Draw Connecting Line */
+        function drawLine(leftId, rightId, strokeColor = '#22c55e', isError = false) {
+            const start = getDotCenterCoordinates(`dot-left-${leftId}`);
+            const end = getDotCenterCoordinates(`dot-right-${rightId}`);
+
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', start.x);
+            line.setAttribute('y1', start.y);
+            line.setAttribute('x2', end.x);
+            line.setAttribute('y2', end.y);
+            line.setAttribute('stroke', isError ? '#ef4444' : strokeColor);
+            line.setAttribute('class', 'connecting-line');
+            line.setAttribute('stroke-width', '1.5');
+            line.setAttribute('stroke-linecap', 'round');
+            line.setAttribute('filter', 'url(#glow)');
+
+            if (!isError) {
+                line.setAttribute('id', `line-${leftId}-${rightId}`);
+            }
+
+            svgLines.appendChild(line);
+
+            if (isError) {
+                setTimeout(() => line.remove(), 400);
+            }
+        }
+
+        /* Redraw lines on window resize */
+        function redrawAllLines() {
+            svgLines.querySelectorAll('line').forEach(l => l.remove());
+
+            matchedPairs.forEach((val, leftId) => {
+                drawLine(leftId, val.rightId, val.lineColor);
+            });
+        }
+
+        window.addEventListener('resize', redrawAllLines);
+
+        /* Attach Click/Touch Listeners */
+        function attachEventListeners() {
+            const leftCards = leftColumnEl.querySelectorAll('.item-card');
+            const rightCards = rightColumnEl.querySelectorAll('.item-card');
+
+            leftCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const id = parseInt(card.getAttribute('data-id'));
+
+                    if (card.classList.contains('matched')) return;
+
+                    audio.playSelect();
+
+                    if (selectedLeftId === id) {
+                        clearLeftSelection();
+                        return;
+                    }
+
+                    clearLeftSelection();
+                    selectedLeftId = id;
+                    card.classList.add('selected');
+                    const dot = document.getElementById(`dot-left-${id}`);
+                    if (dot) dot.classList.add('active');
+                });
+            });
+
+            rightCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    if (!selectedLeftId) return;
+
+                    const rightId = parseInt(card.getAttribute('data-id'));
+
+                    if (card.classList.contains('matched')) return;
+
+                    const leftId = selectedLeftId;
+                    const itemData = pancasilaData.find(d => d.id === leftId);
+
+                    if (leftId === rightId) {
+                        // Match Success
+                        audio.playMatch();
+                        const lineColor = itemData ? itemData.lineColor : '#22c55e';
+                        matchedPairs.set(leftId, { rightId: rightId, lineColor: lineColor });
+
+                        const leftElem = document.getElementById(`left-${leftId}`);
+                        leftElem.classList.remove('selected');
+                        leftElem.classList.add('matched');
+
+                        const dotLeft = document.getElementById(`dot-left-${leftId}`);
+                        if (dotLeft) {
+                            dotLeft.classList.remove('active');
+                            dotLeft.classList.add('matched');
+                        }
+
+                        card.classList.add('matched');
+                        const dotRight = document.getElementById(`dot-right-${rightId}`);
+                        if (dotRight) dotRight.classList.add('matched');
+
+                        drawLine(leftId, rightId, lineColor);
+
+                        selectedLeftId = null;
+                        updateScore();
+
+                        if (matchedPairs.size === totalPairs) {
+                            setTimeout(triggerCompletion, 400);
+                        }
+
+                    } else {
+                        // Match Failure
+                        audio.playError();
+                        drawLine(leftId, rightId, '#ef4444', true);
+
+                        card.classList.add('error-shake');
+                        const leftElem = document.getElementById(`left-${leftId}`);
+                        if (leftElem) leftElem.classList.add('error-shake');
+
+                        setTimeout(() => {
+                            card.classList.remove('error-shake');
+                            if (leftElem) leftElem.classList.remove('error-shake');
+                        }, 400);
+
+                        clearLeftSelection();
+                    }
+                });
+            });
+        }
+
+        function clearLeftSelection() {
+            if (selectedLeftId) {
+                const prev = document.getElementById(`left-${selectedLeftId}`);
+                if (prev) prev.classList.remove('selected');
+                const dot = document.getElementById(`dot-left-${selectedLeftId}`);
+                if (dot) dot.classList.remove('active');
+                selectedLeftId = null;
+            }
+        }
+
+        function updateScore() {
+            scoreText.textContent = `Terhubung: ${matchedPairs.size} / ${totalPairs}`;
+        }
+
+        function triggerCompletion() {
+            audio.playVictory();
+
+            if (window.confetti) {
+                confetti({
+                    particleCount: 110,
+                    spread: 80,
+                    origin: { y: 0.6 }
+                });
+            }
+
+            successModal.classList.remove('hidden');
+            setTimeout(() => {
+                successModal.classList.remove('opacity-0');
+                modalCard.classList.remove('scale-90');
+                modalCard.classList.add('scale-100');
+            }, 10);
+        }
+
+        function resetGame() {
+            modalCard.classList.remove('scale-100');
+            modalCard.classList.add('scale-90');
+            successModal.classList.add('opacity-0');
+            setTimeout(() => {
+                successModal.classList.add('hidden');
+            }, 250);
+
+            initGame();
+        }
+
+        btnReset.addEventListener('click', () => {
+            audio.playSelect();
+            resetGame();
+        });
+
+        btnModalRestart.addEventListener('click', () => {
+            audio.playSelect();
+            resetGame();
+        });
+
+        // Initialize on Load
+        window.addEventListener('load', () => {
+            initGame();
+        });
+    </script>
+</body>
+</html>
