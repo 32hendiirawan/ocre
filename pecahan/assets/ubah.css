@@ -1,0 +1,279 @@
+body { 
+    font-family: 'Nunito', 'Segoe UI', Arial, sans-serif; 
+    background: linear-gradient(135deg, #f0f4ff 0%, #d9e4ff 100%);
+    margin: 0;
+    padding: 15px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: flex-start;
+    min-height: 100vh;
+    box-sizing: border-box;
+    padding-bottom: 280px; /* Jarak aman agar konten tidak tertutup Numpad */
+}
+
+h2 {
+    color: #4a54df;
+    text-shadow: 2px 2px 0px #ffffff, 4px 4px 0px rgba(74, 84, 223, 0.15);
+    font-size: 1.6rem;
+    margin: 10px 0 5px 0;
+    text-align: center;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+#label-mode {
+    margin: 0 0 20px 0;
+    color: #4a54df;
+    font-weight: bold;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    border: 2px solid #b4c6ff;
+}
+
+/* Container utama tetap di tengah */
+.game-board { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    gap: 10px; 
+    margin-bottom: 10px; 
+    width: 100%;
+    max-width: 450px;
+    background: #ffffff;
+    padding: 20px 10px;
+    border-radius: 24px;
+    box-shadow: 0 12px 24px rgba(74, 84, 223, 0.15);
+    border: 4px solid #4a54df;
+    box-sizing: border-box;
+}
+
+.box { 
+    background: #f8fafc; 
+    padding: 12px; 
+    border-radius: 20px; 
+    border: 3px dashed #cbd5e1;
+    width: 40%; 
+    text-align: center; 
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-sizing: border-box;
+}
+
+.box h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.1rem;
+    color: #475569;
+}
+
+/* Logika Switch menggunakan Order CSS */
+#boxBiasa { order: 1; }
+#switch-container { order: 2; }
+#boxCampuran { order: 3; }
+
+.input-group { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    gap: 8px; 
+}
+
+/* Gaya Kolom Input Bubble */
+.input-conv { 
+    width: 55px; 
+    text-align: center; 
+    padding: 10px 2px; 
+    border: 3px solid #e2e8f0; 
+    font-weight: bold; 
+    font-size: 1.3rem; 
+    outline: none;
+    box-sizing: border-box;
+    transition: all 0.2s;
+    caret-color: transparent; /* Sembunyikan kursor ketik standar */
+    cursor: pointer;
+}
+
+/* Identifikasi Warna Peran Angka Sesuai Game Pecahan */
+.bil-bulat {
+    height: 65px; 
+    font-size: 1.6rem; 
+    background-color: #ffeaa7; 
+    border-color: #fdcb6e;
+    border-radius: 16px;
+    color: #d63031;
+}
+
+.pembilang {
+    height: 42px; 
+    font-size: 1.2rem; 
+    background-color: #dff9fb; 
+    border-color: #7ed6df;
+    border-radius: 12px;
+    color: #130cb7;
+}
+
+.penyebut {
+    height: 42px; 
+    font-size: 1.2rem; 
+    background-color: #ffcccc; 
+    border-color: #ff7675;
+    border-radius: 12px;
+    color: #c0392b;
+}
+
+/* Efek saat Input dipilih/aktif */
+.input-conv.active-input {
+    transform: scale(1.08);
+    box-shadow: 0 0 12px #4a54df;
+    border-color: #4a54df;
+}
+
+.fraction-line { 
+    width: 65px; 
+    height: 5px; 
+    background: #4a54df; 
+    border-radius: 3px;
+    margin: 2px 0; 
+}
+
+.mixed-container { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 6px; 
+}
+
+/* Tombol Switch Bulat Cantik */
+#switch-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#switch-btn { 
+    background: #a29bfe; 
+    color: white; 
+    border: 3px solid #6c5ce7; 
+    width: 46px; 
+    height: 46px; 
+    border-radius: 50%; 
+    cursor: pointer; 
+    font-size: 22px; 
+    font-weight: bold;
+    transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    box-shadow: 0 4px 0px #6c5ce7;
+    -webkit-tap-highlight-color: transparent;
+}
+#switch-btn:active { 
+    transform: translateY(3px); 
+    box-shadow: 0 1px 0px #6c5ce7;
+}
+#switch-btn.active { transform: rotate(180deg) translateY(0px); }
+#switch-btn.active:active { transform: rotate(180deg) translateY(3px); }
+
+/* Area Tombol Pilihan Aksi */
+.button-group {
+    margin-top: 15px;
+    display: flex;
+    gap: 15px;
+    width: 100%;
+    max-width: 450px;
+}
+
+.btn-action {
+    flex: 1;
+    border-radius: 16px; 
+    padding: 12px; 
+    border: none; 
+    color: white; 
+    font-weight: bold; 
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: 0 6px 0px rgba(0,0,0,0.2);
+    transition: all 0.1s ease;
+    text-transform: uppercase;
+}
+
+.btn-action:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0px rgba(0,0,0,0.2);
+}
+
+.btn-hitung { background: #1dd1a1; box-shadow: 0 6px 0px #10ac84; }
+.btn-hitung:active { box-shadow: 0 2px 0px #10ac84; }
+.btn-reset { background: #ff4757; box-shadow: 0 6px 0px #ff214f; }
+.btn-reset:active { box-shadow: 0 2px 0px #ff214f; }
+.btn-home { background: brown; box-shadow: 0 6px 0px maroon; }
+.btn-home:active { box-shadow: 0 2px 0px maroon; }
+/* Card Penyelesaian */
+.solution-card { 
+    background: #fff; 
+    border: 3px dashed #4a54df; 
+    padding: 15px; 
+    width: 100%; 
+    max-width: 450px; 
+    border-radius: 20px; 
+    box-shadow: 0 6px 12px rgba(74, 84, 223, 0.05);
+    margin-top: 20px; 
+    box-sizing: border-box;
+}
+h4 { margin: 0 0 10px 0; color: #4a54df; text-align: center; text-transform: uppercase; font-size: 0.9rem;}
+.step { font-family: 'Segoe UI', sans-serif; font-weight: bold; background: #f1f5f9; padding: 12px; border-radius: 12px; line-height: 1.6; white-space: pre-line; color: #2d3748; font-size: 0.95rem;}
+
+/* ==================== KEYBOARD NUMPAD CUSTOM STYLE ==================== */
+.custom-numpad {
+    position: fixed;
+    bottom: -320px; 
+    left: 0;
+    width: 100%;
+    background: #2f3542;
+    border-top: 5px solid #1e222b;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    padding: 15px;
+    box-sizing: border-box;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    box-shadow: 0 -8px 20px rgba(0,0,0,0.3);
+    transition: bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+    z-index: 9999;
+    display: grid;
+}
+
+.custom-numpad.show {
+    bottom: 0; 
+}
+
+.numpad-btn {
+    background: #f1f2f6;
+    border: none;
+    border-radius: 14px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 12px 0;
+    color: #2f3542;
+    cursor: pointer;
+    box-shadow: 0 5px 0px #ced6e0;
+    transition: all 0.05s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.numpad-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0px #ced6e0;
+}
+
+.btn-1, .btn-5, .btn-9 { background-color: #ff7675; color: white; box-shadow: 0 5px 0px #d63031; }
+.btn-2, .btn-6, .btn-0 { background-color: #7ed6df; color: #130cb7; box-shadow: 0 5px 0px #22a6b3; }
+.btn-3, .btn-7 { background-color: #ffeaa7; color: #b7791f; box-shadow: 0 5px 0px #f1c40f; }
+.btn-4, .btn-8 { background-color: #9b59b6; color: white; box-shadow: 0 5px 0px #8e44ad; }
+
+.btn-del { background-color: #eab543; color: white; box-shadow: 0 5px 0px #f39c12; font-size: 1.1rem; }
+.btn-done {
+    background-color: #1dd1a1; color: white; box-shadow: 0 5px 0px #10ac84; font-size: 1.1rem;
+    display: flex; align-items: center; justify-content: center;
+}

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Konversi Pecahan Ceria</title>
+    <link rel="stylesheet" href="assets/ubah.css">
+</head>
+<body>
+
+    <h2>Ubah Bentuk Pecahan</h2>
+    <p id="label-mode">Mode: Pecahan Biasa ⮕ Pecahan Campuran</p>
+    
+    <div class="game-board">
+        <div class="box" id="boxBiasa">
+            <h3 id="titleBiasa">Biasa</h3>
+            <div class="input-group">
+                <input class="input-conv pembilang" type="text" id="numBiasa" placeholder="a" inputmode="none" readonly>
+                <div class="fraction-line"></div>
+                <input class="input-conv penyebut" type="text" id="denBiasa" placeholder="b" inputmode="none" readonly>
+            </div>
+        </div>
+
+        <div id="switch-container">
+            <button id="switch-btn" onclick="tukar()">⇄</button>
+        </div>
+
+        <div class="box" id="boxCampuran">
+            <h3 id="titleCampur">Campuran</h3>
+            <div class="mixed-container">
+                <input class="input-conv bil-bulat" type="text" id="wholeCampur" placeholder="d" inputmode="none" readonly>
+                <div class="input-group">
+                    <input class="input-conv pembilang" type="text" id="numCampur" placeholder="e" inputmode="none" readonly>
+                    <div class="fraction-line"></div>
+                    <input class="input-conv penyebut" type="text" id="denCampur" placeholder="f" inputmode="none" readonly>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="button-group">
+        <button class="btn-action btn-hitung" onclick="eksekusi()">Ubah</button>
+        <button class="btn-action btn-reset" onclick="resetconv()">Bersihkan</button>
+        <button class="btn-action btn-home" onclick="location.href='index.html'">Home</button>
+    </div>
+
+    <div class="solution-card">
+        <h4>Cara Penyelesaian:</h4>
+        <div id="langkahLangkah" class="step">Masukkan angka untuk melihat langkah penyelesaian...</div>
+    </div>
+
+    <div class="custom-numpad" id="numpad">
+        <button class="numpad-btn btn-1" onclick="pressNum('1')">1</button>
+        <button class="numpad-btn btn-2" onclick="pressNum('2')">2</button>
+        <button class="numpad-btn btn-3" onclick="pressNum('3')">3</button>
+        
+        <button class="numpad-btn btn-4" onclick="pressNum('4')">4</button>
+        <button class="numpad-btn btn-5" onclick="pressNum('5')">5</button>
+        <button class="numpad-btn btn-6" onclick="pressNum('6')">6</button>
+        
+        <button class="numpad-btn btn-7" onclick="pressNum('7')">7</button>
+        <button class="numpad-btn btn-8" onclick="pressNum('8')">8</button>
+        <button class="numpad-btn btn-9" onclick="pressNum('9')">9</button>
+
+        <button class="numpad-btn btn-del" onclick="pressDel()">⌫</button>
+        <button class="numpad-btn btn-0" onclick="pressNum('0')">0</button>
+        <button class="numpad-btn btn-done" onclick="hideNumpad()">🔻</button>
+    </div>
+    <script src="assets/ubah.js"></script>
+</body>
+</html>

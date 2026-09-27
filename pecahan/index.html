@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dunia Pecahan Ceria - Menu Utama</title>
+    <style>
+        body { 
+            font-family: 'Nunito', 'Segoe UI', Arial, sans-serif; 
+            background: linear-gradient(135deg, #f0f4ff 0%, #d9e4ff 100%);
+            margin: 0;
+            padding: 20px 15px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        .main-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .main-title h1 {
+            color: #4a54df;
+            text-shadow: 3px 3px 0px #ffffff, 6px 6px 0px rgba(74, 84, 223, 0.15);
+            font-size: 2.2rem;
+            margin: 0 0 10px 0;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .main-title p {
+            color: #6c5ce7;
+            font-weight: bold;
+            padding: 8px 20px;
+            font-size: 1rem;
+            display: inline-block;
+            margin: 0;
+            font-style: italic;
+        }
+
+        /* Container Menu Utama */
+        .menu-container {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Tombol Menu Bergaya Game 3D Pop-Up */
+        .menu-card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+            color: #2f3542;
+            border: 4px solid #4a54df;
+            box-shadow: 0 8px 0px #343a9e;
+            transition: all 0.1s ease;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Efek Tekan Tombol */
+        .menu-card:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px 0px #343a9e;
+        }
+
+        /* Variasi Warna dan Desain Icon Bulat */
+        .menu-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .card-hitung { border-color: #1dd1a1; box-shadow: 0 8px 0px #10ac84; }
+        .card-hitung:active { box-shadow: 0 2px 0px #10ac84; }
+        .card-hitung .menu-icon { background: #1dd1a1; box-shadow: 0 4px 0px #10ac84; }
+
+        .card-ubah { border-color: #ff7675; box-shadow: 0 8px 0px #d63031; }
+        .card-ubah:active { box-shadow: 0 2px 0px #d63031; }
+        .card-ubah .menu-icon { background: #ff7675; box-shadow: 0 4px 0px #d63031; }
+
+        .card-latihan { border-color: #a29bfe; box-shadow: 0 8px 0px #6c5ce7; }
+        .card-latihan:active { box-shadow: 0 2px 0px #6c5ce7; }
+        .card-latihan .menu-icon { background: #a29bfe; box-shadow: 0 4px 0px #6c5ce7; }
+
+        /* Teks Menu */
+        .menu-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .menu-info .menu-title {
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: #2f3542;
+            margin-bottom: 4px;
+        }
+
+        .menu-info .menu-desc {
+            font-size: 0.85rem;
+            color: #747d8c;
+            font-weight: 600;
+        }
+
+        /* ================= MODAL LATIHAN SOAL ================= */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(47, 53, 66, 0.8);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            box-sizing: border-box;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 28px;
+            border: 4px solid #a29bfe;
+            padding: 20px 15px;
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            transform: scale(0.8);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-content h3 {
+            margin: 0 0 15px 0;
+            color: #2f3542;
+            font-size: 1.3rem;
+            font-weight: 900;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #6c5ce7;
+            text-align: left;
+            margin: 12px 0 6px 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Grid Sub-Menu Latihan */
+        .submenu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .btn-submenu {
+            background: #f1f2f6;
+            color: #2f3542;
+            border: 2px solid #dfe4ea;
+            border-radius: 12px;
+            padding: 10px 6px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            box-shadow: 0 3px 0px #ced6e0;
+            transition: all 0.1s ease;
+        }
+
+        .btn-submenu:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0px #ced6e0;
+            background: #e4e7eb;
+        }
+
+        .btn-tutup {
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 10px 25px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            box-shadow: 0 4px 0px #ff214f;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            text-transform: uppercase;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .btn-tutup:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0px #ff214f;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-title">
+        <h1>KALKULATOR PECAHAN</h1>
+        <p>Membantu Anda menghitung pecahan dengan mudah dilengkapi dengan langkah penyelesaian.</p>
+    </div>
+
+    <div class="menu-container">
+        
+        <a href="hitung.html" class="menu-card card-hitung">
+            <div class="menu-icon">÷</div>
+            <div class="menu-info">
+                <span class="menu-title">Hitung Pecahan</span>
+                <span class="menu-desc">Tambah, kurang, kali, dan bagi pecahan campuran.</span>
+            </div>
+        </a>
+
+        <a href="ubah.html" class="menu-card card-ubah">
+            <div class="menu-icon">⇄</div>
+            <div class="menu-info">
+                <span class="menu-title">Ubah Pecahan</span>
+                <span class="menu-desc">Konversi pecahan biasa ke campuran & sebaliknya.</span>
+            </div>
+        </a>
+
+        <!-- Menu Latihan menggantikan Tentang Aplikasi -->
+        <div class="menu-card card-latihan" onclick="bukaLatihan()">
+            <div class="menu-icon">✏️</div>
+            <div class="menu-info">
+                <span class="menu-title">Latihan Soal</span>
+                <span class="menu-desc">Uji pemahaman penjumlahan, pengurangan, perkalian, & pembagian.</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal Sub-Menu Latihan -->
+    <div class="modal-overlay" id="modalLatihan" onclick="tutupLatihan(event)">
+        <div class="modal-content">
+            <h3>PILIH LATIHAN SOAL</h3>
+
+            <div class="section-title">Pecahan Biasa</div>
+            <div class="submenu-grid">
+                <a href="latihan_penjumlahan_pecahan_biasa.html" class="btn-submenu">➕ Penjumlahan</a>
+                <a href="latihan_pengurangan_pecahan_biasa.html" class="btn-submenu">➖ Pengurangan</a>
+                <a href="latihan_perkalian_pecahan_biasa.html" class="btn-submenu">✖️ Perkalian</a>
+                <a href="latihan_pembagian_pecahan_biasa.html" class="btn-submenu">➗ Pembagian</a>
+            </div>
+
+            <div class="section-title">Pecahan Campuran</div>
+            <div class="submenu-grid">
+                <a href="latihan_penjumlahan_pecahan_campuran.html" class="btn-submenu">➕ Penjumlahan</a>
+                <a href="latihan_pengurangan_pecahan_campuran.html" class="btn-submenu">➖ Pengurangan</a>
+                <a href="latihan_perkalian_pecahan_campuran.html" class="btn-submenu">✖️ Perkalian</a>
+                <a href="latihan_pembagian_pecahan_campuran.html" class="btn-submenu">➗ Pembagian</a>
+            </div>
+
+            <button class="btn-tutup" onclick="document.getElementById('modalLatihan').classList.remove('show')">Tutup</button>
+        </div>
+    </div>
+
+    <script>
+        function bukaLatihan() {
+            document.getElementById('modalLatihan').classList.add('show');
+        }
+
+        function tutupLatihan(e) {
+            if (e.target.id === 'modalLatihan') {
+                document.getElementById('modalLatihan').classList.remove('show');
+            }
+        }
+        // GLOBAL BULLETPROOF SECURITY LAYER
+        (function() {
+            window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+            window.addEventListener('keydown', function(e) {
+                if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            }, true);
+        })();
+    </script>
+</body>
+</html>

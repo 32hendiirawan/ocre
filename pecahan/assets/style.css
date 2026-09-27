@@ -1,0 +1,266 @@
+body { 
+    font-family: 'Nunito', 'Segoe UI', Arial, sans-serif; 
+    background: linear-gradient(135deg, #f0f4ff 0%, #d9e4ff 100%);
+    margin: 0;
+    padding: 15px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: flex-start;
+    min-height: 100vh;
+    box-sizing: border-box;
+    padding-bottom: 280px; /* Jarak aman agar konten tidak tertutup Numpad */
+}
+
+h2 {
+    color: #4a54df;
+    text-shadow: 2px 2px 0px #ffffff, 4px 4px 0px rgba(74, 84, 223, 0.15);
+    font-size: 1.6rem;
+    margin: 10px 0 20px 0;
+    text-align: center;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+/* Papan Utama Game */
+.game-board {
+    background: #ffffff;
+    padding: 10px 10px;
+    border-radius: 12px;
+    box-shadow: 0 12px 24px rgba(74, 84, 223, 0.15);
+    border: 2px solid #4a54df;
+    max-width: 100%;
+    overflow-x: auto;
+    display: flex;
+    justify-content: center;
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 6px;
+}
+
+/* Gaya Kolom Input Bubble */
+input, .result-display {
+    width: 40px; 
+    text-align: center; 
+    padding: 5px 5px; 
+    border: 2px solid #e2e8f0;
+    font-weight: bold;
+    font-size: 1.2rem;
+    outline: none;
+    box-sizing: border-box;
+    transition: all 0.2s;
+    caret-color: transparent; /* Sembunyikan kursor ketik */
+    cursor: pointer;
+}
+
+/* Identifikasi Warna Peran Angka */
+.bil-bulat {
+    height: 70px; 
+    font-size: 1.2rem; 
+    background-color: #ffeaa7; 
+    border-color: #fdcb6e;
+    border-radius: 16px;
+    color: #d63031;
+}
+
+.pembilang {
+    height: 45px; 
+    font-size: 1.2rem; 
+    background-color: #dff9fb; 
+    border-color: #7ed6df;
+    border-radius: 12px;
+    color: #130cb7;
+}
+
+.penyebut {
+    height: 45px; 
+    font-size: 1.2rem; 
+    background-color: #ffcccc; 
+    border-color: #ff7675;
+    border-radius: 12px;
+    color: #c0392b;
+}
+
+/* Efek saat Input dipilih/aktif */
+input.active-input {
+    transform: scale(1.08);
+    box-shadow: 0 0 15px #4a54df;
+    border-color: #4a54df;
+    animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 8px #4a54df; }
+    100% { box-shadow: 0 0 18px #4a54df; }
+}
+
+.result-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    min-width: 40px;
+}
+
+select {
+    width: 55px; 
+    height: 70px; 
+    text-align: center; 
+    border-radius: 16px; 
+    border: 3px solid #6c5ce7; 
+    font-size: 1.2rem;
+    background-color: #a29bfe;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    appearance: none;
+    padding: 5px;
+}
+
+hr {
+    border: none;
+    height: 3px;
+    background: blue;
+    border-radius: 1px;
+    margin: 8px 2px;
+}
+
+td { 
+    vertical-align: middle; 
+    text-align: center; 
+}
+.equal-sign { 
+    font-size: 2rem; 
+    font-weight: bold; 
+    color: #4a54df; 
+}
+
+/* Tombol Aksi */
+.button-group {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+    width: 100%;
+    max-width: 340px;
+}
+
+.btn-action {
+    flex: 1;
+    border-radius: 16px; 
+    padding: 14px; 
+    border: none; 
+    color: white; 
+    font-weight: bold; 
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 6px 0px rgba(0,0,0,0.2);
+    transition: all 0.1s ease;
+    text-transform: uppercase;
+}
+
+.btn-action:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0px rgba(0,0,0,0.2);
+}
+
+.btn-hitung { 
+    background: #1dd1a1; box-shadow: 0 6px 0px #10ac84; }
+.btn-hitung:active { box-shadow: 0 2px 0px #10ac84; }
+.btn-reset { background: #ff4757; box-shadow: 0 6px 0px #ff214f; }
+.btn-reset:active { box-shadow: 0 2px 0px #ff214f; }
+.btn-home { background: brown; box-shadow: 0 6px 0px maroon; }
+.btn-home:active { box-shadow: 0 2px 0px maroon; }
+/* Kotak Langkah Hasil */
+.result-box { 
+    margin-top: 20px; 
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 15px;
+    width: 100%;
+    max-width: 340px;
+    box-sizing: border-box;
+    border: 3px dashed #4a54df;
+    display: none;
+}
+
+.result-title {
+    font-size: 0.9rem;
+    color: #718096;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    font-weight: bold;
+    text-align: center;
+}
+
+#result { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+#result table { font-size: 1.1rem; font-weight: bold; }
+
+/* ==================== KEYBOARD NUMPAD CUSTOM STYLE ==================== */
+.custom-numpad {
+    position: fixed;
+    bottom: -320px; /* Tersembunyi di bawah layar saat awal */
+    left: 0;
+    width: 100%;
+    background: #2f3542;
+    border-top: 5px solid #1e222b;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    padding: 15px;
+    box-sizing: border-box;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    box-shadow: 0 -8px 20px rgba(0,0,0,0.3);
+    transition: bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+    z-index: 9999;
+    display: grid;
+}
+
+.custom-numpad.show {
+    bottom: 0; /* Muncul ke atas layar */
+}
+
+.numpad-btn {
+    background: #f1f2f6;
+    border: none;
+    border-radius: 14px;
+    font-size: 1.6rem;
+    font-weight: bold;
+    padding: 15px 0;
+    color: #2f3542;
+    cursor: pointer;
+    box-shadow: 0 5px 0px #ced6e0;
+    transition: all 0.05s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.numpad-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0px #ced6e0;
+}
+
+/* Warna Tombol Pelangi Cantik */
+.btn-1, .btn-5, .btn-9 { background-color: #ff7675; color: white; box-shadow: 0 5px 0px #d63031; }
+.btn-2, .btn-6, .btn-0 { background-color: #7ed6df; color: #130cb7; box-shadow: 0 5px 0px #22a6b3; }
+.btn-3, .btn-7 { background-color: #ffeaa7; color: #b7791f; box-shadow: 0 5px 0px #f1c40f; }
+.btn-4, .btn-8 { background-color: #9b59b6; color: white; box-shadow: 0 5px 0px #8e44ad; }
+
+/* Tombol Spesial (Hapus & Selesai) */
+.btn-del {
+    background-color: #eab543;
+    color: white;
+    box-shadow: 0 5px 0px #f39c12;
+    font-size: 1.2rem;
+    grid-column: span 1;
+}
+.btn-done {
+    background-color: #1dd1a1;
+    color: white;
+    box-shadow: 0 5px 0px #10ac84;
+    font-size: 1.2rem;
+    grid-column: span 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
