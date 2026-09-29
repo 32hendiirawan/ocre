@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mencocokkan Tugas Malaikat</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2canvas for exporting result as image -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #123d4c;
+            height: 100vh;
+            height: 100dvh;
+            width: 100vw;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .font-fredoka {
+            font-family: 'Fredoka', cursive;
+        }
+
+        /* Mobile Container Fit-Screen */
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            height: 100dvh;
+            background: #ffffff;
+            border-radius: 0px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        @media (min-width: 640px) {
+            .app-container {
+                height: 96vh;
+                height: 96dvh;
+                border-radius: 20px;
+            }
+        }
+
+        /* SVG Layer Overlay */
+        #svg-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 30;
+        }
+
+        /* Card Nodes */
+        .item-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .item-card.selected {
+            border-color: #0284c7 !important;
+            background-color: #bae6fd !important;
+            transform: scale(1.02);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.3);
+        }
+
+        /* Connector Dots positioned in front of cards */
+        .dot-connector {
+            width: 15px;
+            height: 15px;
+            background-color: #1e3a8a;
+            border: 2.5px solid #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 0 0 2px #1e3a8a;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            position: relative;
+            z-index: 20;
+        }
+
+        .item-card.selected .dot-connector {
+            background-color: #0284c7;
+            box-shadow: 0 0 0 2px #0284c7;
+            transform: scale(1.3);
+        }
+
+        /* Draw Line Animation */
+        .connection-line {
+            stroke-dasharray: 800;
+            stroke-dashoffset: 800;
+            animation: drawLine 0.3s ease-out forwards;
+        }
+
+        @keyframes drawLine {
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* Modal Overlay Background */
+        .modal-overlay {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-card" class="app-container p-3 sm:p-4 bg-slate-50">
+        <!-- SVG Canvas for Interactive Connecting Lines -->
+        <svg id="svg-canvas"></svg>
+
+        <!-- Header Information Bar -->
+        <header class="bg-[#154D60] rounded-xl p-2.5 shadow-md text-white relative z-10 flex flex-col gap-1.5">
+            <div class="flex justify-between items-center gap-2 text-xs font-semibold">
+                <div class="flex items-center gap-1 w-1/2">
+                    <span class="text-sky-100">Nama:</span>
+                    <input type="text" id="user-name" placeholder="Isi Nama..." class="w-full bg-white/10 border border-white/30 rounded px-1.5 py-0.5 text-xs text-white placeholder-sky-200/70 focus:outline-none focus:bg-white/20">
+                </div>
+                <div class="flex items-center gap-1 w-1/2">
+                    <span class="text-sky-100">Kelas:</span>
+                    <input type="text" id="user-class" placeholder="Isi Kelas..." class="w-full bg-white/10 border border-white/30 rounded px-1.5 py-0.5 text-xs text-white placeholder-sky-200/70 focus:outline-none focus:bg-white/20">
+                </div>
+            </div>
+            
+            <div class="text-center pt-1 border-t border-white/20">
+                <h1 class="font-fredoka text-sm sm:text-base font-bold text-sky-100 uppercase tracking-wide">
+                    MENCOCOKKAN TUGAS MALAIKAT
+                </h1>
+                <p class="text-[11px] text-sky-200 font-medium leading-tight mt-0.5">
+                    Hubungkanlah nama Malaikat sesuai tugasnya di bawah ini!
+                </p>
+            </div>
+        </header>
+
+        <main class="flex-1 my-2 flex justify-between gap-2.5 relative z-10 overflow-hidden">
+            <!-- Left Column: Nama Malaikat -->
+            <div id="left-column" class="w-2/5 flex flex-col justify-between h-full gap-1">
+                <!-- Dynamically Populated Left Cards -->
+            </div>
+
+            <!-- Right Column: Tugas Malaikat -->
+            <div id="right-column" class="w-3/5 flex flex-col justify-between h-full gap-1">
+                <!-- Dynamically Populated Right Cards -->
+            </div>
+        </main>
+
+        <footer class="pt-1.5 border-t border-slate-200 flex flex-col gap-1.5 relative z-10">
+            <div class="flex justify-between items-center px-1">
+                <span id="score-badge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-900 border border-sky-300">
+                    Terhubung: <span id="connected-count" class="text-sky-700 font-extrabold">0</span>/10
+                </span>
+                <span class="text-[11px] text-slate-500 font-bold uppercase tracking-wider">SELAMAT BEKERJA! 😊</span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+                <button onclick="checkAnswers()" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold py-2 px-1 rounded-xl shadow-sm text-xs flex items-center justify-center gap-1 transition">
+                    <i class="fa-solid fa-circle-check"></i> Periksa
+                </button>
+                <button onclick="resetGame()" class="bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-bold py-2 px-1 rounded-xl shadow-sm text-xs flex items-center justify-center gap-1 transition">
+                    <i class="fa-solid fa-arrows-rotate"></i> Reset
+                </button>
+                <button onclick="saveAsImage()" class="bg-sky-700 hover:bg-sky-800 active:scale-95 text-white font-bold py-2 px-1 rounded-xl shadow-sm text-xs flex items-center justify-center gap-1 transition">
+                    <i class="fa-solid fa-download"></i> Simpan
+                </button>
+            </div>
+        </footer>
+
+        <div id="modal-result" class="hidden fixed inset-0 modal-overlay z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl p-5 max-w-xs w-full text-center shadow-2xl border-4 border-sky-600 transform transition-all scale-100">
+                <div id="modal-icon" class="text-4xl mb-2">🎉</div>
+                <h2 id="modal-title" class="font-fredoka text-xl font-bold text-slate-800 mb-1">Masya Allah!</h2>
+                <p id="modal-message" class="text-xs sm:text-sm text-slate-600 mb-4">Kamu berhasil menyelesaikan kuis ini!</p>
+                <div id="modal-score" class="text-2xl font-black text-sky-700 mb-4">Nilai: 100</div>
+                <button onclick="closeModal()" class="w-full bg-sky-700 hover:bg-sky-800 text-white font-bold py-2 rounded-xl text-sm shadow-md active:scale-95 transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /*
+         * Dataset Malaikat & Tugasnya
+         * Uses `groupId` to handle duplicate tasks (e.g. Munkar and Nakir both assigned to "kubur").
+         */
+        const malaikatData = [
+            { id: "jibril", name: "JIBRIL", task: "Menyampaikan wahyu dari Allah", groupId: "jibril" },
+            { id: "mikail", name: "MIKAIL", task: "Mengatur rezeki dan hujan", groupId: "mikail" },
+            { id: "israfil", name: "ISRAFIL", task: "Meniup sangkakala pada hari kiamat", groupId: "israfil" },
+            { id: "izrail", name: "IZRAIL", task: "Bertugas mencabut nyawa.", groupId: "izrail" },
+            { id: "munkar", name: "MUNKAR", task: "Menanyai manusia di alam kubur.", groupId: "kubur" },
+            { id: "nakir", name: "NAKIR", task: "Menanyai manusia di alam kubur.", groupId: "kubur" },
+            { id: "rakib", name: "RAKIB", task: "Mencatat amal baik manusia.", groupId: "rakib" },
+            { id: "atid", name: "ATID", task: "Mencatat amal buruk manusia.", groupId: "atid" },
+            { id: "malik", name: "MALIK", task: "Menjaga pintu neraka", groupId: "malik" },
+            { id: "ridwan", name: "RIDWAN", task: "Menjaga pintu surga.", groupId: "ridwan" }
+        ];
+
+        let leftItems = [];
+        let rightItems = [];
+        let selectedLeft = null;
+        let connections = {}; // Maps: leftIndex -> rightIndex
+        let lineColors = {};
+        let isChecked = false;
+
+        const colors = [
+            '#0284c7', '#0d9488', '#d97706', '#16a34a', 
+            '#2563eb', '#9333ea', '#ea580c', '#0284c7', 
+            '#059669', '#c026d3'
+        ];
+
+        /* Utility: Shuffle Array */
+        function shuffle(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function initGame() {
+            // Left column maintains structured or shuffled list of Malaikat
+            leftItems = shuffle([...malaikatData]);
+            // Right column shuffles tasks
+            rightItems = shuffle([...malaikatData]);
+
+            selectedLeft = null;
+            connections = {};
+            lineColors = {};
+            isChecked = false;
+
+            renderColumns();
+            drawConnections();
+            updateScoreBadge();
+        }
+
+        function renderColumns() {
+            const leftCol = document.getElementById('left-column');
+            const rightCol = document.getElementById('right-column');
+
+            leftCol.innerHTML = '';
+            rightCol.innerHTML = '';
+
+            // Render Left Side: Malaikat Names
+            leftItems.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = `item-card left-card flex items-center justify-between bg-[#dbeafe] border-2 border-[#93c5fd] rounded-lg p-1.5 cursor-pointer shadow-sm text-xs font-bold text-[#1e3a8a]`;
+                card.dataset.index = index;
+                card.onclick = () => handleLeftClick(index);
+
+                card.innerHTML = `
+                    <span class="truncate pl-0.5 tracking-wide">${item.name}</span>
+                    <div class="dot-connector ml-1 flex-shrink-0" id="left-dot-${index}"></div>
+                `;
+                leftCol.appendChild(card);
+            });
+
+            // Render Right Side: Malaikat Tasks
+            rightItems.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = `item-card right-card flex items-center justify-start bg-[#dbeafe] border-2 border-[#93c5fd] rounded-lg p-1.5 cursor-pointer shadow-sm text-[11px] font-semibold text-[#1e3a8a] leading-tight`;
+                card.dataset.index = index;
+                card.onclick = () => handleRightClick(index);
+
+                card.innerHTML = `
+                    <div class="dot-connector mr-1.5 flex-shrink-0" id="right-dot-${index}"></div>
+                    <span class="truncate">${item.task}</span>
+                `;
+                rightCol.appendChild(card);
+            });
+        }
+
+        function handleLeftClick(index) {
+            if (isChecked) return;
+
+            document.querySelectorAll('.left-card').forEach(c => c.classList.remove('selected'));
+
+            if (selectedLeft === index) {
+                selectedLeft = null;
+            } else {
+                selectedLeft = index;
+                const selectedCard = document.querySelector(`.left-card[data-index="${index}"]`);
+                if (selectedCard) selectedCard.classList.add('selected');
+            }
+        }
+
+        function handleRightClick(rightIndex) {
+            if (isChecked) return;
+
+            if (selectedLeft !== null) {
+                // Clear any existing connection attached to this right item
+                Object.keys(connections).forEach(lIdx => {
+                    if (connections[lIdx] === rightIndex) {
+                        delete connections[lIdx];
+                        delete lineColors[lIdx];
+                    }
+                });
+
+                connections[selectedLeft] = rightIndex;
+                lineColors[selectedLeft] = colors[selectedLeft % colors.length];
+
+                document.querySelectorAll('.left-card').forEach(c => c.classList.remove('selected'));
+                selectedLeft = null;
+
+                drawConnections();
+                updateScoreBadge();
+            } else {
+                // Deselect if clicking on an already connected right item
+                Object.keys(connections).forEach(lIdx => {
+                    if (connections[lIdx] === rightIndex) {
+                        delete connections[lIdx];
+                        delete lineColors[lIdx];
+                    }
+                });
+                drawConnections();
+                updateScoreBadge();
+            }
+        }
+
+        function drawConnections() {
+            const svg = document.getElementById('svg-canvas');
+            const svgRect = svg.getBoundingClientRect();
+            
+            svg.innerHTML = '';
+
+            Object.keys(connections).forEach(leftIdx => {
+                const rightIdx = connections[leftIdx];
+
+                const leftDot = document.getElementById(`left-dot-${leftIdx}`);
+                const rightDot = document.getElementById(`right-dot-${rightIdx}`);
+
+                if (leftDot && rightDot) {
+                    const rectL = leftDot.getBoundingClientRect();
+                    const rectR = rightDot.getBoundingClientRect();
+
+                    // Compute center coordinates relative to SVG canvas
+                    const x1 = (rectL.left + rectL.width / 2) - svgRect.left;
+                    const y1 = (rectL.top + rectL.height / 2) - svgRect.top;
+
+                    const x2 = (rectR.left + rectR.width / 2) - svgRect.left;
+                    const y2 = (rectR.top + rectR.height / 2) - svgRect.top;
+
+                    // Flexible Validation check using groupId
+                    const isCorrect = leftItems[leftIdx].groupId === rightItems[rightIdx].groupId;
+
+                    const strokeColor = isChecked 
+                        ? (isCorrect ? '#16a34a' : '#dc2626')
+                        : lineColors[leftIdx] || '#0284c7';
+
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', x1);
+                    line.setAttribute('y1', y1);
+                    line.setAttribute('x2', x2);
+                    line.setAttribute('y2', y2);
+                    line.setAttribute('stroke', strokeColor);
+                    line.setAttribute('stroke-width', '3.5');
+                    line.setAttribute('stroke-linecap', 'round');
+                    line.setAttribute('class', 'connection-line');
+
+                    svg.appendChild(line);
+                }
+            });
+        }
+
+        function updateScoreBadge() {
+            const count = Object.keys(connections).length;
+            document.getElementById('connected-count').textContent = count;
+        }
+
+        function checkAnswers() {
+            const totalConnected = Object.keys(connections).length;
+            if (totalConnected < 10) {
+                alert(`Harap hubungkan semua 10 pasangan sebelum memeriksa! (Baru ${totalConnected}/10)`);
+                return;
+            }
+
+            isChecked = true;
+            let correctCount = 0;
+
+            // Validate based on matching groupId (e.g., Munkar or Nakir matched with any "kubur" task)
+            Object.keys(connections).forEach(leftIdx => {
+                const rightIdx = connections[leftIdx];
+                if (leftItems[leftIdx].groupId === rightItems[rightIdx].groupId) {
+                    correctCount++;
+                }
+            });
+
+            drawConnections(); // Redraw lines with green (correct) or red (incorrect)
+
+            const score = correctCount * 10;
+            const modal = document.getElementById('modal-result');
+            const modalTitle = document.getElementById('modal-title');
+            const modalMsg = document.getElementById('modal-message');
+            const modalIcon = document.getElementById('modal-icon');
+            const modalScore = document.getElementById('modal-score');
+
+            modalScore.textContent = `Nilai: ${score}`;
+
+            if (score === 100) {
+                modalIcon.textContent = '🌟';
+                modalTitle.textContent = 'Masya Allah Sempurna!';
+                modalMsg.textContent = 'Selamat! Semua tugas Malaikat berhasil kamu pasangkan dengan benar!';
+            } else if (score >= 70) {
+                modalIcon.textContent = '👍';
+                modalTitle.textContent = 'Bagus Sekali!';
+                modalMsg.textContent = `Kamu berhasil menjawab ${correctCount} dari 10 tugas Malaikat dengan benar!`;
+            } else {
+                modalIcon.textContent = '💪';
+                modalTitle.textContent = 'Tetap Semangat!';
+                modalMsg.textContent = `Kamu menjawab ${correctCount} dari 10 benar. Pelajari lagi dan coba kembali yuk!`;
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-result').classList.add('hidden');
+        }
+
+        function resetGame() {
+            closeModal();
+            initGame();
+        }
+
+        function saveAsImage() {
+            const gameCard = document.getElementById('game-card');
+            closeModal();
+
+            html2canvas(gameCard, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#123d4c'
+            }).then(canvas => {
+                const image = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.download = `Tugas_Malaikat_Result_${Date.now()}.png`;
+                link.href = image;
+                link.click();
+            }).catch(err => {
+                console.error("Gagal menyimpan gambar:", err);
+                alert("Gagal mengunduh gambar. Silakan coba lagi.");
+            });
+        }
+
+        /* Re-calculate line positions on window resize */
+        window.addEventListener('resize', () => {
+            drawConnections();
+        });
+
+        /* Start game on load */
+        window.onload = () => {
+            initGame();
+        };
+
+        (function() {
+            window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+            window.addEventListener('keydown', function(e) {
+                if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            }, true);
+        })();
+    </script>
+</body>
+</html>
