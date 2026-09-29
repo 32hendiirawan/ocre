@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Game Memasangkan Aksara Lampung</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2canvas for exporting result as image -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* Custom Font Face setup for Kaganga Aksara Lampung */
+        @font-face {
+            font-family: 'Kaganga';
+            src: url('icon/kaganga.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* Class khusus untuk teks Aksara Lampung */
+        .font-aksara {
+            font-family: 'Kaganga', 'Segoe UI Historic', 'Noto Sans Buginese', 'Arial', sans-serif;
+            font-size: 1.25rem;
+            line-height: 1;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f1f5f9;
+            height: 100vh;
+            height: 100dvh;
+            width: 100vw;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .font-fredoka {
+            font-family: 'Fredoka', cursive;
+        }
+
+        /* Mobile Container Fit-Screen */
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            height: 100dvh;
+            background: #ffffff;
+            border: 4px solid #16a34a;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* SVG Layer Overlay */
+        #svg-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 30;
+        }
+
+        /* Card Nodes */
+        .item-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .item-card.selected {
+            border-color: #3b82f6 !important;
+            background-color: #eff6ff !important;
+            transform: scale(1.02);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Connector Dots positioned in front of cards */
+        .dot-connector {
+            width: 16px;
+            height: 16px;
+            background-color: #475569;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 0 0 2px #475569;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            position: relative;
+            z-index: 20;
+        }
+
+        .item-card.selected .dot-connector {
+            background-color: #3b82f6;
+            box-shadow: 0 0 0 2px #3b82f6;
+            transform: scale(1.3);
+        }
+
+        /* Draw Line Animation */
+        .connection-line {
+            stroke-dasharray: 800;
+            stroke-dashoffset: 800;
+            animation: drawLine 0.35s ease-out forwards;
+        }
+
+        @keyframes drawLine {
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* Modal Overlay Background */
+        .modal-overlay {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-card" class="app-container p-3 sm:p-4">
+        <!-- SVG Canvas for Interactive Connecting Lines -->
+        <svg id="svg-canvas"></svg>
+
+        <!-- Header Information Bar -->
+        <header class="bg-emerald-50 border-2 border-emerald-500 rounded-xl p-2.5 shadow-sm relative z-10">
+            <div class="flex justify-between items-center gap-2 mb-1.5 text-xs font-bold text-emerald-900">
+                <div class="flex items-center gap-1 w-1/2">
+                    <span>Nama:</span>
+                    <input type="text" id="user-name" placeholder="Isi Nama..." class="w-full bg-white border border-emerald-300 rounded px-1.5 py-0.5 text-xs text-emerald-950 font-normal focus:outline-none focus:border-emerald-600">
+                </div>
+                <div class="flex items-center gap-1 w-1/2">
+                    <span>Kelas:</span>
+                    <input type="text" id="user-class" placeholder="Isi Kelas..." class="w-full bg-white border border-emerald-300 rounded px-1.5 py-0.5 text-xs text-emerald-950 font-normal focus:outline-none focus:border-emerald-600">
+                </div>
+            </div>
+            <div class="text-center pt-1 border-t border-emerald-200">
+                <h1 class="font-fredoka text-xs sm:text-sm font-bold text-emerald-800 leading-tight">
+                    Pasangkan dengan benar! <span class="text-emerald-600">💚</span>
+                </h1>
+            </div>
+        </header>
+
+        <main class="flex-1 my-2 flex justify-between gap-3 relative z-10 overflow-hidden">
+            <!-- Left Column: Aksara Lampung -->
+            <div id="left-column" class="w-1/2 flex flex-col justify-between h-full gap-1">
+                <!-- Dynamically Populated Left Cards -->
+            </div>
+
+            <!-- Right Column: Latin Transliteration -->
+            <div id="right-column" class="w-1/2 flex flex-col justify-between h-full gap-1">
+                <!-- Dynamically Populated Right Cards -->
+            </div>
+        </main>
+
+        <footer class="pt-1.5 border-t-2 border-dashed border-gray-200 flex flex-col gap-1.5 relative z-10">
+            <div class="flex justify-between items-center px-1">
+                <span id="score-badge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700">
+                    Terhubung: <span id="connected-count" class="text-emerald-600">0</span>/5
+                </span>
+                <span class="text-[11px] text-gray-500 font-semibold">SELAMAT BEKERJA! 😊</span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+                <button onclick="checkAnswers()" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold py-2 px-1 rounded-xl shadow-md text-xs sm:text-sm flex items-center justify-center gap-1 transition">
+                    <i class="fa-solid fa-circle-check"></i> Periksa
+                </button>
+                <button onclick="resetGame()" class="bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-bold py-2 px-1 rounded-xl shadow-md text-xs sm:text-sm flex items-center justify-center gap-1 transition">
+                    <i class="fa-solid fa-arrows-rotate"></i> Reset
+                </button>
+                <button onclick="saveAsImage()" class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold py-2 px-1 rounded-xl shadow-md text-xs sm:text-sm flex items-center justify-center gap-1 transition">
+                    <i class="fa-solid fa-download"></i> Simpan
+                </button>
+            </div>
+        </footer>
+
+        <div id="modal-result" class="hidden fixed inset-0 modal-overlay z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl p-5 max-w-xs w-full text-center shadow-2xl border-4 border-emerald-500 transform transition-all scale-100">
+                <div id="modal-icon" class="text-4xl mb-2">🎉</div>
+                <h2 id="modal-title" class="font-fredoka text-xl font-bold text-gray-800 mb-1">Hebat!</h2>
+                <p id="modal-message" class="text-xs sm:text-sm text-gray-600 mb-4">Kamu berhasil menyelesaikan kuis ini!</p>
+                <div id="modal-score" class="text-2xl font-black text-emerald-600 mb-4">Nilai: 100</div>
+                <button onclick="closeModal()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-sm shadow-md active:scale-95 transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* Word Bank (Aksara Lampung Data List) */
+        const wordBank = [
+            { id: 1, aksara: "lmMpuX", latin: "Lampung" },
+            { id: 2, aksara: "sEkul", latin: "Sekula" },
+            { id: 3, aksara: "wwI", latin: "Wawai" },
+            { id: 4, aksara: "sWdr", latin: "Saudara" },
+            { id: 5, aksara: "guru", latin: "Guru" },
+            { id: 6, aksara: "tbikM", latin: "Tabik" },
+            { id: 7, aksara: "lmMbA", latin: "Lamban" },
+            { id: 8, aksara: "hum", latin: "Huma" },
+            { id: 9, aksara: "muliA", latin: "Mulin" },
+            { id: 10, aksara: "kci", latin: "Kaci" }
+        ];
+
+        let currentQuestions = [];
+        let leftItems = [];
+        let rightItems = [];
+        let selectedLeft = null;
+        let connections = {}; // Stores key: leftIndex -> value: rightIndex
+        let lineColors = {};
+        let isChecked = false;
+
+        const colors = [
+            '#ef4444', '#f97316', '#f59e0b', '#10b981', 
+            '#06b6d4', '#3b82f6', '#6366f1', '#8b5cf6', 
+            '#ec4899', '#0d9488'
+        ];
+
+        /* Shuffle Array Function */
+        function shuffle(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function initGame() {
+            currentQuestions = shuffle(wordBank).slice(0, 5); // Select 5 random pairs
+            leftItems = shuffle([...currentQuestions]);
+            rightItems = shuffle([...currentQuestions]);
+
+            selectedLeft = null;
+            connections = {};
+            lineColors = {};
+            isChecked = false;
+
+            renderColumns();
+            drawConnections();
+            updateScoreBadge();
+        }
+
+        function renderColumns() {
+            const leftCol = document.getElementById('left-column');
+            const rightCol = document.getElementById('right-column');
+
+            leftCol.innerHTML = '';
+            rightCol.innerHTML = '';
+
+            leftItems.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = `item-card left-card flex items-center justify-between bg-emerald-50/80 border-2 border-emerald-300 rounded-lg p-1.5 sm:p-2 cursor-pointer shadow-sm text-xs sm:text-sm font-semibold text-emerald-950`;
+                card.dataset.index = index;
+                card.onclick = () => handleLeftClick(index);
+
+                // Applying custom font 'Kaganga' specifically to Aksara Lampung text
+                card.innerHTML = `
+                    <div class="flex items-center gap-1.5 overflow-hidden">
+                        <span class="font-bold text-emerald-800 text-xs">${index + 1}.</span>
+                        <span class="font-aksara tracking-wide text-emerald-950 truncate">${item.aksara}</span>
+                    </div>
+                    <div class="dot-connector ml-auto flex-shrink-0" id="left-dot-${index}"></div>
+                `;
+                leftCol.appendChild(card);
+            });
+
+            rightItems.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = `item-card right-card flex items-center justify-between bg-blue-50/80 border-2 border-blue-300 rounded-lg p-1.5 sm:p-2 cursor-pointer shadow-sm text-xs sm:text-sm font-semibold text-blue-950`;
+                card.dataset.index = index;
+                card.onclick = () => handleRightClick(index);
+
+                card.innerHTML = `
+                    <div class="dot-connector mr-1.5 flex-shrink-0" id="right-dot-${index}"></div>
+                    <div class="flex items-center gap-1 overflow-hidden">
+                        <span class="font-bold text-blue-800 text-xs">${String.fromCharCode(65 + index)}.</span>
+                        <span class="truncate">${item.latin}</span>
+                    </div>
+                `;
+                rightCol.appendChild(card);
+            });
+        }
+
+        function handleLeftClick(index) {
+            if (isChecked) return;
+
+            document.querySelectorAll('.left-card').forEach(c => c.classList.remove('selected'));
+
+            if (selectedLeft === index) {
+                selectedLeft = null;
+            } else {
+                selectedLeft = index;
+                const selectedCard = document.querySelector(`.left-card[data-index="${index}"]`);
+                if (selectedCard) selectedCard.classList.add('selected');
+            }
+        }
+
+        function handleRightClick(rightIndex) {
+            if (isChecked) return;
+
+            if (selectedLeft !== null) {
+                // Clear any existing connection attached to this right item
+                Object.keys(connections).forEach(lIdx => {
+                    if (connections[lIdx] === rightIndex) {
+                        delete connections[lIdx];
+                        delete lineColors[lIdx];
+                    }
+                });
+
+                connections[selectedLeft] = rightIndex;
+                lineColors[selectedLeft] = colors[selectedLeft % colors.length];
+
+                document.querySelectorAll('.left-card').forEach(c => c.classList.remove('selected'));
+                selectedLeft = null;
+
+                drawConnections();
+                updateScoreBadge();
+            } else {
+                // Deselect if clicking on an already connected right item
+                Object.keys(connections).forEach(lIdx => {
+                    if (connections[lIdx] === rightIndex) {
+                        delete connections[lIdx];
+                        delete lineColors[lIdx];
+                    }
+                });
+                drawConnections();
+                updateScoreBadge();
+            }
+        }
+
+        function drawConnections() {
+            const svg = document.getElementById('svg-canvas');
+            const svgRect = svg.getBoundingClientRect();
+            
+            svg.innerHTML = '';
+
+            Object.keys(connections).forEach(leftIdx => {
+                const rightIdx = connections[leftIdx];
+
+                const leftDot = document.getElementById(`left-dot-${leftIdx}`);
+                const rightDot = document.getElementById(`right-dot-${rightIdx}`);
+
+                if (leftDot && rightDot) {
+                    const rectL = leftDot.getBoundingClientRect();
+                    const rectR = rightDot.getBoundingClientRect();
+
+                    // Compute center coordinates for dots relative to SVG boundary
+                    const x1 = (rectL.left + rectL.width / 2) - svgRect.left;
+                    const y1 = (rectL.top + rectL.height / 2) - svgRect.top;
+
+                    const x2 = (rectR.left + rectR.width / 2) - svgRect.left;
+                    const y2 = (rectR.top + rectR.height / 2) - svgRect.top;
+
+                    const strokeColor = isChecked 
+                        ? (leftItems[leftIdx].id === rightItems[rightIdx].id ? '#22c55e' : '#ef4444')
+                        : lineColors[leftIdx] || '#3b82f6';
+
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', x1);
+                    line.setAttribute('y1', y1);
+                    line.setAttribute('x2', x2);
+                    line.setAttribute('y2', y2);
+                    line.setAttribute('stroke', strokeColor);
+                    line.setAttribute('stroke-width', '4');
+                    line.setAttribute('stroke-linecap', 'round');
+                    line.setAttribute('class', 'connection-line');
+
+                    svg.appendChild(line);
+                }
+            });
+        }
+
+        function updateScoreBadge() {
+            const count = Object.keys(connections).length;
+            document.getElementById('connected-count').textContent = count;
+        }
+
+        function checkAnswers() {
+            const totalConnected = Object.keys(connections).length;
+            if (totalConnected < 5) {
+                alert(`Harap hubungkan semua 5 pasangan sebelum memeriksa! (Baru ${totalConnected}/5)`);
+                return;
+            }
+
+            isChecked = true;
+            let correctCount = 0;
+
+            Object.keys(connections).forEach(leftIdx => {
+                const rightIdx = connections[leftIdx];
+                if (leftItems[leftIdx].id === rightItems[rightIdx].id) {
+                    correctCount++;
+                }
+            });
+
+            drawConnections(); // Redraw lines with green (correct) or red (incorrect)
+
+            const score = correctCount * 20;
+            const modal = document.getElementById('modal-result');
+            const modalTitle = document.getElementById('modal-title');
+            const modalMsg = document.getElementById('modal-message');
+            const modalIcon = document.getElementById('modal-icon');
+            const modalScore = document.getElementById('modal-score');
+
+            modalScore.textContent = `Nilai: ${score}`;
+
+            if (score === 100) {
+                modalIcon.textContent = '🌟';
+                modalTitle.textContent = 'Sempurna!';
+                modalMsg.textContent = 'Selamat! Semua pasangan Aksara Lampung kamu benar!';
+            } else if (score >= 70) {
+                modalIcon.textContent = '👍';
+                modalTitle.textContent = 'Bagus Sekali!';
+                modalMsg.textContent = `Kamu berhasil menjawab ${correctCount} dari 5 soal dengan benar!`;
+            } else {
+                modalIcon.textContent = '💪';
+                modalTitle.textContent = 'Tetap Semangat!';
+                modalMsg.textContent = `Kamu menjawab ${correctCount} dari 10 benar. Coba lagi yuk!`;
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-result').classList.add('hidden');
+        }
+
+        function resetGame() {
+            closeModal();
+            initGame();
+        }
+
+        function saveAsImage() {
+            const gameCard = document.getElementById('game-card');
+            closeModal();
+
+            html2canvas(gameCard, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            }).then(canvas => {
+                const image = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.download = `Aksara_Lampung_Result_${Date.now()}.png`;
+                link.href = image;
+                link.click();
+            }).catch(err => {
+                console.error("Gagal menyimpan gambar:", err);
+                alert("Gagal mengunduh gambar. Silakan coba lagi.");
+            });
+        }
+
+        /* Handle window resize to realign SVG lines */
+        window.addEventListener('resize', () => {
+            drawConnections();
+        });
+
+        /* Start game on page load */
+        window.onload = () => {
+            initGame();
+        };
+    </script>
+</body>
+</html>
