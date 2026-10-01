@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Flag Quiz - Modern Game</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.1.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+    
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      user-select: none;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .btn-option {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-option:active {
+      transform: scale(0.97);
+    }
+
+    .animate-pop {
+      animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.9); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 min-h-screen text-slate-800 flex items-center justify-center p-3 sm:p-6">
+
+  <!-- MAIN CONTAINER (RESPONSIVE MOBILE / DESKTOP) -->
+  <div class="w-full max-w-md aspect-[9/16] max-h-[92vh] glass-card rounded-3xl shadow-2xl flex flex-col justify-between overflow-hidden relative border border-white/20 my-auto">
+    
+    <!-- SCREEN 1: MAIN MENU -->
+    <div id="screen-menu" class="flex-1 flex flex-col justify-between p-6 text-center animate-pop">
+      <div class="mt-4 flex flex-col items-center gap-3">
+        <div class="w-20 h-20 bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center text-white text-4xl shadow-xl shadow-indigo-500/30 border border-white/30">
+          <i class="fi fi-rr-flag"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+            Flag Quiz
+          </h1>
+          <p class="text-slate-500 text-xs font-semibold mt-1">Test Your Geography Knowledge</p>
+        </div>
+      </div>
+
+      <!-- GAME MODE SELECTION -->
+      <div class="flex flex-col gap-3 my-auto">
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider text-left">Select Game Mode</p>
+
+        <!-- Mode 1 Button -->
+        <button onclick="startGame(1)" class="btn-option group bg-white/80 hover:bg-white p-4 rounded-2xl border border-indigo-100 shadow-sm hover:shadow-md flex items-center justify-between text-left transition cursor-pointer">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold group-hover:scale-105 transition">
+              <i class="fi fi-rr-text"></i>
+            </div>
+            <div>
+              <h2 class="font-bold text-slate-800 text-sm">Mode 1: Find Flag</h2>
+              <p class="text-slate-400 text-xs font-medium">Country name &rarr; Choose flag</p>
+            </div>
+          </div>
+          <i class="fi fi-rr-angle-small-right text-slate-400 text-xl group-hover:translate-x-1 transition"></i>
+        </button>
+
+        <!-- Mode 2 Button -->
+        <button onclick="startGame(2)" class="btn-option group bg-white/80 hover:bg-white p-4 rounded-2xl border border-purple-100 shadow-sm hover:shadow-md flex items-center justify-between text-left transition cursor-pointer">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl font-bold group-hover:scale-105 transition">
+              <i class="fi fi-rr-picture"></i>
+            </div>
+            <div>
+              <h2 class="font-bold text-slate-800 text-sm">Mode 2: Guess Country</h2>
+              <p class="text-slate-400 text-xs font-medium">Flag image &rarr; Choose country name</p>
+            </div>
+          </div>
+          <i class="fi fi-rr-angle-small-right text-slate-400 text-xl group-hover:translate-x-1 transition"></i>
+        </button>
+      </div>
+
+      <!-- FOOTER STATS -->
+      <div class="bg-slate-100/60 p-3 rounded-2xl flex justify-around text-xs border border-slate-200/50">
+        <div>
+          <span class="block text-slate-400 font-semibold text-[10px] uppercase">Best Score</span>
+          <span id="high-score-menu" class="font-black text-indigo-600 text-sm">0 Pts</span>
+        </div>
+        <div class="border-r border-slate-300/50"></div>
+        <div>
+          <span class="block text-slate-400 font-semibold text-[10px] uppercase">Total Played</span>
+          <span id="total-played-menu" class="font-black text-slate-700 text-sm">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: GAMEPLAY -->
+    <div id="screen-game" class="hidden flex-1 flex flex-col justify-between p-4 sm:p-5 relative">
+      <!-- GAME HUD HEADER -->
+      <div class="flex items-center justify-between gap-2 bg-white/60 backdrop-blur-md p-2.5 rounded-2xl border border-white/60 shadow-sm">
+        <button onclick="showMenu()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer">
+          <i class="fi fi-rr-cross-small text-lg flex"></i>
+        </button>
+        
+        <!-- Score & Question Progress -->
+        <div class="flex items-center gap-3 text-xs font-bold">
+          <div class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-xl border border-indigo-100">
+            Question <span id="quiz-progress">1/10</span>
+          </div>
+          <div class="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-xl border border-emerald-100">
+            Score <span id="quiz-score">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUESTION AREA -->
+      <div class="my-auto flex flex-col items-center justify-center text-center gap-4 py-2">
+        <span id="mode-badge" class="text-[10px] font-extrabold uppercase tracking-widest text-indigo-500 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100">
+          MODE 1
+        </span>
+
+        <!-- Country Name Display (Mode 1) -->
+        <h2 id="question-text" class="hidden text-2xl sm:text-3xl font-black text-slate-800 tracking-tight leading-tight px-2">
+          Indonesia
+        </h2>
+
+        <!-- Flag Image Display (Mode 2) -->
+        <div id="question-flag-container" class="hidden w-56 h-36 bg-slate-200/60 rounded-2xl p-2 shadow-inner border border-slate-300/50 flex items-center justify-center overflow-hidden">
+          <img id="question-flag-img" src="" alt="Flag" class="max-w-full max-h-full object-contain rounded-lg drop-shadow-md">
+        </div>
+      </div>
+
+      <!-- ANSWER OPTIONS CONTAINER -->
+      <div id="options-container" class="grid grid-cols-2 gap-2.5 mb-1">
+        <!-- Options injected dynamically via JavaScript -->
+      </div>
+    </div>
+
+    <!-- SCREEN 3: RESULT -->
+    <div id="screen-result" class="hidden flex-1 flex flex-col justify-between p-6 text-center animate-pop">
+      <div class="my-auto flex flex-col items-center gap-4">
+        <div class="relative">
+          <div class="w-24 h-24 bg-gradient-to-tr from-amber-400 to-amber-500 rounded-3xl flex items-center justify-center text-white text-5xl shadow-xl shadow-amber-500/30 border-2 border-white">
+            <i class="fi fi-rr-trophy"></i>
+          </div>
+        </div>
+
+        <div>
+          <h2 class="text-2xl font-black text-slate-800">Quiz Completed!</h2>
+          <p class="text-slate-400 text-xs font-semibold mt-1">Great job finishing the round</p>
+        </div>
+
+        <!-- STATS CARD -->
+        <div class="w-full bg-white/80 border border-slate-100 rounded-2xl p-4 shadow-sm flex flex-col gap-3 my-2">
+          <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+            <span class="text-xs text-slate-400 font-medium">Final Score</span>
+            <span id="result-score" class="text-lg font-black text-indigo-600">0</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-xs text-slate-400 font-medium">Accuracy</span>
+            <span id="result-accuracy" class="text-sm font-bold text-slate-700">0%</span>
+          </div>
+        </div>
+
+        <div class="w-full flex flex-col gap-2">
+          <button onclick="restartGame()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-indigo-500/25 transition flex items-center justify-center gap-2 text-sm cursor-pointer active:scale-95">
+            <i class="fi fi-rr-refresh"></i> Play Again
+          </button>
+          <button onclick="showMenu()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 px-4 rounded-xl transition text-sm cursor-pointer active:scale-95">
+            Main Menu
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // COMPLETE SOVEREIGN STATES LIST (International English Names & ISO 2-letter Codes)
+    const countriesData = [
+      { code: "af", name: "Afghanistan" },
+      { code: "al", name: "Albania" },
+      { code: "dz", name: "Algeria" },
+      { code: "ad", name: "Andorra" },
+      { code: "ao", name: "Angola" },
+      { code: "ag", name: "Antigua and Barbuda" },
+      { code: "ar", name: "Argentina" },
+      { code: "am", name: "Armenia" },
+      { code: "au", name: "Australia" },
+      { code: "at", name: "Austria" },
+      { code: "az", name: "Azerbaijan" },
+      { code: "bs", name: "Bahamas" },
+      { code: "bh", name: "Bahrain" },
+      { code: "bd", name: "Bangladesh" },
+      { code: "bb", name: "Barbados" },
+      { code: "by", name: "Belarus" },
+      { code: "be", name: "Belgium" },
+      { code: "bz", name: "Belize" },
+      { code: "bj", name: "Benin" },
+      { code: "bt", name: "Bhutan" },
+      { code: "bo", name: "Bolivia" },
+      { code: "ba", name: "Bosnia and Herzegovina" },
+      { code: "bw", name: "Botswana" },
+      { code: "br", name: "Brazil" },
+      { code: "bn", name: "Brunei" },
+      { code: "bg", name: "Bulgaria" },
+      { code: "bf", name: "Burkina Faso" },
+      { code: "bi", name: "Burundi" },
+      { code: "cv", name: "Cabo Verde" },
+      { code: "kh", name: "Cambodia" },
+      { code: "cm", name: "Cameroon" },
+      { code: "ca", name: "Canada" },
+      { code: "cf", name: "Central African Republic" },
+      { code: "td", name: "Chad" },
+      { code: "cl", name: "Chile" },
+      { code: "cn", name: "China" },
+      { code: "co", name: "Colombia" },
+      { code: "km", name: "Comoros" },
+      { code: "cg", name: "Congo" },
+      { code: "cd", name: "Democratic Republic of the Congo" },
+      { code: "cr", name: "Costa Rica" },
+      { code: "hr", name: "Croatia" },
+      { code: "cu", name: "Cuba" },
+      { code: "cy", name: "Cyprus" },
+      { code: "cz", name: "Czech Republic" },
+      { code: "dk", name: "Denmark" },
+      { code: "dj", name: "Djibouti" },
+      { code: "dm", name: "Dominica" },
+      { code: "do", name: "Dominican Republic" },
+      { code: "ec", name: "Ecuador" },
+      { code: "eg", name: "Egypt" },
+      { code: "sv", name: "El Salvador" },
+      { code: "gq", name: "Equatorial Guinea" },
+      { code: "er", name: "Eritrea" },
+      { code: "ee", name: "Estonia" },
+      { code: "sz", name: "Eswatini" },
+      { code: "et", name: "Ethiopia" },
+      { code: "fj", name: "Fiji" },
+      { code: "fi", name: "Finland" },
+      { code: "fr", name: "France" },
+      { code: "ga", name: "Gabon" },
+      { code: "gm", name: "Gambia" },
+      { code: "ge", name: "Georgia" },
+      { code: "de", name: "Germany" },
+      { code: "gh", name: "Ghana" },
+      { code: "gr", name: "Greece" },
+      { code: "gd", name: "Grenada" },
+      { code: "gt", name: "Guatemala" },
+      { code: "gn", name: "Guinea" },
+      { code: "gw", name: "Guinea-Bissau" },
+      { code: "gy", name: "Guyana" },
+      { code: "ht", name: "Haiti" },
+      { code: "hn", name: "Honduras" },
+      { code: "hu", name: "Hungary" },
+      { code: "is", name: "Iceland" },
+      { code: "in", name: "India" },
+      { code: "id", name: "Indonesia" },
+      { code: "ir", name: "Iran" },
+      { code: "iq", name: "Iraq" },
+      { code: "ie", name: "Ireland" },
+      { code: "il", name: "Israel" },
+      { code: "it", name: "Italy" },
+      { code: "jm", name: "Jamaica" },
+      { code: "jp", name: "Japan" },
+      { code: "jo", name: "Jordan" },
+      { code: "kz", name: "Kazakhstan" },
+      { code: "ke", name: "Kenya" },
+      { code: "ki", name: "Kiribati" },
+      { code: "kp", name: "North Korea" },
+      { code: "kr", name: "South Korea" },
+      { code: "kw", name: "Kuwait" },
+      { code: "kg", name: "Kyrgyzstan" },
+      { code: "la", name: "Laos" },
+      { code: "lv", name: "Latvia" },
+      { code: "lb", name: "Lebanon" },
+      { code: "ls", name: "Lesotho" },
+      { code: "lr", name: "Liberia" },
+      { code: "ly", name: "Libya" },
+      { code: "li", name: "Liechtenstein" },
+      { code: "lt", name: "Lithuania" },
+      { code: "lu", name: "Luxembourg" },
+      { code: "mg", name: "Madagascar" },
+      { code: "mw", name: "Malawi" },
+      { code: "my", name: "Malaysia" },
+      { code: "mv", name: "Maldives" },
+      { code: "ml", name: "Mali" },
+      { code: "mt", name: "Malta" },
+      { code: "mh", name: "Marshall Islands" },
+      { code: "mr", name: "Mauritania" },
+      { code: "mu", name: "Mauritius" },
+      { code: "mx", name: "Mexico" },
+      { code: "fm", name: "Micronesia" },
+      { code: "md", name: "Moldova" },
+      { code: "mc", name: "Monaco" },
+      { code: "mn", name: "Mongolia" },
+      { code: "me", name: "Montenegro" },
+      { code: "ma", name: "Morocco" },
+      { code: "mz", name: "Mozambique" },
+      { code: "mm", name: "Myanmar" },
+      { code: "na", name: "Namibia" },
+      { code: "nr", name: "Nauru" },
+      { code: "np", name: "Nepal" },
+      { code: "nl", name: "Netherlands" },
+      { code: "nz", name: "New Zealand" },
+      { code: "ni", name: "Nicaragua" },
+      { code: "ne", name: "Niger" },
+      { code: "ng", name: "Nigeria" },
+      { code: "mk", name: "North Macedonia" },
+      { code: "no", name: "Norway" },
+      { code: "om", name: "Oman" },
+      { code: "pk", name: "Pakistan" },
+      { code: "pw", name: "Palau" },
+      { code: "ps", name: "Palestine" },
+      { code: "pa", name: "Panama" },
+      { code: "pg", name: "Papua New Guinea" },
+      { code: "py", name: "Paraguay" },
+      { code: "pe", name: "Peru" },
+      { code: "ph", name: "Philippines" },
+      { code: "pl", name: "Poland" },
+      { code: "pt", name: "Portugal" },
+      { code: "qa", name: "Qatar" },
+      { code: "ro", name: "Romania" },
+      { code: "ru", name: "Russia" },
+      { code: "rw", name: "Rwanda" },
+      { code: "kn", name: "Saint Kitts and Nevis" },
+      { code: "lc", name: "Saint Lucia" },
+      { code: "vc", name: "Saint Vincent and the Grenadines" },
+      { code: "ws", name: "Samoa" },
+      { code: "sm", name: "San Marino" },
+      { code: "st", name: "Sao Tome and Principe" },
+      { code: "sa", name: "Saudi Arabia" },
+      { code: "sn", name: "Senegal" },
+      { code: "rs", name: "Serbia" },
+      { code: "sc", name: "Seychelles" },
+      { code: "sl", name: "Sierra Leone" },
+      { code: "sg", name: "Singapore" },
+      { code: "sk", name: "Slovakia" },
+      { code: "si", name: "Slovenia" },
+      { code: "sb", name: "Solomon Islands" },
+      { code: "so", name: "Somalia" },
+      { code: "za", name: "South Africa" },
+      { code: "ss", name: "South Sudan" },
+      { code: "es", name: "Spain" },
+      { code: "lk", name: "Sri Lanka" },
+      { code: "sd", name: "Sudan" },
+      { code: "sr", name: "Suriname" },
+      { code: "se", name: "Sweden" },
+      { code: "ch", name: "Switzerland" },
+      { code: "sy", name: "Syria" },
+      { code: "tw", name: "Taiwan" },
+      { code: "tj", name: "Tajikistan" },
+      { code: "tz", name: "Tanzania" },
+      { code: "th", name: "Thailand" },
+      { code: "tl", name: "Timor-Leste" },
+      { code: "tg", name: "Togo" },
+      { code: "to", name: "Tonga" },
+      { code: "tt", name: "Trinidad and Tobago" },
+      { code: "tn", name: "Tunisia" },
+      { code: "tr", name: "Turkey" },
+      { code: "tm", name: "Turkmenistan" },
+      { code: "tv", name: "Tuvalu" },
+      { code: "ug", name: "Uganda" },
+      { code: "ua", name: "Ukraine" },
+      { code: "ae", name: "United Arab Emirates" },
+      { code: "gb", name: "United Kingdom" },
+      { code: "us", name: "United States" },
+      { code: "uy", name: "Uruguay" },
+      { code: "uz", name: "Uzbekistan" },
+      { code: "vu", name: "Vanuatu" },
+      { code: "va", name: "Vatican City" },
+      { code: "ve", name: "Venezuela" },
+      { code: "vn", name: "Vietnam" },
+      { code: "ye", name: "Yemen" },
+      { code: "zm", name: "Zambia" },
+      { code: "zw", name: "Zimbabwe" }
+    ];
+
+    // FLAG CDN BASE URL (Flagcdn API)
+    const getFlagUrl = (code) => `https://flagcdn.com/w320/${code.toLowerCase()}.png`;
+
+    // GAME STATE
+    let currentMode = 1;
+    let currentQuestionIndex = 0;
+    const totalQuestions = 10;
+    let score = 0;
+    let activeQuestions = [];
+    let isAnswering = false;
+
+    // LOCAL STORAGE STATS
+    let highScore = localStorage.getItem("flag_quiz_highscore") || 0;
+    let totalPlayed = localStorage.getItem("flag_quiz_total_played") || 0;
+
+    // DOM ELEMENTS
+    const screenMenu = document.getElementById("screen-menu");
+    const screenGame = document.getElementById("screen-game");
+    const screenResult = document.getElementById("screen-result");
+    const highScoreMenu = document.getElementById("high-score-menu");
+    const totalPlayedMenu = document.getElementById("total-played-menu");
+
+    function updateMenuStats() {
+      highScoreMenu.innerText = `${highScore} Pts`;
+      totalPlayedMenu.innerText = `${totalPlayed}`;
+    }
+
+    function showMenu() {
+      updateMenuStats();
+      screenGame.classList.add("hidden");
+      screenResult.classList.add("hidden");
+      screenMenu.classList.remove("hidden");
+    }
+
+    function startGame(mode) {
+      currentMode = mode;
+      currentQuestionIndex = 0;
+      score = 0;
+      isAnswering = false;
+
+      // Shuffle country data
+      const shuffledCountries = [...countriesData].sort(() => Math.random() - 0.5);
+      activeQuestions = shuffledCountries.slice(0, totalQuestions);
+
+      screenMenu.classList.add("hidden");
+      screenResult.classList.add("hidden");
+      screenGame.classList.remove("hidden");
+
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      isAnswering = false;
+      const question = activeQuestions[currentQuestionIndex];
+      
+      // Update HUD
+      document.getElementById("quiz-progress").innerText = `${currentQuestionIndex + 1}/${totalQuestions}`;
+      document.getElementById("quiz-score").innerText = score;
+      document.getElementById("mode-badge").innerText = currentMode === 1 ? "MODE 1: FIND FLAG" : "MODE 2: GUESS COUNTRY";
+
+      const questionText = document.getElementById("question-text");
+      const flagContainer = document.getElementById("question-flag-container");
+      const flagImg = document.getElementById("question-flag-img");
+      const optionsContainer = document.getElementById("options-container");
+
+      optionsContainer.innerHTML = "";
+
+      // Prepare 4 options (1 correct, 3 wrong)
+      const wrongOptions = countriesData.filter(c => c.code !== question.code)
+                                         .sort(() => Math.random() - 0.5)
+                                         .slice(0, 3);
+      const options = [question, ...wrongOptions].sort(() => Math.random() - 0.5);
+
+      if (currentMode === 1) {
+        // Mode 1: Question is Country Name, Options are Flag Images
+        questionText.innerText = question.name;
+        questionText.classList.remove("hidden");
+        flagContainer.classList.add("hidden");
+
+        options.forEach(opt => {
+          const btn = document.createElement("button");
+          btn.className = "btn-option bg-white/90 hover:bg-indigo-50/60 p-2.5 rounded-2xl border-2 border-slate-200/80 shadow-sm flex items-center justify-center aspect-[4/3] cursor-pointer overflow-hidden transition relative group";
+          btn.innerHTML = `<img src="${getFlagUrl(opt.code)}" class="max-w-full max-h-full object-contain drop-shadow-sm pointer-events-none" alt="Flag">`;
+          btn.onclick = () => checkAnswer(opt.code === question.code, btn);
+          optionsContainer.appendChild(btn);
+        });
+
+      } else {
+        // Mode 2: Question is Flag Image, Options are Country Names
+        questionText.classList.add("hidden");
+        flagImg.src = getFlagUrl(question.code);
+        flagContainer.classList.remove("hidden");
+
+        options.forEach(opt => {
+          const btn = document.createElement("button");
+          btn.className = "btn-option bg-white/90 hover:bg-indigo-50/60 p-3 rounded-xl border border-slate-200/80 shadow-sm text-slate-800 font-bold text-xs sm:text-sm text-center flex items-center justify-center min-h-[52px] cursor-pointer transition leading-snug px-2";
+          btn.innerText = opt.name;
+          btn.onclick = () => checkAnswer(opt.code === question.code, btn);
+          optionsContainer.appendChild(btn);
+        });
+      }
+    }
+
+    function checkAnswer(isCorrect, element) {
+      if (isAnswering) return;
+      isAnswering = true;
+
+      if (isCorrect) {
+        score += 10;
+        element.classList.remove("border-slate-200/80", "bg-white/90");
+        element.classList.add("bg-emerald-500", "border-emerald-500", "text-white", "shadow-md");
+      } else {
+        element.classList.remove("border-slate-200/80", "bg-white/90");
+        element.classList.add("bg-rose-500", "border-rose-500", "text-white", "shadow-md");
+      }
+
+      setTimeout(() => {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < totalQuestions) {
+          renderQuestion();
+        } else {
+          endGame();
+        }
+      }, 850);
+    }
+
+    function endGame() {
+      totalPlayed++;
+      localStorage.setItem("flag_quiz_total_played", totalPlayed);
+
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem("flag_quiz_highscore", highScore);
+      }
+
+      document.getElementById("result-score").innerText = `${score} / 100 Pts`;
+      const accuracy = (score / (totalQuestions * 10)) * 100;
+      document.getElementById("result-accuracy").innerText = `${accuracy}%`;
+
+      screenGame.classList.add("hidden");
+      screenResult.classList.remove("hidden");
+    }
+
+    function restartGame() {
+      startGame(currentMode);
+    }
+
+    // Initialize Menu
+    updateMenuStats();
+
+    (function() {
+        window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+        }, true);
+    })();    
+  </script>
+</body>
+</html>
