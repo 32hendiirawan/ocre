@@ -2,127 +2,127 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>English Matching Game</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            bg: '#0f172a',
+                            card: '#1e293b',
+                            primary: '#38bdf8',
+                            success: '#22c55e',
+                            danger: '#ef4444',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        :root {
-            --primary: #3498db;
-            --success: #2ecc71;
-            --danger: #e74c3c;
-            --bg: skyblue;
-            --text: #2c3e50;
+        /* Mencegah scroll dan seleksi teks pada perangkat mobile */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
         }
-
-        body, html { 
-            margin: 0; padding: 0; height: 100%; 
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg);
+        body, html {
+            height: 100%;
+            width: 100%;
             overflow: hidden;
-            color: var(--text);
+            touch-action: manipulation;
         }
-
-        /* --- HALAMAN DEPAN --- */
-        #home-screen {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100vh; text-align: center;
-        }
-
-        .menu-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;
-            max-width: 500px; width: 90%;
-        }
-
-        .btn-theme {
-            padding: 20px; font-size: 1.1rem; font-weight: bold; border: none;
-            border-radius: 15px; background: white; cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.3s;
-        }
-
-        .btn-theme:hover { background: var(--primary); color: white; transform: translateY(-3px); }
-
-        /* --- HALAMAN PERMAINAN --- */
-        #game-screen {
-            display: none; position: relative; height: 100vh; width: 100vw;
-            flex-direction: column; padding: 15px; box-sizing: border-box;
-        }
-
-        .game-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 20px; z-index: 20; background: white; border-radius: 12px;
-        }
-
-        .game-wrapper {
-            flex-grow: 1; position: relative; margin-top: 15px;
-            /* Container ini adalah titik nol koordinat canvas */
-        }
-
-        #lineCanvas {
-            position: absolute; top: 0; left: 0;
-            pointer-events: none; z-index: 5;
-        }
-
-        .game-area {
-            display: flex; justify-content: space-between; height: 100%;
-            position: relative; z-index: 10;
-        }
-
-        .column { width: 32%; display: flex; flex-direction: column; justify-content: space-around; }
-
-        .card { 
-            padding: 12px; border: 3px solid #ddd; border-radius: 15px; cursor: pointer; 
-            background: #fff; font-weight: bold; text-align: center; font-size: 1.2rem;
-            transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-        
-        .card.selected { border-color: var(--primary); background: #e1f5fe; }
-        .card.correct { border-color: var(--success); opacity: 0.6; cursor: default; }
-
-        .card img { width: 60px; height: 60px; object-fit: contain; pointer-events: none; display: block; margin: auto; }
-
-        #win-message {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: white; padding: 40px; border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3); text-align: center;
-            display: none; z-index: 100;
+        .card-shadow {
+            box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.3), 0 2px 6px -2px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
-<body>
+<body class="bg-slate-900 text-slate-100 font-sans h-screen w-screen flex flex-col justify-between p-3 select-none">
 
-    <!-- LOBBY -->
-    <div id="home-screen">
-        <h1 style="line-height: normal; margin-bottom: 0px;">ENGLISH</h1>
-        <h3 style="line-height: normal; margin-top: 0px;">Matching Game</h3>
-        <div class="menu-grid">
-            <button class="btn-theme" onclick="initGame('numbers')">Numbers</button>
-            <button class="btn-theme" onclick="initGame('colors')">Colors</button>
-            <button class="btn-theme" onclick="initGame('animals')">Animals</button>
-            <button class="btn-theme" onclick="initGame('fruits')">Fruits</button>
-            <button class="btn-theme" onclick="initGame('body')">Body Parts</button>
-            <button class="btn-theme" onclick="initGame('professions')">Professions</button>
-        </div>
-        <button class="btn-theme" style="margin-top:20px;" onclick="toggleFullScreen()">Fullscreen</button>
-    </div>
-
-    <!-- GAMEPLAY -->
-    <div id="game-screen">
-        <div class="game-header">
-            <button class="btn-theme" onclick="goBack()">← Back</button>
-            <h2 id="theme-title" style="margin:0;">THEME</h2>
-            <div id="score-text">Score: 0/5</div>
+    <!-- LOBBY / UTAMA -->
+    <div id="home-screen" class="flex-1 flex flex-col justify-between items-center py-4 w-full max-w-md mx-auto">
+        <div class="text-center mt-2">
+            <span class="inline-block px-3 py-1 bg-sky-500/20 text-sky-400 font-semibold text-xs rounded-full uppercase tracking-wider mb-1">Interactive Kids Game</span>
+            <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-400 tracking-tight">ENGLISH</h1>
+            <h2 class="text-lg font-bold text-slate-300">Matching Fun</h2>
         </div>
 
-        <div class="game-wrapper" id="game-wrapper">
-            <canvas id="lineCanvas"></canvas>
-            <div class="game-area">
-                <div class="column" id="words-column"></div>
-                <div class="column" id="images-column"></div>
+        <div class="w-full my-auto">
+            <p class="text-center text-slate-400 text-xs mb-3 font-medium">Pilih Kategori Permainan:</p>
+            <div class="grid grid-cols-2 gap-3.5 w-full px-2">
+                <button onclick="initGame('numbers')" class="bg-gradient-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 active:scale-95 text-white font-bold py-3.5 px-3 rounded-2xl shadow-lg border border-indigo-400/30 flex items-center justify-center space-x-2 transition duration-150">
+                    <span class="text-xl">🔢</span>
+                    <span class="text-sm">Numbers</span>
+                </button>
+                <button onclick="initGame('colors')" class="bg-gradient-to-br from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 active:scale-95 text-white font-bold py-3.5 px-3 rounded-2xl shadow-lg border border-pink-400/30 flex items-center justify-center space-x-2 transition duration-150">
+                    <span class="text-xl">🎨</span>
+                    <span class="text-sm">Colors</span>
+                </button>
+                <button onclick="initGame('animals')" class="bg-gradient-to-br from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 active:scale-95 text-white font-bold py-3.5 px-3 rounded-2xl shadow-lg border border-amber-400/30 flex items-center justify-center space-x-2 transition duration-150">
+                    <span class="text-xl">🦁</span>
+                    <span class="text-sm">Animals</span>
+                </button>
+                <button onclick="initGame('fruits')" class="bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 active:scale-95 text-white font-bold py-3.5 px-3 rounded-2xl shadow-lg border border-emerald-400/30 flex items-center justify-center space-x-2 transition duration-150">
+                    <span class="text-xl">🍎</span>
+                    <span class="text-sm">Fruits</span>
+                </button>
+                <button onclick="initGame('body')" class="bg-gradient-to-br from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 active:scale-95 text-white font-bold py-3.5 px-3 rounded-2xl shadow-lg border border-cyan-400/30 flex items-center justify-center space-x-2 transition duration-150">
+                    <span class="text-xl">👀</span>
+                    <span class="text-sm">Body Parts</span>
+                </button>
+                <button onclick="initGame('professions')" class="bg-gradient-to-br from-violet-500 to-fuchsia-600 hover:from-violet-600 hover:to-fuchsia-700 active:scale-95 text-white font-bold py-3.5 px-3 rounded-2xl shadow-lg border border-violet-400/30 flex items-center justify-center space-x-2 transition duration-150">
+                    <span class="text-xl">👨‍⚕️</span>
+                    <span class="text-sm">Professions</span>
+                </button>
             </div>
         </div>
 
-        <div id="win-message">
-            <h2>🎉 Well Done!</h2>
-            <button class="btn-theme" onclick="goBack()">Play Again</button>
+        <button onclick="toggleFullScreen()" class="w-full max-w-xs py-2.5 px-4 bg-slate-800 hover:bg-slate-700 active:scale-95 border border-slate-700 rounded-xl text-slate-300 font-semibold text-xs flex items-center justify-center space-x-2 transition duration-150">
+            <span>📺</span>
+            <span>Layar Penuh (Fullscreen)</span>
+        </button>
+    </div>
+
+    <!-- ARENA PERMAINAN -->
+    <div id="game-screen" class="hidden flex-col h-full w-full max-w-md mx-auto justify-between">
+        <!-- HEADER -->
+        <div class="flex justify-between items-center bg-slate-800/80 backdrop-blur-md px-3 py-2 rounded-2xl border border-slate-700/60 mb-2">
+            <button onclick="goBack()" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold py-2 px-3 rounded-xl active:scale-95 transition flex items-center space-x-1">
+                <span>◀</span>
+                <span>Kembali</span>
+            </button>
+            <h2 id="theme-title" class="font-extrabold text-sm tracking-wider text-sky-400 uppercase">THEME</h2>
+            <div id="score-text" class="bg-sky-500/20 text-sky-300 font-black text-xs px-2.5 py-1.5 rounded-lg border border-sky-500/30">
+                0/5
+            </div>
+        </div>
+
+        <!-- AREA COUPLING & CANVAS -->
+        <div class="game-wrapper relative flex-1 my-1 w-full overflow-y-auto" id="game-wrapper">
+            <canvas id="lineCanvas" class="absolute inset-0 pointer-events-none z-10 w-full h-full"></canvas>
+            
+            <div class="grid grid-cols-2 gap-10 h-full relative z-20">
+                <!-- Kolom Teks / Kata -->
+                <div class="flex flex-col justify-between space-y-2 h-full" id="words-column"></div>
+                <!-- Kolom Gambar -->
+                <div class="flex flex-col justify-between space-y-2 h-full" id="images-column"></div>
+            </div>
+        </div>
+
+        <!-- MODAL MENANG -->
+        <div id="win-message" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="bg-slate-800 border border-slate-700 rounded-3xl p-6 text-center max-w-xs w-full shadow-2xl transform transition-all scale-100">
+                <div class="text-5xl mb-2 animate-bounce">🎉</div>
+                <h2 class="text-2xl font-black text-white mb-1">Luar Biasa!</h2>
+                <p class="text-slate-400 text-xs mb-5">Kamu berhasil menyelesaikan semua pasangan dengan sempurna!</p>
+                <button onclick="goBack()" class="w-full bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg active:scale-95 transition">
+                    Main Lagi 🔄
+                </button>
+            </div>
         </div>
     </div>
 
@@ -165,6 +165,9 @@
             {n:'Orange', i:'https://i.pinimg.com/736x/20/55/34/205534442c0f83146d4e4d42a0b8403e.jpg'},
             {n:'Star Fruit', i:'https://i.pinimg.com/736x/17/07/d1/1707d124bdd1f20bcc27d5ab117b1cd2.jpg'},
             {n:'Banana', i:'https://i.pinimg.com/736x/31/42/45/314245035f92581abe3472c06f4b2138.jpg'},
+            {n:'Watermelon', i:'https://i.pinimg.com/1200x/98/b1/4c/98b14cea23665b28074dede70e964573.jpg'},
+            {n:'Strawberry', i:'https://i.pinimg.com/736x/c6/9e/a3/c69ea30c5c6b698df5d429f19cb1fa78.jpg'},
+            {n:'Pineapple', i:'https://i.pinimg.com/736x/53/b8/25/53b825a8686825cbf9245a73f2840005.jpg'}
         ],
         body: [
             {n:'Ear', i:'https://i.pinimg.com/736x/cc/22/52/cc2252fd83e01d8c00b5f89cdae68a28.jpg'}, 
@@ -175,7 +178,6 @@
             {n:'Nose', i:'https://i.pinimg.com/736x/1c/0e/af/1c0eaf45db9881b9d3c4335df81133ca.jpg'},
             {n:'Tongue', i:'https://i.pinimg.com/736x/95/b4/b7/95b4b780019b7068dfe9e4ed55101b9b.jpg'},
             {n:'Lips', i:'https://i.pinimg.com/736x/ad/90/53/ad90535a4d235c37bed4efcab6e669e6.jpg'}
-
         ],
         professions: [
             {n:'Doctor', i:'https://i.pinimg.com/1200x/28/98/8f/28988f0e4c918a5bf709ececdd62b159.jpg'}, 
@@ -190,17 +192,21 @@
 
     let selectedWord = null;
     let score = 0;
-    let matches = []; // Menyimpan pasangan yang benar: { wordId, imgId }
+    let matches = [];
     const canvas = document.getElementById('lineCanvas');
     const ctx = canvas.getContext('2d');
 
     function initGame(theme) {
-        document.getElementById('home-screen').style.display = 'none';
-        document.getElementById('game-screen').style.display = 'flex';
-        document.getElementById('win-message').style.display = 'none';
+        document.getElementById('home-screen').classList.add('hidden');
+        document.getElementById('home-screen').classList.remove('flex');
+        
+        document.getElementById('game-screen').classList.remove('hidden');
+        document.getElementById('game-screen').classList.add('flex');
+        
+        document.getElementById('win-message').classList.add('hidden');
 
-        document.getElementById('theme-title').innerText = theme.toUpperCase();
-        document.getElementById('score-text').innerText = `Score: 0/5`;
+        document.getElementById('theme-title').innerText = theme;
+        document.getElementById('score-text').innerText = `0/5`;
         
         score = 0;
         matches = [];
@@ -212,7 +218,6 @@
         renderColumn('words-column', items, true);
         renderColumn('images-column', items, false);
         
-        // Pastikan canvas siap
         setTimeout(resizeCanvas, 100);
     }
 
@@ -221,17 +226,17 @@
         col.innerHTML = '';
         const displayItems = [...items].sort(() => Math.random() - 0.5);
         
-        displayItems.forEach((item, index) => {
+        displayItems.forEach((item) => {
             const div = document.createElement('div');
-            div.className = 'card';
-            // Beri ID unik agar koordinat bisa dicari nanti
             div.id = (isWord ? 'w-' : 'i-') + item.n; 
             
             if(isWord) {
+                div.className = 'card-item h-[100px] w-full bg-slate-800 border-2 border-slate-700/80 rounded-2xl flex items-center justify-center font-bold text-base text-slate-100 cursor-pointer active:scale-95 transition-all duration-150 p-3 text-center card-shadow';
                 div.innerText = item.n;
                 div.onclick = () => selectWord(div, item.n);
             } else {
-                div.innerHTML = `<img src="${item.i}" onerror="this.src='https://via.placeholder.com/80?text=${item.n}'">`;
+                div.className = 'card-item h-[100px] w-full bg-slate-800 border-2 border-slate-700/80 rounded-2xl flex items-center justify-center cursor-pointer active:scale-95 transition-all duration-150 p-2 overflow-hidden card-shadow';
+                div.innerHTML = `<img src="${item.i}" class="w-full h-full object-contain pointer-events-none rounded-xl" onerror="this.src='https://via.placeholder.com/150?text=${item.n}'">`;
                 div.onclick = () => checkMatch(div, item.n);
             }
             col.appendChild(div);
@@ -240,8 +245,14 @@
 
     function selectWord(el, name) {
         if(el.classList.contains('correct')) return;
-        document.querySelectorAll('#words-column .card').forEach(c => c.classList.remove('selected'));
-        el.classList.add('selected');
+        
+        document.querySelectorAll('#words-column .card-item').forEach(c => {
+            if(!c.classList.contains('correct')) {
+                c.className = 'card-item h-[100px] w-full bg-slate-800 border-2 border-slate-700/80 rounded-2xl flex items-center justify-center font-bold text-base text-slate-100 cursor-pointer active:scale-95 transition-all duration-150 p-3 text-center card-shadow';
+            }
+        });
+        
+        el.className = 'card-item h-[100px] w-full bg-sky-900/60 border-2 border-sky-400 text-sky-200 rounded-2xl flex items-center justify-center font-bold text-base cursor-pointer scale-[1.02] transition-all duration-150 p-3 text-center card-shadow';
         selectedWord = { el, name };
     }
 
@@ -249,23 +260,25 @@
         if(!selectedWord || imgEl.classList.contains('correct')) return;
 
         if(selectedWord.name === name) {
-            imgEl.classList.add('correct');
-            selectedWord.el.classList.add('correct');
-            selectedWord.el.classList.remove('selected');
+            imgEl.className = 'card-item h-[100px] w-full bg-emerald-950/40 border-2 border-emerald-500 rounded-2xl flex items-center justify-center cursor-default p-2 overflow-hidden opacity-80 card-shadow';
+            selectedWord.el.className = 'card-item h-[100px] w-full bg-emerald-950/40 border-2 border-emerald-500 text-emerald-300 rounded-2xl flex items-center justify-center font-bold text-base cursor-default p-3 text-center opacity-80 card-shadow';
             
-            // Simpan pasangan ID-nya saja, jangan koordinat kaku
+            selectedWord.el.classList.add('correct');
+            imgEl.classList.add('correct');
+
             matches.push({ wordId: 'w-'+name, imgId: 'i-'+name });
             
             score++;
-            document.getElementById('score-text').innerText = `Score: ${score}/5`;
+            document.getElementById('score-text').innerText = `${score}/5`;
             drawAllLines();
             selectedWord = null;
 
-            if(score === document.querySelectorAll('#words-column .card').length) {
-                document.getElementById('win-message').style.display = 'block';
+            if(score === document.querySelectorAll('#words-column .card-item').length) {
+                setTimeout(() => {
+                    document.getElementById('win-message').classList.remove('hidden');
+                }, 300);
             }
         } else {
-            // Garis merah sementara
             drawErrorLine(selectedWord.el.id, imgEl.id);
         }
     }
@@ -283,7 +296,7 @@
                 wEl.top + (wEl.height/2) - wrapperRect.top,
                 iEl.left - wrapperRect.left,
                 iEl.top + (iEl.height/2) - wrapperRect.top,
-                '#2ecc71'
+                '#10b981'
             );
         });
     }
@@ -301,12 +314,12 @@
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
-        ctx.strokeStyle = '#e74c3c';
-        ctx.lineWidth = 3;
-        ctx.setLineDash([5, 5]);
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 4;
+        ctx.setLineDash([6, 6]);
         ctx.stroke();
 
-        setTimeout(drawAllLines, 500); // Hapus garis merah setelah 0.5 detik
+        setTimeout(drawAllLines, 400);
     }
 
     function draw(x1, y1, x2, y2, color) {
@@ -324,31 +337,41 @@
         const wrapper = document.getElementById('game-wrapper');
         canvas.width = wrapper.clientWidth;
         canvas.height = wrapper.clientHeight;
-        drawAllLines(); // Gambar ulang garis di posisi baru
+        drawAllLines();
     }
 
     function goBack() {
-        // Sembunyikan semua layar permainan dan modal
-        document.getElementById('home-screen').style.display = 'flex';
-        document.getElementById('game-screen').style.display = 'none';
-        document.getElementById('win-message').style.display = 'none'; // Pastikan modal hilang
+        document.getElementById('home-screen').classList.remove('hidden');
+        document.getElementById('home-screen').classList.add('flex');
         
-        // Bersihkan canvas agar tidak ada garis sisa di permainan berikutnya
+        document.getElementById('game-screen').classList.add('hidden');
+        document.getElementById('game-screen').classList.remove('flex');
+        document.getElementById('win-message').classList.add('hidden');
+        
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         matches = []; 
     }
 
     function toggleFullScreen() {
-        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-        else document.exitFullscreen();
-        setTimeout(resizeCanvas, 500); // Tunggu animasi fullscreen selesai
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+            document.exitFullscreen().catch(() => {});
+        }
+        setTimeout(resizeCanvas, 300);
     }
 
     window.addEventListener('resize', resizeCanvas);
-    
-    document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        });
+    document.addEventListener('contextmenu', e => e.preventDefault());
+
+    (function() {
+        window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+        }, true);
+    })();
 </script>
 </body>
 </html>
