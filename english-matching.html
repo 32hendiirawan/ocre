@@ -99,6 +99,7 @@
             <button class="btn-theme" onclick="initGame('animals')">Animals</button>
             <button class="btn-theme" onclick="initGame('fruits')">Fruits</button>
             <button class="btn-theme" onclick="initGame('body')">Body Parts</button>
+            <button class="btn-theme" onclick="initGame('professions')">Professions</button>
         </div>
         <button class="btn-theme" style="margin-top:20px;" onclick="toggleFullScreen()">Fullscreen</button>
     </div>
@@ -128,39 +129,62 @@
 <script>
     const dataStock = {
         numbers: [
-            {n:'One', i:'1sannKNDhUZ7h2RprMIPeeDyv3PfrkU9M'},
-            {n:'Two', i:'1Ju0amNkk2lhIkQP7KphvVav1V8MSNSpy'},
-            {n:'Three', i:'1fNONvKQwM-efaumphdv81D3IemdoDN90'},
-            {n:'Four', i:'1KQBT-J7K7WZgkJL9mS_U5xHxS4kw7AWC'},
-            {n:'Five', i:'1qXnnLeBtGwqa25a7_nn5vTCoWh9VwdYN'}
+            {n:'One', i:'https://i.pinimg.com/736x/4f/52/f3/4f52f37ef487c0360189f58b228fd0b0.jpg'},
+            {n:'Two', i:'https://i.pinimg.com/736x/24/f0/d1/24f0d1104857d05c1c57d66371449685.jpg'},
+            {n:'Three', i:'https://i.pinimg.com/736x/ee/6f/c2/ee6fc2d51b9f7e622ea3aa3a55f157b4.jpg'},
+            {n:'Four', i:'https://i.pinimg.com/736x/62/8c/b4/628cb495e0dfcf42b3470ed5f781d22a.jpg'},
+            {n:'Five', i:'https://i.pinimg.com/736x/8b/7a/50/8b7a50ddfe2a7b7b0702f8a0f25725bb.jpg'},
+            {n:'Six', i:'https://i.pinimg.com/736x/21/93/04/219304221089fc6427757be1524b0fe9.jpg'},
+            {n:'Seven', i:'https://i.pinimg.com/736x/5f/b1/76/5fb17634dd00b4c9563cd51b8a16580e.jpg'},
+            {n:'Eight', i:'https://i.pinimg.com/736x/bc/c0/bd/bcc0bd628d74227640ed6156035c01f9.jpg'},
+            {n:'Nine', i:'https://i.pinimg.com/736x/83/d8/17/83d8174893d0671440f31bb38cfd32fe.jpg'},
+            {n:'Ten', i:'https://i.pinimg.com/736x/18/6c/5d/186c5d75edda79995872883f2aeff423.jpg'}
         ],
         colors: [
-            {n:'Red', i:'1Kb7zm_DKaNdW4j-n7iRcDZ5zJrdGBI_4'},
-            {n:'Green', i:'1gChlwQG4XQYgXejK78rJ8M55oLvZZRYT'},
-            {n:'Blue', i:'1n_IIplHRjBda0h1u81_6AF9EK7DDT-b-'},
-            {n:'Yellow', i:'1s5NpTZ2ospNXUMA3jmNMjPYqzG0YR6oL'},
-            {n:'Purple', i:'1u1heMy9zDROb3_d3bkZfvMnTXBPdJHGs'}
+            {n:'Red', i:'https://i.pinimg.com/1200x/34/03/52/3403520989710c6e1dbffceae18b4960.jpg'},
+            {n:'Green', i:'https://i.pinimg.com/736x/e7/c5/95/e7c595548b4cf494472c67f53952d9a7.jpg'},
+            {n:'Blue', i:'https://i.pinimg.com/1200x/54/8d/c7/548dc74e7ca78660949276fe976de222.jpg'},
+            {n:'Yellow', i:'https://i.pinimg.com/1200x/73/46/95/734695b8cbe45485127784142a6374dc.jpg'},
+            {n:'Orange', i:'https://i.pinimg.com/1200x/d0/be/26/d0be26e6d0cefff7e8794c546f541058.jpg'},
         ],
         animals: [
-            {n:'Lion', i:'1osnKn7AFxGMl0NNA2Ocz80xFZ_nNmdh-'}, 
-            {n:'Cat', i:'154vHVa6xbBpPWwWhXx2jXeE4lUJpjGuD'}, 
-            {n:'Mouse', i:'18fhKmFlprGSW_B_kp5Cu56RNA5-mHcvL'}, 
-            {n:'Duck', i:'1Uzh3Ib5ZzXQEhY69xCEA5JVT6AdmbcNy'}, 
-            {n:'Bird', i:'1I-ETn8DPz707c0KQM4jJGUQPxOmGH95t'}
+            {n:'Lion', i:'https://i.pinimg.com/736x/7a/e3/82/7ae3821d216b2e3b39ee9a0a8b465c8a.jpg'}, 
+            {n:'Cat', i:'https://i.pinimg.com/736x/0b/4b/cd/0b4bcd0fb7a06abc263a33d2448bc6ce.jpg'}, 
+            {n:'Mouse', i:'https://i.pinimg.com/1200x/bf/74/43/bf74430ec1ddae5fb4bfed3b4b2154c5.jpg'}, 
+            {n:'Duck', i:'https://i.pinimg.com/1200x/30/c7/f6/30c7f69f30463cb29fb9d04d6e12a002.jpg'}, 
+            {n:'Bird', i:'https://i.pinimg.com/736x/0c/e4/88/0ce488a950b62f7139bfbba4c09db8c7.jpg'},
+            {n:'Elephant', i:'https://i.pinimg.com/736x/f6/0e/42/f60e42332dfe603f9b7bd038842865b6.jpg'},
+            {n:'Giraffe', i:'https://i.pinimg.com/1200x/3b/56/64/3b5664032a75fe73d363b375dda48563.jpg'},
+            {n:'Crocodile', i:'https://i.pinimg.com/1200x/ee/3c/1a/ee3c1a92f1b4ed3b40a4a8f10ad4e37b.jpg'},
         ],
         fruits: [
-            {n:'Apple', i:'1E35m7CEyvOqstNwBRxOqryPRDK0BPXmm'}, 
-            {n:'Grape', i:'1Pqnig3G6EquPuKQ2bOp-vBTGXt9ezb5i'}, 
-            {n:'Mango', i:'1tAvYunTq0vsbgaqWMhx4f3iPrVCdQsJb'}, 
-            {n:'Papaya', i:'1XJChCxevmYbCQek2uRfFxGII-iC9c5Pq'},
-            {n:'Orange', i:'1XPYKiP2EzhfIbUlE0zgjELPwXI-b4T5F'}
+            {n:'Apple', i:'https://i.pinimg.com/736x/e0/3b/06/e03b06fb3ea1bd333a7a85f7951bb51b.jpg'}, 
+            {n:'Grape', i:'https://i.pinimg.com/736x/9e/7b/23/9e7b239ebe3bc97d25ce09ee4859b6d5.jpg'}, 
+            {n:'Mango', i:'https://i.pinimg.com/736x/23/82/c9/2382c9ca6e55b1c8e52d0eb587328139.jpg'}, 
+            {n:'Cherry', i:'https://i.pinimg.com/736x/3e/44/18/3e441868a39d6ddac14560c603e93e0b.jpg'},
+            {n:'Orange', i:'https://i.pinimg.com/736x/20/55/34/205534442c0f83146d4e4d42a0b8403e.jpg'},
+            {n:'Star Fruit', i:'https://i.pinimg.com/736x/17/07/d1/1707d124bdd1f20bcc27d5ab117b1cd2.jpg'},
+            {n:'Banana', i:'https://i.pinimg.com/736x/31/42/45/314245035f92581abe3472c06f4b2138.jpg'},
         ],
         body: [
-            {n:'Head', i:'1OfxvvFXn6wtqKiHMdb0M-mrXxm7Xugbx'}, 
-            {n:'Hand', i:'1lDd7B05NPhBslxGRlOYF4rexOMJKeP0i'}, 
-            {n:'Foot', i:'1Fexym_fU2e2j1an_awTxJZeouYxYaFpP'}, 
-            {n:'Eye', i:'1gz7LghFMCaUS247KHaRpsLZUEpUU2b73'}, 
-            {n:'Mouth', i:'1LcVAa9XGk9UXabo1f-Ujqq6bsRmTMAp4'}
+            {n:'Ear', i:'https://i.pinimg.com/736x/cc/22/52/cc2252fd83e01d8c00b5f89cdae68a28.jpg'}, 
+            {n:'Hand', i:'https://i.pinimg.com/1200x/02/30/60/02306075833215b55e7dd514c377c90b.jpg'}, 
+            {n:'Foot', i:'https://i.pinimg.com/736x/48/a0/1d/48a01d17ad43d68ab599cdf7c712295d.jpg'}, 
+            {n:'Eye', i:'https://i.pinimg.com/736x/51/4d/fc/514dfcc69877227188e62f9ae1e401b8.jpg'}, 
+            {n:'Mouth', i:'https://i.pinimg.com/736x/52/04/de/5204decd2e6adf22ffe0c23a942f1ee3.jpg'},
+            {n:'Nose', i:'https://i.pinimg.com/736x/1c/0e/af/1c0eaf45db9881b9d3c4335df81133ca.jpg'},
+            {n:'Tongue', i:'https://i.pinimg.com/736x/95/b4/b7/95b4b780019b7068dfe9e4ed55101b9b.jpg'},
+            {n:'Lips', i:'https://i.pinimg.com/736x/ad/90/53/ad90535a4d235c37bed4efcab6e669e6.jpg'}
+
+        ],
+        professions: [
+            {n:'Doctor', i:'https://i.pinimg.com/1200x/28/98/8f/28988f0e4c918a5bf709ececdd62b159.jpg'}, 
+            {n:'Teacher', i:'https://i.pinimg.com/736x/7d/46/1f/7d461f99789497417279efc499653aac.jpg'}, 
+            {n:'Engineer', i:'https://i.pinimg.com/736x/b8/b6/7d/b8b67d6b85b0b1633559b8c6a66bf664.jpg'}, 
+            {n:'Chef', i:'https://i.pinimg.com/736x/18/1b/db/181bdbbed5f0dece2ace101087090bd6.jpg'}, 
+            {n:'Pilot', i:'https://i.pinimg.com/1200x/55/c8/25/55c825a35bb9be4d256367f3523f4784.jpg'},
+            {n:'Police', i:'https://i.pinimg.com/1200x/9f/11/70/9f1170a8d570b41da3869bd17b0063dc.jpg'},
+            {n:'Firefighter', i:'https://i.pinimg.com/1200x/b7/02/01/b702013fbc30e1a5e0a05ea7cdf096c2.jpg'}
         ]   
     };
 
@@ -207,7 +231,7 @@
                 div.innerText = item.n;
                 div.onclick = () => selectWord(div, item.n);
             } else {
-                div.innerHTML = `<img src="https://lh3.googleusercontent.com/d/${item.i}" onerror="this.src='https://via.placeholder.com/80?text=${item.n}'">`;
+                div.innerHTML = `<img src="${item.i}" onerror="this.src='https://via.placeholder.com/80?text=${item.n}'">`;
                 div.onclick = () => checkMatch(div, item.n);
             }
             col.appendChild(div);
