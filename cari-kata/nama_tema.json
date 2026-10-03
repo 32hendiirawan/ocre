@@ -38,6 +38,13 @@
         "BASKET", "SEPAKBOLA", "BOLAVOLI", "BULUTANGKIS", "FUTSAL",
         "ATLETIK", "RENANG", "GOLF", "TENISMEJA", "SEPAKTAKRAW",
         "TINJU", "PENCAKSILAT", "SEPEDA", "PANJATTEBING", "SKATEBOARD"
+    ],
+    "food_and_drink": [
+        "RICE", "BREAD", "MILK", "JUICE", "MEATBALL",
+        "NOODLE", "PIZZA", "TEA", "COFFEE", "WATER",
+        "SOUP", "CHOCOLATE", "FRUIT", "VEGETABLE", "FISH",
+        "CHICKEN", "BEEF", "EGG", "CHEESE", "YOGURT",
+        "SANDWICH", "BURGER", "PASTA", "SALAD", "SAUSAGE"
     ]
 
 }
