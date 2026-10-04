@@ -442,6 +442,7 @@
     let isMouseDown = false;
     let dragTargetValue = 0;
 
+    // Mencegah menu konteks klik kanan muncul
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.addEventListener('mouseup', () => { isMouseDown = false; });
     window.addEventListener('resize', calculateDynamicSizes);
@@ -673,15 +674,27 @@
             cell.classList.add('thick-border-bottom');
           }
 
+          // Menangani penekanan tombol tetikus (klik kiri maupun klik kanan)
           cell.addEventListener('mousedown', (e) => {
-            if (e.button !== 0 || isGameOver || isPaused) return;
-            isMouseDown = true;
-            if (currentMode === 'fill') {
-              dragTargetValue = playerBoard[r][c] === 1 ? 0 : 1;
-            } else {
+            if (isGameOver || isPaused) return;
+            
+            // Klik Kanan (e.button === 2) -> Selalu melakukan aksi SILANG
+            if (e.button === 2) {
+              e.preventDefault();
+              isMouseDown = true;
               dragTargetValue = playerBoard[r][c] === 2 ? 0 : 2;
+              applyCellAction(r, c);
+            } 
+            // Klik Kiri (e.button === 0) -> Mengikuti mode tombol aktif (isi / silang)
+            else if (e.button === 0) {
+              isMouseDown = true;
+              if (currentMode === 'fill') {
+                dragTargetValue = playerBoard[r][c] === 1 ? 0 : 1;
+              } else {
+                dragTargetValue = playerBoard[r][c] === 2 ? 0 : 2;
+              }
+              applyCellAction(r, c);
             }
-            applyCellAction(r, c);
           });
 
           cell.addEventListener('mouseenter', () => {
