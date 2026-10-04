@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TTS Matematika Interaktif</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+        body, html {
+            height: 100%;
+            overflow: hidden;
+            background-color: #0f172a; /* Slate 900 */
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-4px) rotate(2deg); }
+        }
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-between p-4 font-sans text-slate-100 select-none">
+
+    <!-- Container Utama Single Screen Viewport -->
+    <div class="w-full max-w-md h-full flex flex-col justify-between items-center py-4 px-2 my-auto">
+        
+        <!-- Header & Banner Logo -->
+        <div class="text-center w-full mt-2 flex flex-col items-center gap-2">
+            <div class="w-16 h-16 bg-gradient-to-tr from-amber-500 to-yellow-300 rounded-2xl flex items-center justify-center text-slate-950 text-3xl shadow-lg shadow-amber-500/20 animate-float">
+                <i class="fa-solid fa-square-root-variable"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-black text-amber-400 tracking-wide flex items-center justify-center gap-2">
+                    TTS MATEMATIKA
+                </h1>
+                <p class="text-xs text-slate-400 font-medium mt-1">Pilih Mode Permainan & Asah Otakmu!</p>
+            </div>
+        </div>
+
+        <!-- Menu Pilihan Operasi Matematika -->
+        <div class="w-full max-w-[360px] flex flex-col gap-3.5 my-auto">
+            
+            <!-- Menu Penjumlahan -->
+            <a href="tts-penjumlahan.html" class="group relative flex items-center justify-between p-3.5 bg-slate-800/90 hover:bg-slate-800 border border-slate-700 hover:border-emerald-500/50 rounded-2xl transition-all duration-200 shadow-lg active:scale-95">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-11 h-11 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-xl flex items-center justify-center text-xl font-black group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-plus"></i>
+                    </div>
+                    <div class="text-left">
+                        <h2 class="text-sm font-black text-slate-100 group-hover:text-emerald-400 transition-colors">Penjumlahan (+)</h2>
+                        <p class="text-[11px] text-slate-400 font-medium">Asah kecepatan tambah-menambah</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all text-xs"></i>
+            </a>
+
+            <!-- Menu Pengurangan -->
+            <a href="tts-pengurangan.html" class="group relative flex items-center justify-between p-3.5 bg-slate-800/90 hover:bg-slate-800 border border-slate-700 hover:border-rose-500/50 rounded-2xl transition-all duration-200 shadow-lg active:scale-95">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-11 h-11 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-xl flex items-center justify-center text-xl font-black group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-minus"></i>
+                    </div>
+                    <div class="text-left">
+                        <h2 class="text-sm font-black text-slate-100 group-hover:text-rose-400 transition-colors">Pengurangan (-)</h2>
+                        <p class="text-[11px] text-slate-400 font-medium">Latih ketelitian selisih angka</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-slate-500 group-hover:text-rose-400 group-hover:translate-x-1 transition-all text-xs"></i>
+            </a>
+
+            <!-- Menu Perkalian -->
+            <a href="tts-perkalian.html" class="group relative flex items-center justify-between p-3.5 bg-slate-800/90 hover:bg-slate-800 border border-slate-700 hover:border-blue-500/50 rounded-2xl transition-all duration-200 shadow-lg active:scale-95">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-11 h-11 bg-blue-500/10 border border-blue-500/30 text-blue-400 rounded-xl flex items-center justify-center text-xl font-black group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-xmark"></i>
+                    </div>
+                    <div class="text-left">
+                        <h2 class="text-sm font-black text-slate-100 group-hover:text-blue-400 transition-colors">Perkalian (x)</h2>
+                        <p class="text-[11px] text-slate-400 font-medium">Uji keahlian perkalian dasar</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-slate-500 group-hover:text-blue-400 group-hover:translate-x-1 transition-all text-xs"></i>
+            </a>
+
+            <!-- Menu Pembagian -->
+            <a href="tts-pembagian.html" class="group relative flex items-center justify-between p-3.5 bg-slate-800/90 hover:bg-slate-800 border border-slate-700 hover:border-amber-500/50 rounded-2xl transition-all duration-200 shadow-lg active:scale-95">
+                <div class="flex items-center gap-3.5">
+                    <div class="w-11 h-11 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-xl flex items-center justify-center text-xl font-black group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-divide"></i>
+                    </div>
+                    <div class="text-left">
+                        <h2 class="text-sm font-black text-slate-100 group-hover:text-amber-400 transition-colors">Pembagian (:)</h2>
+                        <p class="text-[11px] text-slate-400 font-medium">Tantangan pembagian bulat</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-slate-500 group-hover:text-amber-400 group-hover:translate-x-1 transition-all text-xs"></i>
+            </a>
+
+        </div>
+
+        <!-- Footer Info -->
+        <div class="text-center w-full mb-2">
+            <p class="text-[11px] text-slate-500 font-medium">
+                Portal Edukasi Digital &bull; <span class="text-amber-400/90 font-bold">ocre.my.id</span>
+            </p>
+        </div>
+
+    </div>
+    <script>
+    (function() {
+        window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+        }, true);
+    })();        
+    </script>
+</body>
+</html>

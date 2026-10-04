@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TTS Perkalian Matematika Mobile</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2canvas CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+        body, html {
+            height: 100%;
+            overflow: hidden;
+            background-color: #0f172a; /* Slate 900 */
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            grid-template-rows: repeat(9, 1fr);
+            gap: 2px;
+            width: 100%;
+            max-width: 380px;
+            aspect-ratio: 1;
+            background-color: #334155;
+            padding: 4px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: clamp(0.75rem, 3.5vw, 1.15rem);
+            user-select: none;
+            border-radius: 4px;
+        }
+
+        .cell-yellow {
+            background-color: #facc15; /* Yellow-400 */
+            color: #0f172a;
+            border: 1px solid #eab308;
+            box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.15);
+        }
+
+        /* Merged Quadrant Styling */
+        .merged-quadrant {
+            background-color: #1e293b;
+            border: 1px dashed #475569;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            transition: all 0.3s ease;
+        }
+
+        /* Number Input Styling */
+        .cell-input {
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            background-color: #fef08a; /* Light Yellow */
+            color: #1e3a8a; /* Dark Blue */
+            font-weight: 900;
+            outline: none;
+            border: 2px solid transparent;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+        
+        .cell-input::-webkit-outer-spin-button,
+        .cell-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .cell-input:focus {
+            background-color: #ffffff;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .cell-input:disabled {
+            cursor: not-allowed;
+            opacity: 0.95;
+        }
+
+        .cell-input.correct {
+            background-color: #4ade80 !important;
+            color: #064e3b !important;
+        }
+
+        .cell-input.wrong {
+            background-color: #f87171 !important;
+            color: #7f1d1d !important;
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-3px) rotate(3deg); }
+        }
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        /* Light Mode Override saat ekspor gambar */
+        .export-light-mode {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+        }
+        .export-light-mode .grid-container {
+            background-color: #cbd5e1 !important;
+            box-shadow: none !important;
+        }
+        .export-light-mode .merged-quadrant {
+            background-color: #f1f5f9 !important;
+            border-color: #94a3b8 !important;
+            color: #334155 !important;
+        }
+        .export-light-mode .merged-quadrant span {
+            color: #1e293b !important;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-between p-3 font-sans text-slate-100 select-none">
+
+    <!-- Container Utama Fit 1 Screen Mobile -->
+    <div id="captureArea" class="w-full max-w-md h-full flex flex-col justify-between items-center py-2 px-2 rounded-2xl transition-colors duration-200">
+        
+        <!-- Header Ringkas -->
+        <div class="text-center w-full my-1">
+            <h1 class="text-xl font-black text-amber-400 tracking-wide flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-puzzle-piece"></i>
+                TTS PERKALIAN
+            </h1>
+            <p class="text-[10px] text-slate-400 font-medium">ocre.my.id/#tts_matematika</p>
+        </div>
+
+        <!-- Single Control Bar -->
+        <div class="w-full max-w-[380px] bg-slate-800/90 backdrop-blur border border-slate-700/80 p-1.5 rounded-xl shadow-lg flex items-center justify-between gap-1 my-1">
+            
+            <!-- Timer Display -->
+            <div class="bg-slate-900/80 px-2.5 py-1.5 rounded-lg border border-slate-700/50 flex items-center gap-1.5 min-w-[70px] justify-center">
+                <i class="fa-regular fa-clock text-amber-400 text-xs"></i>
+                <span id="timer" class="font-mono text-xs font-bold text-slate-200">00:00</span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-1 flex-1 justify-end">
+                <button onclick="resetAnswers()" class="bg-slate-700 hover:bg-slate-600 active:scale-95 text-slate-200 px-2 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 border border-slate-600">
+                    <i class="fa-solid fa-rotate-left text-amber-400 text-[10px]"></i>
+                    Reset
+                </button>
+
+                <button onclick="generateNewPuzzle()" class="bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-950 px-2.5 py-1.5 rounded-lg text-xs font-black transition flex items-center gap-1 shadow-md shadow-amber-500/20">
+                    <i class="fa-solid fa-dice text-[10px]"></i>
+                    New
+                </button>
+
+                <button id="checkBtn" onclick="checkAnswers()" class="bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-slate-950 px-3 py-1.5 rounded-lg text-xs font-black transition flex items-center gap-1 shadow-md shadow-emerald-500/20">
+                    <i class="fa-solid fa-check text-[10px]"></i>
+                    Check
+                </button>
+            </div>
+        </div>
+
+        <!-- Grid TTS Container 9x9 -->
+        <div class="w-full flex justify-center items-center my-auto py-1">
+            <div id="grid" class="grid-container">
+                <!-- Grid Cells & Merged Quadrants Generated by JS -->
+            </div>
+        </div>
+
+        <!-- Status Message Banner -->
+        <div id="statusMessage" class="w-full max-w-[380px] text-center text-xs font-bold min-h-[22px] flex items-center justify-center rounded-lg px-2 transition-all">
+        </div>
+
+        <!-- Bottom Action Bar: Save & Share -->
+        <div class="w-full max-w-[380px] flex items-center justify-between gap-2 mt-1">
+            <button onclick="saveAsImage()" title="Simpan Gambar" class="flex-1 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 py-2 px-3 rounded-xl border border-slate-700/80 transition text-xs flex items-center justify-center gap-2 font-bold shadow-md">
+                <i class="fa-solid fa-download text-emerald-400"></i>
+                <span>Simpan</span>
+            </button>
+
+            <button onclick="openShareModal()" title="Bagikan Game" class="flex-1 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 py-2 px-3 rounded-xl border border-slate-700/80 transition text-xs flex items-center justify-center gap-2 font-bold shadow-md">
+                <i class="fa-solid fa-share-nodes text-amber-400"></i>
+                <span>Bagikan</span>
+            </button>
+
+            <button onclick="location.href='index.html'" title="Home" class="flex-1 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 py-2 px-3 rounded-xl border border-slate-700/80 transition text-xs flex items-center justify-center gap-2 font-bold shadow-md">
+                <i class="fa-solid fa-home text-amber-400"></i>
+                <span>Home</span>
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- Modal Share Media Sosial -->
+    <div id="shareModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 w-full max-w-xs rounded-2xl p-4 shadow-2xl flex flex-col gap-3 text-center animate-fade-in">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+                <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-share-nodes text-amber-400"></i>
+                    Bagikan Permainan
+                </h3>
+                <button onclick="closeShareModal()" class="text-slate-400 hover:text-slate-200 text-base">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Tombol Media Sosial -->
+            <div class="grid grid-cols-2 gap-2 my-1">
+                <a id="shareWA" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white p-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition">
+                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                    WhatsApp
+                </a>
+                <a id="shareFB" target="_blank" class="bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition">
+                    <i class="fa-brands fa-facebook text-lg"></i>
+                    Facebook
+                </a>
+                <a id="shareTW" target="_blank" class="bg-slate-900 hover:bg-black text-white p-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition border border-slate-700">
+                    <i class="fa-brands fa-x-twitter text-lg"></i>
+                    Twitter / X
+                </a>
+                <a id="shareTG" target="_blank" class="bg-sky-500 hover:bg-sky-400 text-white p-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition">
+                    <i class="fa-brands fa-telegram text-lg"></i>
+                    Telegram
+                </a>
+            </div>
+
+            <!-- Copy Link -->
+            <button onclick="copyGameLink()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border border-slate-600 transition">
+                <i class="fa-solid fa-link text-amber-400"></i>
+                <span>Salin Tautan</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const gridLayout = [
+            [1, 2, 0, 3, 1, 3, 0, 2, 1],
+            [2, -1,-1,-1, 2, -1,-1,-1, 2],
+            [0, -1,-1,-1, 0, -1,-1,-1, 0],
+            [3, -1,-1,-1, 3, -1,-1,-1, 3],
+            [1, 2, 0, 3, 1, 3, 0, 2, 1],
+            [3, -1,-1,-1, 3, -1,-1,-1, 3],
+            [0, -1,-1,-1, 0, -1,-1,-1, 0],
+            [2, -1,-1,-1, 2, -1,-1,-1, 2],
+            [1, 2, 0, 3, 1, 3, 0, 2, 1]
+        ];
+
+        let solutionGrid = Array(9).fill(null).map(() => Array(9).fill(null));
+        let userInputs = {};
+        let timerInterval = null;
+        let seconds = 0;
+        let isChecked = false;
+
+        const SHARE_URL = "https://ocre.my.id/#tts_matematika";
+        const SHARE_TEXT = "Ayo asah otak dengan bermain TTS Matematika interaktif!";
+
+        function startTimer(resetSeconds = true) {
+            if (resetSeconds) {
+                seconds = 0;
+            }
+            clearInterval(timerInterval);
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                seconds++;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            document.getElementById('timer').innerText = `${m}:${s}`;
+        }
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateNewPuzzle() {
+            let grid = Array(9).fill(null).map(() => Array(9).fill(null));
+
+            const A1 = getRandomInt(2, 9);
+            const in_0_2 = getRandomInt(2, 9);
+            const C1 = A1 * in_0_2;
+
+            const in_0_6 = getRandomInt(2, 9);
+            const D1 = C1 / in_0_6;
+
+            const in_2_0 = getRandomInt(2, 9);
+            const A2 = A1 * in_2_0;
+
+            const in_2_4 = getRandomInt(2, 9);
+            const C2 = C1 * in_2_4;
+
+            const in_2_8 = getRandomInt(2, 9);
+            const D2 = D1 * in_2_8;
+
+            const in_4_2 = C2 / A2;
+            const in_4_6 = C2 / D2;
+
+            const in_6_0 = getRandomInt(2, 9);
+            const A3 = A2 / in_6_0;
+
+            const in_6_4 = getRandomInt(2, 9);
+            const C3 = C2 / in_6_4;
+
+            const in_6_8 = getRandomInt(2, 9);
+            const D3 = D2 / in_6_8;
+
+            const in_8_2 = C3 / A3;
+            const in_8_6 = C3 / D3;
+
+            grid[0][0] = A1;       grid[0][2] = in_0_2; grid[0][4] = C1;       grid[0][6] = in_0_6; grid[0][8] = D1;
+            grid[2][0] = in_2_0;                       grid[2][4] = in_2_4;                       grid[2][8] = in_2_8;
+            grid[4][0] = A2;       grid[4][2] = in_4_2; grid[4][4] = C2;       grid[4][6] = in_4_6; grid[4][8] = D2;
+            grid[6][0] = in_6_0;                       grid[6][4] = in_6_4;                       grid[6][8] = in_6_8;
+            grid[8][0] = A3;       grid[8][2] = in_8_2; grid[8][4] = C3;       grid[8][6] = in_8_6; grid[8][8] = D3;
+
+            // Validasi seluruh sel angka agar bernilai bilangan bulat positif (bukan pecahan/desimal, bukan negatif, dan bukan NaN)
+            const checkValues = [
+                A1, in_0_2, C1, in_0_6, D1,
+                in_2_0, in_2_4, in_2_8,
+                A2, in_4_2, C2, in_4_6, D2,
+                in_6_0, in_6_4, in_6_8,
+                A3, in_8_2, C3, in_8_6, D3
+            ];
+
+            const isInvalid = checkValues.some(val => 
+                val <= 0 || 
+                isNaN(val) || 
+                !Number.isInteger(val)
+            );
+
+            if (isInvalid) {
+                return generateNewPuzzle();
+            }
+
+            solutionGrid = grid;
+            isChecked = false;
+            renderGrid();
+            renderDefaultMergedQuadrants();
+            startTimer(true);
+            clearStatus();
+        }
+
+        function renderGrid() {
+            const gridContainer = document.getElementById('grid');
+            gridContainer.innerHTML = '';
+            userInputs = {};
+
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    const type = gridLayout[r][c];
+
+                    if (type === -1) continue;
+
+                    const cellDiv = document.createElement('div');
+                    cellDiv.className = 'cell';
+                    cellDiv.style.gridRow = `${r + 1}`;
+                    cellDiv.style.gridColumn = `${c + 1}`;
+
+                    if (type === 1) {
+                        cellDiv.className += ' cell-yellow';
+                        cellDiv.innerText = solutionGrid[r][c];
+                    } else if (type === 2) {
+                        cellDiv.className += ' cell-yellow';
+                        cellDiv.innerText = 'x';
+                    } else if (type === 3) {
+                        cellDiv.className += ' cell-yellow';
+                        cellDiv.innerText = '=';
+                    } else if (type === 0) {
+                        cellDiv.className += ' cell-yellow p-[1px]';
+                        const input = document.createElement('input');
+                        input.type = 'number';
+                        input.min = '1';
+                        input.step = '1';
+                        input.className = 'cell-input';
+                        input.dataset.row = r;
+                        input.dataset.col = c;
+                        input.id = `input-${r}-${c}`;
+                        input.setAttribute('autocomplete', 'off');
+                        
+                        // Mencegah input karakter minus (-), koma (,), titik (.), dan tanda e
+                        input.addEventListener('keydown', (e) => {
+                            if (['-', 'e', 'E', ',', '.'].includes(e.key)) {
+                                e.preventDefault();
+                            }
+                        });
+
+                        input.addEventListener('input', (e) => {
+                            // Hapus karakter non-angka otomatis jika ter-paste
+                            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                            if (!isChecked) {
+                                e.target.classList.remove('correct', 'wrong');
+                                clearStatus();
+                            }
+                        });
+
+                        cellDiv.appendChild(input);
+                        userInputs[`${r}-${c}`] = input;
+                    }
+
+                    gridContainer.appendChild(cellDiv);
+                }
+            }
+        }
+
+        function renderDefaultMergedQuadrants() {
+            const quadrantIcons = [
+                { id: 'quad-1', row: 1, col: 1, icon: 'fa-brain', text: 'MATH' },
+                { id: 'quad-2', row: 1, col: 5, icon: 'fa-calculator', text: 'LOGIC' },
+                { id: 'quad-3', row: 5, col: 1, icon: 'fa-lightbulb', text: 'THINK' },
+                { id: 'quad-4', row: 5, col: 5, icon: 'fa-shapes', text: 'PUZZLE' }
+            ];
+
+            quadrantIcons.forEach(q => {
+                let quadDiv = document.getElementById(q.id);
+                if (!quadDiv) {
+                    quadDiv = document.createElement('div');
+                    quadDiv.id = q.id;
+                    quadDiv.style.gridRow = `${q.row + 1} / span 3`;
+                    quadDiv.style.gridColumn = `${q.col + 1} / span 3`;
+                    document.getElementById('grid').appendChild(quadDiv);
+                }
+                quadDiv.className = 'merged-quadrant animate-float';
+                quadDiv.innerHTML = `
+                    <i class="fa-solid ${q.icon} text-lg text-slate-500 mb-0.5"></i>
+                    <span class="text-[9px] font-black tracking-widest text-slate-600">${q.text}</span>
+                `;
+            });
+        }
+
+        function resetAnswers() {
+            isChecked = false;
+            for (const key in userInputs) {
+                const input = userInputs[key];
+                input.value = '';
+                input.disabled = false;
+                input.classList.remove('correct', 'wrong');
+            }
+            renderDefaultMergedQuadrants();
+            showStatus("Isian dikosongkan & kunci dibuka!", "amber");
+        }
+
+        function checkAnswers() {
+            if (isChecked) return;
+
+            let correctCount = 0;
+            let wrongCount = 0;
+            let emptyCount = 0;
+            const totalQuestions = Object.keys(userInputs).length;
+
+            for (const key in userInputs) {
+                const input = userInputs[key];
+                const [r, c] = key.split('-').map(Number);
+                const userVal = parseInt(input.value, 10);
+                const expectedVal = solutionGrid[r][c];
+
+                if (isNaN(userVal)) {
+                    emptyCount++;
+                    wrongCount++;
+                    input.classList.add('wrong');
+                } else if (userVal === expectedVal) {
+                    correctCount++;
+                    input.classList.add('correct');
+                } else {
+                    wrongCount++;
+                    input.classList.add('wrong');
+                }
+
+                input.disabled = true;
+            }
+
+            isChecked = true;
+            clearInterval(timerInterval);
+
+            const percentage = Math.round((correctCount / totalQuestions) * 100);
+            let predicate = "";
+            let predicateColor = "";
+
+            if (percentage === 100) {
+                predicate = "Istimewa";
+                predicateColor = "text-emerald-400";
+            } else if (percentage >= 75) {
+                predicate = "Bagus";
+                predicateColor = "text-blue-400";
+            } else if (percentage >= 50) {
+                predicate = "Cukup";
+                predicateColor = "text-amber-400";
+            } else {
+                predicate = "Kurang";
+                predicateColor = "text-rose-400";
+            }
+
+            updateMergedQuadrantsWithStats(correctCount, wrongCount, percentage, predicate, predicateColor);
+
+            if (percentage === 100) {
+                showStatus("Luar Biasa! Semua Jawaban Benar 🎉", "emerald");
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            } else {
+                showStatus("Pemeriksaan Selesai! Lembar Terkunci.", "amber");
+            }
+        }
+
+        function updateMergedQuadrantsWithStats(correct, wrong, percentage, predicate, predicateColor) {
+            const q1 = document.getElementById('quad-1');
+            q1.className = 'merged-quadrant bg-emerald-950/40 border-emerald-500/30';
+            q1.innerHTML = `
+                <i class="fa-solid fa-circle-check text-emerald-400 text-sm mb-0.5"></i>
+                <span class="text-[9px] font-bold text-slate-400 uppercase">Benar</span>
+                <span class="text-base font-black text-emerald-400">${correct}</span>
+            `;
+
+            const q2 = document.getElementById('quad-2');
+            q2.className = 'merged-quadrant bg-rose-950/40 border-rose-500/30';
+            q2.innerHTML = `
+                <i class="fa-solid fa-circle-xmark text-rose-400 text-sm mb-0.5"></i>
+                <span class="text-[9px] font-bold text-slate-400 uppercase">Salah</span>
+                <span class="text-base font-black text-rose-400">${wrong}</span>
+            `;
+
+            const q3 = document.getElementById('quad-3');
+            q3.className = 'merged-quadrant bg-blue-950/40 border-blue-500/30';
+            q3.innerHTML = `
+                <i class="fa-solid fa-chart-pie text-blue-400 text-sm mb-0.5"></i>
+                <span class="text-[9px] font-bold text-slate-400 uppercase">Nilai</span>
+                <span class="text-base font-black text-blue-400">${percentage}%</span>
+            `;
+
+            const q4 = document.getElementById('quad-4');
+            q4.className = 'merged-quadrant bg-amber-950/40 border-amber-500/30';
+            q4.innerHTML = `
+                <i class="fa-solid fa-award text-amber-400 text-sm mb-0.5"></i>
+                <span class="text-[9px] font-bold text-slate-400 uppercase">Predikat</span>
+                <span class="text-xs font-black ${predicateColor}">${predicate}</span>
+            `;
+        }
+
+        function showStatus(text, color) {
+            const statusMsg = document.getElementById('statusMessage');
+            statusMsg.innerText = text;
+            
+            if (color === 'amber') {
+                statusMsg.className = "w-full max-w-[380px] text-center text-xs font-bold py-1 px-2 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20";
+            } else if (color === 'emerald') {
+                statusMsg.className = "w-full max-w-[380px] text-center text-xs font-bold py-1 px-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+            } else if (color === 'rose') {
+                statusMsg.className = "w-full max-w-[380px] text-center text-xs font-bold py-1 px-2 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20";
+            }
+        }
+
+        function clearStatus() {
+            const statusMsg = document.getElementById('statusMessage');
+            statusMsg.innerText = '';
+            statusMsg.className = "w-full max-w-[380px] text-center text-xs font-bold min-h-[22px]";
+        }
+
+        /* FITUR SIMPAN GAMBAR VERSI TERANG */
+        function saveAsImage() {
+            const area = document.getElementById('captureArea');
+            area.classList.add('export-light-mode');
+            showStatus("Memproses gambar...", "amber");
+
+            html2canvas(area, {
+                backgroundColor: "#ffffff",
+                scale: 2,
+                useCORS: true
+            }).then(canvas => {
+                area.classList.remove('export-light-mode');
+                const link = document.createElement('a');
+                link.download = `TTS_Matematika_${new Date().toISOString().slice(0,10)}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                showStatus("Gambar berhasil disimpan!", "emerald");
+            }).catch(err => {
+                area.classList.remove('export-light-mode');
+                showStatus("Gagal menyimpan gambar", "rose");
+                console.error(err);
+            });
+        }
+
+        /* FITUR SHARE MEDIA SOSIAL */
+        function openShareModal() {
+            const encodedText = encodeURIComponent(SHARE_TEXT);
+            const encodedUrl = encodeURIComponent(SHARE_URL);
+
+            document.getElementById('shareWA').href = `https://api.whatsapp.com/send?text=${encodedText}%20${encodedUrl}`;
+            document.getElementById('shareFB').href = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+            document.getElementById('shareTW').href = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`;
+            document.getElementById('shareTG').href = `https://t.me/share/url?url=${encodedUrl}&text=${encodedUrl}`;
+
+            document.getElementById('shareModal').classList.remove('hidden');
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.add('hidden');
+        }
+
+        function copyGameLink() {
+            navigator.clipboard.writeText(SHARE_URL).then(() => {
+                closeShareModal();
+                showStatus("Link disalin ke clipboard!", "emerald");
+            }).catch(() => {
+                showStatus("Gagal menyalin link", "rose");
+            });
+        }
+
+        window.onload = () => {
+            generateNewPuzzle();
+        };
+
+        (function() {
+            window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+            window.addEventListener('keydown', function(e) {
+                if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            }, true);
+        })();        
+    </script>
+</body>
+</html>
