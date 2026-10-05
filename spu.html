@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tabel Periodik Unsur Kimia Lengkap</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:ital,wght@0,300..700;1,300..700&family=Google+Sans+Code:ital,wght,MONO@0,300..700,0..1;1,300..700,0..1&display=swap');
+
+:root {
+  --bg-color: #f8fafc;
+  --surface-color: #ffffff;
+  --surface-dim: #f1f5f9;
+  --text-color: #0f172a;
+  --text-sub: #64748b;
+  --border-color: #cbd5e1;
+  
+  --cat-nonmetal: #e0f2fe;
+  --cat-nonmetal-text: #0369a1;
+  --cat-noble: #f3e8ff;
+  --cat-noble-text: #6b21a8;
+  --cat-alkali: #ffe4e6;
+  --cat-alkali-text: #9f1239;
+  --cat-alkaline: #ffedd5;
+  --cat-alkaline-text: #9a3412;
+  --cat-metalloid: #fef9c3;
+  --cat-metalloid-text: #854d0e;
+  --cat-halogen: #ccfbf1;
+  --cat-halogen-text: #115e59;
+  --cat-transition: #e0e7ff;
+  --cat-transition-text: #3730a3;
+  --cat-post-transition: #dcfce7;
+  --cat-post-transition-text: #166534;
+  --cat-lanthanide: #fce7f3;
+  --cat-lanthanide-text: #9d174d;
+  --cat-actinide: #ffe4e6;
+  --cat-actinide-text: #881337;
+}
+
+[data-theme="dark"] {
+  --bg-color: #0f172a;
+  --surface-color: #1e293b;
+  --surface-dim: #0f172a;
+  --text-color: #f8fafc;
+  --text-sub: #94a3b8;
+  --border-color: #334155;
+
+  --cat-nonmetal: #1e3a8a;
+  --cat-nonmetal-text: #bfdbfe;
+  --cat-noble: #581c87;
+  --cat-noble-text: #e9d5ff;
+  --cat-alkali: #881337;
+  --cat-alkali-text: #fecdd3;
+  --cat-alkaline: #7c2d12;
+  --cat-alkaline-text: #ffedd5;
+  --cat-metalloid: #713f12;
+  --cat-metalloid-text: #fef08a;
+  --cat-halogen: #134e4a;
+  --cat-halogen-text: #99f6e4;
+  --cat-transition: #312e81;
+  --cat-transition-text: #c7d2fe;
+  --cat-post-transition: #14532d;
+  --cat-post-transition-text: #bbf7d0;
+  --cat-lanthanide: #831843;
+  --cat-lanthanide-text: #fbcfe8;
+  --cat-actinide: #4c0519;
+  --cat-actinide-text: #fecdd3;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 16px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Google Sans Flex', sans-serif;
+}
+
+.header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.header-bar h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.controls input, .controls select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--surface-color);
+  color: var(--text-color);
+  outline: none;
+}
+
+.theme-toggle {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--surface-color);
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.main-layout {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+/* SIDEBAR KIRI INFORMASI UNSUR */
+aside.info-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
+}
+
+.big-symbol {
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.big-title {
+  display: flex;
+  flex-direction: column;
+}
+
+.big-title .num { font-size: 11px; color: var(--text-sub); font-family: 'Google Sans Code', monospace; }
+.big-title .name { font-size: 16px; font-weight: 700; }
+.big-title .latin { font-size: 12px; font-style: italic; color: var(--text-sub); }
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px dashed var(--border-color);
+}
+
+.info-row:last-child { border-bottom: none; }
+.info-label { color: var(--text-sub); }
+.info-value { font-weight: 600; font-family: 'Google Sans Code', monospace; text-align: right; }
+
+/* BOHR MODEL CANVAS */
+.bohr-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.bohr-title { font-size: 11px; color: var(--text-sub); margin-bottom: 4px; }
+
+/* TABEL PERIODIK & LEGEND */
+.right-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-x: auto;
+}
+
+.legend-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.legend-color {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.periodic-table {
+  display: grid;
+  grid-template-columns: repeat(18, minmax(52px, 1fr));
+  gap: 4px;
+  min-width: 960px;
+}
+
+.element-cell {
+  aspect-ratio: 1;
+  border-radius: 6px;
+  padding: 3px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.1s, box-shadow 0.1s;
+  border: 1px solid transparent;
+}
+
+.element-cell:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  z-index: 5;
+}
+
+.element-cell.selected {
+  outline: 2px solid var(--text-color);
+}
+
+.element-cell.dimmed { opacity: 0.25; }
+
+.element-cell.placeholder {
+  border: 1px dashed var(--border-color);
+  background: transparent !important;
+  cursor: default;
+}
+
+.element-num { font-size: 9px; font-family: 'Google Sans Code', monospace; opacity: 0.8; }
+.element-symbol { font-size: 14px; font-weight: 700; text-align: center; line-height: 1; }
+.element-name { font-size: 8px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.cat-nonmetal { background-color: var(--cat-nonmetal); color: var(--cat-nonmetal-text); }
+.cat-noble { background-color: var(--cat-noble); color: var(--cat-noble-text); }
+.cat-alkali { background-color: var(--cat-alkali); color: var(--cat-alkali-text); }
+.cat-alkaline { background-color: var(--cat-alkaline); color: var(--cat-alkaline-text); }
+.cat-metalloid { background-color: var(--cat-metalloid); color: var(--cat-metalloid-text); }
+.cat-halogen { background-color: var(--cat-halogen); color: var(--cat-halogen-text); }
+.cat-transition { background-color: var(--cat-transition); color: var(--cat-transition-text); }
+.cat-post-transition { background-color: var(--cat-post-transition); color: var(--cat-post-transition-text); }
+.cat-lanthanide { background-color: var(--cat-lanthanide); color: var(--cat-lanthanide-text); }
+.cat-actinide { background-color: var(--cat-actinide); color: var(--cat-actinide-text); }
+
+.gap-row { grid-column: span 18; height: 12px; }
+</style>
+</head>
+<body>
+
+<div class="header-bar">
+  <h1>Tabel Periodik Unsur Kimia</h1>
+  <div class="controls">
+    <input type="text" id="searchInput" placeholder="Cari unsur, simbol, nomor...">
+    <select id="filterSelect">
+      <option value="all">Semua Kategori</option>
+      <option value="nonmetal">Nonlogam Reaktif</option>
+      <option value="noble">Gas Mulia</option>
+      <option value="alkali">Logam Alkali</option>
+      <option value="alkaline">Alkali Tanah</option>
+      <option value="metalloid">Metaloid</option>
+      <option value="halogen">Halogen</option>
+      <option value="transition">Logam Transisi</option>
+      <option value="post-transition">Logam Pasca-Transisi</option>
+      <option value="lanthanide">Lantanida</option>
+      <option value="actinide">Aktinida</option>
+    </select>
+    <button class="theme-toggle" id="themeToggle">🌙 Mode</button>
+  </div>
+</div>
+
+<div class="main-layout">
+  <!-- SIDEBAR KIRI DETAIL UNSUR LENGKAP -->
+  <aside class="info-sidebar" id="infoSidebar">
+    <div class="sidebar-header">
+      <div class="big-symbol" id="sideSym">O</div>
+      <div class="big-title">
+        <span class="num" id="sideNum">Nomor Atom : 8</span>
+        <span class="name" id="sideName">Oksigen</span>
+        <span class="latin" id="sideLatin">Oxygenium</span>
+      </div>
+    </div>
+
+    <div class="info-list">
+      <div class="info-row">
+        <span class="info-label">Kategori</span>
+        <span class="info-value" id="sideCat">Nonlogam Reaktif</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Massa Atom</span>
+        <span class="info-value" id="sideMass">15.999 u</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Konfigurasi Elektron</span>
+        <span class="info-value" id="sideConfig">2, 6</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Subkulit</span>
+        <span class="info-value" id="sideSubshell">[He] 2s² 2p⁴</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Periode / Golongan</span>
+        <span class="info-value" id="sidePerGol">2 / 16</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Wujud (25°C)</span>
+        <span class="info-value" id="sidePhase">Gas</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Titik Leleh</span>
+        <span class="info-value" id="sideMelt">54.36 K</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Titik Didih</span>
+        <span class="info-value" id="sideBoil">90.188 K</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Elektron Valensi</span>
+        <span class="info-value" id="sideValence">6</span>
+      </div>
+    </div>
+
+    <div class="bohr-container">
+      <span class="bohr-title">Model Kulit Bohr</span>
+      <canvas id="bohrCanvas" width="180" height="180"></canvas>
+    </div>
+  </aside>
+
+  <!-- KONTEN KANAN: LEGEND & TABEL -->
+  <div class="right-content">
+    <div class="legend-bar" id="legendBar"></div>
+    <div class="periodic-table" id="periodicTable"></div>
+  </div>
+</div>
+
+<script>
+const elements = [
+  { num: 1, sym: "H", name: "Hidrogen", latin: "Hydrogenium", cat: "nonmetal", row: 1, col: 1, mass: "1.008", config: "1", subshell: "1s¹", phase: "Gas", melt: "13.99 K", boil: "20.271 K", valence: 1, shells: [1] },
+  { num: 2, sym: "He", name: "Helium", latin: "Helium", cat: "noble", row: 1, col: 18, mass: "4.0026", config: "2", subshell: "1s²", phase: "Gas", melt: "0.95 K", boil: "4.222 K", valence: 2, shells: [2] },
+  { num: 3, sym: "Li", name: "Litium", latin: "Lithium", cat: "alkali", row: 2, col: 1, mass: "6.94", config: "2, 1", subshell: "[He] 2s¹", phase: "Padat", melt: "453.65 K", boil: "1603 K", valence: 1, shells: [2, 1] },
+  { num: 4, sym: "Be", name: "Berilium", latin: "Beryllium", cat: "alkaline", row: 2, col: 2, mass: "9.0122", config: "2, 2", subshell: "[He] 2s²", phase: "Padat", melt: "1560 K", boil: "2742 K", valence: 2, shells: [2, 2] },
+  { num: 5, sym: "B", name: "Boron", latin: "Borum", cat: "metalloid", row: 2, col: 13, mass: "10.81", config: "2, 3", subshell: "[He] 2s² 2p¹", phase: "Padat", melt: "2349 K", boil: "4200 K", valence: 3, shells: [2, 3] },
+  { num: 6, sym: "C", name: "Karbon", latin: "Carbonium", cat: "nonmetal", row: 2, col: 14, mass: "12.011", config: "2, 4", subshell: "[He] 2s² 2p²", phase: "Padat", melt: "3823 K", boil: "4300 K", valence: 4, shells: [2, 4] },
+  { num: 7, sym: "N", name: "Nitrogen", latin: "Nitrogenium", cat: "nonmetal", row: 2, col: 15, mass: "14.007", config: "2, 5", subshell: "[He] 2s² 2p³", phase: "Gas", melt: "63.15 K", boil: "77.355 K", valence: 5, shells: [2, 5] },
+  { num: 8, sym: "O", name: "Oksigen", latin: "Oxygenium", cat: "nonmetal", row: 2, col: 16, mass: "15.999", config: "2, 6", subshell: "[He] 2s² 2p⁴", phase: "Gas", melt: "54.36 K", boil: "90.188 K", valence: 6, shells: [2, 6] },
+  { num: 9, sym: "F", name: "Fluorin", latin: "Fluorum", cat: "halogen", row: 2, col: 17, mass: "18.998", config: "2, 7", subshell: "[He] 2s² 2p⁵", phase: "Gas", melt: "53.48 K", boil: "85.03 K", valence: 7, shells: [2, 7] },
+  { num: 10, sym: "Ne", name: "Neon", latin: "Neon", cat: "noble", row: 2, col: 18, mass: "20.180", config: "2, 8", subshell: "[He] 2s² 2p⁶", phase: "Gas", melt: "24.56 K", boil: "27.104 K", valence: 8, shells: [2, 8] },
+  { num: 11, sym: "Na", name: "Natrium", latin: "Natrium", cat: "alkali", row: 3, col: 1, mass: "22.990", config: "2, 8, 1", subshell: "[Ne] 3s¹", phase: "Padat", melt: "370.944 K", boil: "1156 K", valence: 1, shells: [2, 8, 1] },
+  { num: 12, sym: "Mg", name: "Magnesium", latin: "Magnesium", cat: "alkaline", row: 3, col: 2, mass: "24.305", config: "2, 8, 2", subshell: "[Ne] 3s²", phase: "Padat", melt: "923 K", boil: "1363 K", valence: 2, shells: [2, 8, 2] },
+  { num: 13, sym: "Al", name: "Aluminium", latin: "Aluminium", cat: "post-transition", row: 3, col: 13, mass: "26.982", config: "2, 8, 3", subshell: "[Ne] 3s² 3p¹", phase: "Padat", melt: "933.47 K", boil: "2743 K", valence: 3, shells: [2, 8, 3] },
+  { num: 14, sym: "Si", name: "Silikon", latin: "Silicium", cat: "metalloid", row: 3, col: 14, mass: "28.085", config: "2, 8, 4", subshell: "[Ne] 3s² 3p²", phase: "Padat", melt: "1687 K", boil: "3538 K", valence: 4, shells: [2, 8, 4] },
+  { num: 15, sym: "P", name: "Fosfor", latin: "Phosphorus", cat: "nonmetal", row: 3, col: 15, mass: "30.974", config: "2, 8, 5", subshell: "[Ne] 3s² 3p³", phase: "Padat", melt: "317.3 K", boil: "553.7 K", valence: 5, shells: [2, 8, 5] },
+  { num: 16, sym: "S", name: "Belerang", latin: "Sulphur", cat: "nonmetal", row: 3, col: 16, mass: "32.06", config: "2, 8, 6", subshell: "[Ne] 3s² 3p⁴", phase: "Padat", melt: "388.36 K", boil: "717.8 K", valence: 6, shells: [2, 8, 6] },
+  { num: 17, sym: "Cl", name: "Klorin", latin: "Chlorum", cat: "halogen", row: 3, col: 17, mass: "35.45", config: "2, 8, 7", subshell: "[Ne] 3s² 3p⁵", phase: "Gas", melt: "171.6 K", boil: "239.11 K", valence: 7, shells: [2, 8, 7] },
+  { num: 18, sym: "Ar", name: "Argon", latin: "Argon", cat: "noble", row: 3, col: 18, mass: "39.948", config: "2, 8, 8", subshell: "[Ne] 3s² 3p⁶", phase: "Gas", melt: "83.81 K", boil: "87.302 K", valence: 8, shells: [2, 8, 8] },
+  { num: 19, sym: "K", name: "Kalium", latin: "Kalium", cat: "alkali", row: 4, col: 1, mass: "39.098", config: "2, 8, 8, 1", subshell: "[Ar] 4s¹", phase: "Padat", melt: "336.7 K", boil: "1032 K", valence: 1, shells: [2, 8, 8, 1] },
+  { num: 20, sym: "Ca", name: "Kalsium", latin: "Calcium", cat: "alkaline", row: 4, col: 2, mass: "40.078", config: "2, 8, 8, 2", subshell: "[Ar] 4s²", phase: "Padat", melt: "1115 K", boil: "1757 K", valence: 2, shells: [2, 8, 8, 2] },
+  { num: 21, sym: "Sc", name: "Skandium", latin: "Scandium", cat: "transition", row: 4, col: 3, mass: "44.956", config: "2, 8, 9, 2", subshell: "[Ar] 3d¹ 4s²", phase: "Padat", melt: "1814 K", boil: "3109 K", valence: 2, shells: [2, 8, 9, 2] },
+  { num: 22, sym: "Ti", name: "Titanium", latin: "Titanium", cat: "transition", row: 4, col: 4, mass: "47.867", config: "2, 8, 10, 2", subshell: "[Ar] 3d² 4s²", phase: "Padat", melt: "1941 K", boil: "3560 K", valence: 2, shells: [2, 8, 10, 2] },
+  { num: 23, sym: "V", name: "Vanadium", latin: "Vanadium", cat: "transition", row: 4, col: 5, mass: "50.942", config: "2, 8, 11, 2", subshell: "[Ar] 3d³ 4s²", phase: "Padat", melt: "2183 K", boil: "3680 K", valence: 2, shells: [2, 8, 11, 2] },
+  { num: 24, sym: "Cr", name: "Kromium", latin: "Chromium", cat: "transition", row: 4, col: 6, mass: "51.996", config: "2, 8, 13, 1", subshell: "[Ar] 3d⁵ 4s¹", phase: "Padat", melt: "2180 K", boil: "2944 K", valence: 1, shells: [2, 8, 13, 1] },
+  { num: 25, sym: "Mn", name: "Mangan", latin: "Manganum", cat: "transition", row: 4, col: 7, mass: "54.938", config: "2, 8, 13, 2", subshell: "[Ar] 3d⁵ 4s²", phase: "Padat", melt: "1519 K", boil: "2334 K", valence: 2, shells: [2, 8, 13, 2] },
+  { num: 26, sym: "Fe", name: "Besi", latin: "Ferrum", cat: "transition", row: 4, col: 8, mass: "55.845", config: "2, 8, 14, 2", subshell: "[Ar] 3d⁶ 4s²", phase: "Padat", melt: "1811 K", boil: "3134 K", valence: 2, shells: [2, 8, 14, 2] },
+  { num: 27, sym: "Co", name: "Kobalt", latin: "Cobaltum", cat: "transition", row: 4, col: 9, mass: "58.933", config: "2, 8, 15, 2", subshell: "[Ar] 3d⁷ 4s²", phase: "Padat", melt: "1768 K", boil: "3200 K", valence: 2, shells: [2, 8, 15, 2] },
+  { num: 28, sym: "Ni", name: "Nikel", latin: "Niccolum", cat: "transition", row: 4, col: 10, mass: "58.693", config: "2, 8, 16, 2", subshell: "[Ar] 3d⁸ 4s²", phase: "Padat", melt: "1728 K", boil: "3003 K", valence: 2, shells: [2, 8, 16, 2] },
+  { num: 29, sym: "Cu", name: "Tembaga", latin: "Cuprum", cat: "transition", row: 4, col: 11, mass: "63.546", config: "2, 8, 18, 1", subshell: "[Ar] 3d¹⁰ 4s¹", phase: "Padat", melt: "1357.77 K", boil: "2835 K", valence: 1, shells: [2, 8, 18, 1] },
+  { num: 30, sym: "Zn", name: "Seng", latin: "Zincum", cat: "transition", row: 4, col: 12, mass: "65.38", config: "2, 8, 18, 2", subshell: "[Ar] 3d¹⁰ 4s²", phase: "Padat", melt: "692.68 K", boil: "1180 K", valence: 2, shells: [2, 8, 18, 2] },
+  { num: 31, sym: "Ga", name: "Galium", latin: "Gallium", cat: "post-transition", row: 4, col: 13, mass: "69.723", config: "2, 8, 18, 3", subshell: "[Ar] 3d¹⁰ 4s² 4p¹", phase: "Padat", melt: "302.91 K", boil: "2673 K", valence: 3, shells: [2, 8, 18, 3] },
+  { num: 32, sym: "Ge", name: "Germanium", latin: "Germanium", cat: "metalloid", row: 4, col: 14, mass: "72.630", config: "2, 8, 18, 4", subshell: "[Ar] 3d¹⁰ 4s² 4p²", phase: "Padat", melt: "1211.40 K", boil: "3106 K", valence: 4, shells: [2, 8, 18, 4] },
+  { num: 33, sym: "As", name: "Arsenik", latin: "Arsenicum", cat: "metalloid", row: 4, col: 15, mass: "74.922", config: "2, 8, 18, 5", subshell: "[Ar] 3d¹⁰ 4s² 4p³", phase: "Padat", melt: "1090 K", boil: "887 K", valence: 5, shells: [2, 8, 18, 5] },
+  { num: 34, sym: "Se", name: "Selenium", latin: "Selenium", cat: "nonmetal", row: 4, col: 16, mass: "78.971", config: "2, 8, 18, 6", subshell: "[Ar] 3d¹⁰ 4s² 4p⁴", phase: "Padat", melt: "494 K", boil: "958 K", valence: 6, shells: [2, 8, 18, 6] },
+  { num: 35, sym: "Br", name: "Bromin", latin: "Bromum", cat: "halogen", row: 4, col: 17, mass: "79.904", config: "2, 8, 18, 7", subshell: "[Ar] 3d¹⁰ 4s² 4p⁵", phase: "Cair", melt: "265.8 K", boil: "332.0 K", valence: 7, shells: [2, 8, 18, 7] },
+  { num: 36, sym: "Kr", name: "Kripton", latin: "Krypton", cat: "noble", row: 4, col: 18, mass: "83.798", config: "2, 8, 18, 8", subshell: "[Ar] 3d¹⁰ 4s² 4p⁶", phase: "Gas", melt: "115.79 K", boil: "119.93 K", valence: 8, shells: [2, 8, 18, 8] },
+  { num: 37, sym: "Rb", name: "Rubidium", latin: "Rubidium", cat: "alkali", row: 5, col: 1, mass: "85.468", config: "2, 8, 18, 8, 1", subshell: "[Kr] 5s¹", phase: "Padat", melt: "312.46 K", boil: "961 K", valence: 1, shells: [2, 8, 18, 8, 1] },
+  { num: 38, sym: "Sr", name: "Stronsium", latin: "Strontium", cat: "alkaline", row: 5, col: 2, mass: "87.62", config: "2, 8, 18, 8, 2", subshell: "[Kr] 5s²", phase: "Padat", melt: "1050 K", boil: "1655 K", valence: 2, shells: [2, 8, 18, 8, 2] },
+  { num: 39, sym: "Y", name: "Itrium", latin: "Yttrium", cat: "transition", row: 5, col: 3, mass: "88.906", config: "2, 8, 18, 9, 2", subshell: "[Kr] 4d¹ 5s²", phase: "Padat", melt: "1799 K", boil: "3609 K", valence: 2, shells: [2, 8, 18, 9, 2] },
+  { num: 40, sym: "Zr", name: "Zirkonium", latin: "Zirconium", cat: "transition", row: 5, col: 4, mass: "91.224", config: "2, 8, 18, 10, 2", subshell: "[Kr] 4d² 5s²", phase: "Padat", melt: "2128 K", boil: "4682 K", valence: 2, shells: [2, 8, 18, 10, 2] },
+  { num: 41, sym: "Nb", name: "Niobium", latin: "Niobium", cat: "transition", row: 5, col: 5, mass: "92.906", config: "2, 8, 18, 12, 1", subshell: "[Kr] 4d⁴ 5s¹", phase: "Padat", melt: "2750 K", boil: "5017 K", valence: 1, shells: [2, 8, 18, 12, 1] },
+  { num: 42, sym: "Mo", name: "Molibdenun", latin: "Molybdenum", cat: "transition", row: 5, col: 6, mass: "95.95", config: "2, 8, 18, 13, 1", subshell: "[Kr] 4d⁵ 5s¹", phase: "Padat", melt: "2896 K", boil: "4912 K", valence: 1, shells: [2, 8, 18, 13, 1] },
+  { num: 43, sym: "Tc", name: "Teknesium", latin: "Technetium", cat: "transition", row: 5, col: 7, mass: "(98)", config: "2, 8, 18, 13, 2", subshell: "[Kr] 4d⁵ 5s²", phase: "Sintetis", melt: "2430 K", boil: "4538 K", valence: 2, shells: [2, 8, 18, 13, 2] },
+  { num: 44, sym: "Ru", name: "Rutenium", latin: "Ruthenium", cat: "transition", row: 5, col: 8, mass: "101.07", config: "2, 8, 18, 15, 1", subshell: "[Kr] 4d⁷ 5s¹", phase: "Padat", melt: "2607 K", boil: "4423 K", valence: 1, shells: [2, 8, 18, 15, 1] },
+  { num: 45, sym: "Rh", name: "Rodium", latin: "Rhodium", cat: "transition", row: 5, col: 9, mass: "102.91", config: "2, 8, 18, 16, 1", subshell: "[Kr] 4d⁸ 5s¹", phase: "Padat", melt: "2237 K", boil: "3968 K", valence: 1, shells: [2, 8, 18, 16, 1] },
+  { num: 46, sym: "Pd", name: "Paladium", latin: "Palladium", cat: "transition", row: 5, col: 10, mass: "106.42", config: "2, 8, 18, 18", subshell: "[Kr] 4d¹⁰", phase: "Padat", melt: "1828.05 K", boil: "3236 K", valence: 0, shells: [2, 8, 18, 18] },
+  { num: 47, sym: "Ag", name: "Perak", latin: "Argentum", cat: "transition", row: 5, col: 11, mass: "107.87", config: "2, 8, 18, 18, 1", subshell: "[Kr] 4d¹⁰ 5s¹", phase: "Padat", melt: "1234.93 K", boil: "2435 K", valence: 1, shells: [2, 8, 18, 18, 1] },
+  { num: 48, sym: "Cd", name: "Kadmium", latin: "Cadmium", cat: "transition", row: 5, col: 12, mass: "112.41", config: "2, 8, 18, 18, 2", subshell: "[Kr] 4d¹⁰ 5s²", phase: "Padat", melt: "594.22 K", boil: "1040 K", valence: 2, shells: [2, 8, 18, 18, 2] },
+  { num: 49, sym: "In", name: "Indium", latin: "Indium", cat: "post-transition", row: 5, col: 13, mass: "114.82", config: "2, 8, 18, 18, 3", subshell: "[Kr] 4d¹⁰ 5s² 5p¹", phase: "Padat", melt: "429.75 K", boil: "2345 K", valence: 3, shells: [2, 8, 18, 18, 3] },
+  { num: 50, sym: "Sn", name: "Timah", latin: "Stannum", cat: "post-transition", row: 5, col: 14, mass: "118.71", config: "2, 8, 18, 18, 4", subshell: "[Kr] 4d¹⁰ 5s² 5p²", phase: "Padat", melt: "505.08 K", boil: "2875 K", valence: 4, shells: [2, 8, 18, 18, 4] },
+  { num: 51, sym: "Sb", name: "Antimon", latin: "Stibium", cat: "metalloid", row: 5, col: 15, mass: "121.76", config: "2, 8, 18, 18, 5", subshell: "[Kr] 4d¹⁰ 5s² 5p³", phase: "Padat", melt: "903.78 K", boil: "1908 K", valence: 5, shells: [2, 8, 18, 18, 5] },
+  { num: 52, sym: "Te", name: "Telurium", latin: "Tellurium", cat: "metalloid", row: 5, col: 16, mass: "127.60", config: "2, 8, 18, 18, 6", subshell: "[Kr] 4d¹⁰ 5s² 5p⁴", phase: "Padat", melt: "722.66 K", boil: "1261 K", valence: 6, shells: [2, 8, 18, 18, 6] },
+  { num: 53, sym: "I", name: "Iodin", latin: "Iodum", cat: "halogen", row: 5, col: 17, mass: "126.90", config: "2, 8, 18, 18, 7", subshell: "[Kr] 4d¹⁰ 5s² 5p⁵", phase: "Padat", melt: "386.85 K", boil: "457.4 K", valence: 7, shells: [2, 8, 18, 18, 7] },
+  { num: 54, sym: "Xe", name: "Xenon", latin: "Xenon", cat: "noble", row: 5, col: 18, mass: "131.29", config: "2, 8, 18, 18, 8", subshell: "[Kr] 4d¹⁰ 5s² 5p⁶", phase: "Gas", melt: "161.4 K", boil: "165.03 K", valence: 8, shells: [2, 8, 18, 18, 8] },
+  { num: 55, sym: "Cs", name: "Sesium", latin: "Caesium", cat: "alkali", row: 6, col: 1, mass: "132.91", config: "2, 8, 18, 18, 8, 1", subshell: "[Xe] 6s¹", phase: "Padat", melt: "301.7 K", boil: "944 K", valence: 1, shells: [2, 8, 18, 18, 8, 1] },
+  { num: 56, sym: "Ba", name: "Barium", latin: "Barium", cat: "alkaline", row: 6, col: 2, mass: "137.33", config: "2, 8, 18, 18, 8, 2", subshell: "[Xe] 6s²", phase: "Padat", melt: "1000 K", boil: "2170 K", valence: 2, shells: [2, 8, 18, 18, 8, 2] },
+  { num: 57, sym: "La", name: "Lantanum", latin: "Lanthanum", cat: "lanthanide", row: 8, col: 4, mass: "138.91", config: "2, 8, 18, 18, 9, 2", subshell: "[Xe] 5d¹ 6s²", phase: "Padat", melt: "1193 K", boil: "3737 K", valence: 2, shells: [2, 8, 18, 18, 9, 2] },
+  { num: 58, sym: "Ce", name: "Serium", latin: "Cerium", cat: "lanthanide", row: 8, col: 5, mass: "140.12", config: "2, 8, 18, 19, 9, 2", subshell: "[Xe] 4f¹ 5d¹ 6s²", phase: "Padat", melt: "1068 K", boil: "3716 K", valence: 2, shells: [2, 8, 18, 19, 9, 2] },
+  { num: 59, sym: "Pr", name: "Praseodimium", latin: "Praseodymium", cat: "lanthanide", row: 8, col: 6, mass: "140.91", config: "2, 8, 18, 21, 8, 2", subshell: "[Xe] 4f³ 6s²", phase: "Padat", melt: "1208 K", boil: "3793 K", valence: 2, shells: [2, 8, 18, 21, 8, 2] },
+  { num: 60, sym: "Nd", name: "Neodimium", latin: "Neodymium", cat: "lanthanide", row: 8, col: 7, mass: "144.24", config: "2, 8, 18, 22, 8, 2", subshell: "[Xe] 4f⁴ 6s²", phase: "Padat", melt: "1297 K", boil: "3347 K", valence: 2, shells: [2, 8, 18, 22, 8, 2] },
+  { num: 61, sym: "Pm", name: "Prometium", latin: "Promethium", cat: "lanthanide", row: 8, col: 8, mass: "(145)", config: "2, 8, 18, 23, 8, 2", subshell: "[Xe] 4f⁵ 6s²", phase: "Sintetis", melt: "1315 K", boil: "3273 K", valence: 2, shells: [2, 8, 18, 23, 8, 2] },
+  { num: 62, sym: "Sm", name: "Samarium", latin: "Samarium", cat: "lanthanide", row: 8, col: 9, mass: "150.36", config: "2, 8, 18, 24, 8, 2", subshell: "[Xe] 4f⁶ 6s²", phase: "Padat", melt: "1345 K", boil: "2067 K", valence: 2, shells: [2, 8, 18, 24, 8, 2] },
+  { num: 63, sym: "Eu", name: "Europium", latin: "Europium", cat: "lanthanide", row: 8, col: 10, mass: "151.96", config: "2, 8, 18, 25, 8, 2", subshell: "[Xe] 4f⁷ 6s²", phase: "Padat", melt: "1099 K", boil: "1802 K", valence: 2, shells: [2, 8, 18, 25, 8, 2] },
+  { num: 64, sym: "Gd", name: "Gadolinium", latin: "Gadolinium", cat: "lanthanide", row: 8, col: 11, mass: "157.25", config: "2, 8, 18, 25, 9, 2", subshell: "[Xe] 4f⁷ 5d¹ 6s²", phase: "Padat", melt: "1585 K", boil: "3546 K", valence: 2, shells: [2, 8, 18, 25, 9, 2] },
+  { num: 65, sym: "Tb", name: "Terbium", latin: "Terbium", cat: "lanthanide", row: 8, col: 12, mass: "158.93", config: "2, 8, 18, 27, 8, 2", subshell: "[Xe] 4f⁹ 6s²", phase: "Padat", melt: "1629 K", boil: "3503 K", valence: 2, shells: [2, 8, 18, 27, 8, 2] },
+  { num: 66, sym: "Dy", name: "Disprosium", latin: "Dysprosium", cat: "lanthanide", row: 8, col: 13, mass: "162.50", config: "2, 8, 18, 28, 8, 2", subshell: "[Xe] 4f¹⁰ 6s²", phase: "Padat", melt: "1680 K", boil: "2840 K", valence: 2, shells: [2, 8, 18, 28, 8, 2] },
+  { num: 67, sym: "Ho", name: "Holmium", latin: "Holmium", cat: "lanthanide", row: 8, col: 14, mass: "164.93", config: "2, 8, 18, 29, 8, 2", subshell: "[Xe] 4f¹¹ 6s²", phase: "Padat", melt: "1734 K", boil: "2993 K", valence: 2, shells: [2, 8, 18, 29, 8, 2] },
+  { num: 68, sym: "Er", name: "Erbium", latin: "Erbium", cat: "lanthanide", row: 8, col: 15, mass: "167.26", config: "2, 8, 18, 30, 8, 2", subshell: "[Xe] 4f¹² 6s²", phase: "Padat", melt: "1802 K", boil: "3141 K", valence: 2, shells: [2, 8, 18, 30, 8, 2] },
+  { num: 69, sym: "Tm", name: "Tulium", latin: "Thulium", cat: "lanthanide", row: 8, col: 16, mass: "168.93", config: "2, 8, 18, 31, 8, 2", subshell: "[Xe] 4f¹³ 6s²", phase: "Padat", melt: "1818 K", boil: "2223 K", valence: 2, shells: [2, 8, 18, 31, 8, 2] },
+  { num: 70, sym: "Yb", name: "Iterbium", latin: "Ytterbium", cat: "lanthanide", row: 8, col: 17, mass: "173.05", config: "2, 8, 18, 32, 8, 2", subshell: "[Xe] 4f¹⁴ 6s²", phase: "Padat", melt: "1097 K", boil: "1469 K", valence: 2, shells: [2, 8, 18, 32, 8, 2] },
+  { num: 71, sym: "Lu", name: "Lutesium", latin: "Lutetium", cat: "lanthanide", row: 8, col: 18, mass: "174.97", config: "2, 8, 18, 32, 9, 2", subshell: "[Xe] 4f¹⁴ 5d¹ 6s²", phase: "Padat", melt: "1925 K", boil: "3675 K", valence: 2, shells: [2, 8, 18, 32, 9, 2] },
+  { num: 72, sym: "Hf", name: "Hafnium", latin: "Hafnium", cat: "transition", row: 6, col: 4, mass: "178.49", config: "2, 8, 18, 32, 10, 2", subshell: "[Xe] 4f¹⁴ 5d² 6s²", phase: "Padat", melt: "2506 K", boil: "4876 K", valence: 2, shells: [2, 8, 18, 32, 10, 2] },
+  { num: 73, sym: "Ta", name: "Tantalum", latin: "Tantalum", cat: "transition", row: 6, col: 5, mass: "180.95", config: "2, 8, 18, 32, 11, 2", subshell: "[Xe] 4f¹⁴ 5d³ 6s²", phase: "Padat", melt: "3290 K", boil: "5731 K", valence: 2, shells: [2, 8, 18, 32, 11, 2] },
+  { num: 74, sym: "W", name: "Wolfram", latin: "Wolframium", cat: "transition", row: 6, col: 6, mass: "183.84", config: "2, 8, 18, 32, 12, 2", subshell: "[Xe] 4f¹⁴ 5d⁴ 6s²", phase: "Padat", melt: "3695 K", boil: "6203 K", valence: 2, shells: [2, 8, 18, 32, 12, 2] },
+  { num: 75, sym: "Re", name: "Renium", latin: "Rhenium", cat: "transition", row: 6, col: 7, mass: "186.21", config: "2, 8, 18, 32, 13, 2", subshell: "[Xe] 4f¹⁴ 5d⁵ 6s²", phase: "Padat", melt: "3459 K", boil: "5869 K", valence: 2, shells: [2, 8, 18, 32, 13, 2] },
+  { num: 76, sym: "Os", name: "Osmium", latin: "Osmium", cat: "transition", row: 6, col: 8, mass: "190.23", config: "2, 8, 18, 32, 14, 2", subshell: "[Xe] 4f¹⁴ 5d⁶ 6s²", phase: "Padat", melt: "3306 K", boil: "5285 K", valence: 2, shells: [2, 8, 18, 32, 14, 2] },
+  { num: 77, sym: "Ir", name: "Iridium", latin: "Iridium", cat: "transition", row: 6, col: 9, mass: "192.22", config: "2, 8, 18, 32, 15, 2", subshell: "[Xe] 4f¹⁴ 5d⁷ 6s²", phase: "Padat", melt: "2719 K", boil: "4403 K", valence: 2, shells: [2, 8, 18, 32, 15, 2] },
+  { num: 78, sym: "Pt", name: "Platina", latin: "Platinum", cat: "transition", row: 6, col: 10, mass: "195.08", config: "2, 8, 18, 32, 17, 1", subshell: "[Xe] 4f¹⁴ 5d⁹ 6s¹", phase: "Padat", melt: "2041.4 K", boil: "4098 K", valence: 1, shells: [2, 8, 18, 32, 17, 1] },
+  { num: 79, sym: "Au", name: "Emas", latin: "Aurum", cat: "transition", row: 6, col: 11, mass: "196.97", config: "2, 8, 18, 32, 18, 1", subshell: "[Xe] 4f¹⁴ 5d¹⁰ 6s¹", phase: "Padat", melt: "1337.33 K", boil: "3243 K", valence: 1, shells: [2, 8, 18, 32, 18, 1] },
+  { num: 80, sym: "Hg", name: "Raksasa", latin: "Hydrargyrum", cat: "transition", row: 6, col: 12, mass: "200.59", config: "2, 8, 18, 32, 18, 2", subshell: "[Xe] 4f¹⁴ 5d¹⁰ 6s²", phase: "Cair", melt: "234.32 K", boil: "629.88 K", valence: 2, shells: [2, 8, 18, 32, 18, 2] },
+  { num: 81, sym: "Tl", name: "Talium", latin: "Thallium", cat: "post-transition", row: 6, col: 13, mass: "204.38", config: "2, 8, 18, 32, 18, 3", subshell: "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p¹", phase: "Padat", melt: "577 K", boil: "1746 K", valence: 3, shells: [2, 8, 18, 32, 18, 3] },
+  { num: 82, sym: "Pb", name: "Timbal", latin: "Plumbum", cat: "post-transition", row: 6, col: 14, mass: "207.2", config: "2, 8, 18, 32, 18, 4", subshell: "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p²", phase: "Padat", melt: "600.61 K", boil: "2022 K", valence: 4, shells: [2, 8, 18, 32, 18, 4] },
+  { num: 83, sym: "Bi", name: "Bismut", latin: "Bismuthum", cat: "post-transition", row: 6, col: 15, mass: "208.98", config: "2, 8, 18, 32, 18, 5", subshell: "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p³", phase: "Padat", melt: "544.7 K", boil: "1837 K", valence: 5, shells: [2, 8, 18, 32, 18, 5] },
+  { num: 84, sym: "Po", name: "Polonium", latin: "Polonium", cat: "post-transition", row: 6, col: 16, mass: "(209)", config: "2, 8, 18, 32, 18, 6", subshell: "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁴", phase: "Padat", melt: "527 K", boil: "1235 K", valence: 6, shells: [2, 8, 18, 32, 18, 6] },
+  { num: 85, sym: "At", name: "Astatin", latin: "Astatum", cat: "halogen", row: 6, col: 17, mass: "(210)", config: "2, 8, 18, 32, 18, 7", subshell: "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁵", phase: "Padat", melt: "575 K", boil: "610 K", valence: 7, shells: [2, 8, 18, 32, 18, 7] },
+  { num: 86, sym: "Rn", name: "Radon", latin: "Radon", cat: "noble", row: 6, col: 18, mass: "(222)", config: "2, 8, 18, 32, 18, 8", subshell: "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁶", phase: "Gas", melt: "202 K", boil: "211.5 K", valence: 8, shells: [2, 8, 18, 32, 18, 8] },
+  { num: 87, sym: "Fr", name: "Fransium", latin: "Francium", cat: "alkali", row: 7, col: 1, mass: "(223)", config: "2, 8, 18, 32, 18, 8, 1", subshell: "[Rn] 7s¹", phase: "Padat", melt: "300 K", boil: "950 K", valence: 1, shells: [2, 8, 18, 32, 18, 8, 1] },
+  { num: 88, sym: "Ra", name: "Radium", latin: "Radium", cat: "alkaline", row: 7, col: 2, mass: "(226)", config: "2, 8, 18, 32, 18, 8, 2", subshell: "[Rn] 7s²", phase: "Padat", melt: "973 K", boil: "2013 K", valence: 2, shells: [2, 8, 18, 32, 18, 8, 2] },
+  { num: 89, sym: "Ac", name: "Aktinium", latin: "Actinium", cat: "actinide", row: 9, col: 4, mass: "(227)", config: "2, 8, 18, 32, 18, 9, 2", subshell: "[Rn] 6d¹ 7s²", phase: "Padat", melt: "1323 K", boil: "3473 K", valence: 2, shells: [2, 8, 18, 32, 18, 9, 2] },
+  { num: 90, sym: "Th", name: "Torium", latin: "Thorium", cat: "actinide", row: 9, col: 5, mass: "232.04", config: "2, 8, 18, 32, 18, 10, 2", subshell: "[Rn] 6d² 7s²", phase: "Padat", melt: "2023 K", boil: "5061 K", valence: 2, shells: [2, 8, 18, 32, 18, 10, 2] },
+  { num: 91, sym: "Pa", name: "Protaktinium", latin: "Protactinium", cat: "actinide", row: 9, col: 6, mass: "231.04", config: "2, 8, 18, 32, 20, 9, 2", subshell: "[Rn] 5f² 6d¹ 7s²", phase: "Padat", melt: "1841 K", boil: "4300 K", valence: 2, shells: [2, 8, 18, 32, 20, 9, 2] },
+  { num: 92, sym: "U", name: "Uranium", latin: "Uranium", cat: "actinide", row: 9, col: 7, mass: "238.03", config: "2, 8, 18, 32, 21, 9, 2", subshell: "[Rn] 5f³ 6d¹ 7s²", phase: "Padat", melt: "1405.3 K", boil: "4404 K", valence: 2, shells: [2, 8, 18, 32, 21, 9, 2] },
+  { num: 93, sym: "Np", name: "Neptunium", latin: "Neptunium", cat: "actinide", row: 9, col: 8, mass: "(237)", config: "2, 8, 18, 32, 22, 9, 2", subshell: "[Rn] 5f⁴ 6d¹ 7s²", phase: "Sintetis", melt: "912 K", boil: "4447 K", valence: 2, shells: [2, 8, 18, 32, 22, 9, 2] },
+  { num: 94, sym: "Pu", name: "Plutonium", latin: "Plutonium", cat: "actinide", row: 9, col: 9, mass: "(244)", config: "2, 8, 18, 32, 24, 8, 2", subshell: "[Rn] 5f⁶ 7s²", phase: "Sintetis", melt: "912.5 K", boil: "3505 K", valence: 2, shells: [2, 8, 18, 32, 24, 8, 2] },
+  { num: 95, sym: "Am", name: "Amerisium", latin: "Americium", cat: "actinide", row: 9, col: 10, mass: "(243)", config: "2, 8, 18, 32, 25, 8, 2", subshell: "[Rn] 5f⁷ 7s²", phase: "Sintetis", melt: "1449 K", boil: "2880 K", valence: 2, shells: [2, 8, 18, 32, 25, 8, 2] },
+  { num: 96, sym: "Cm", name: "Kurium", latin: "Curium", cat: "actinide", row: 9, col: 11, mass: "(247)", config: "2, 8, 18, 32, 25, 9, 2", subshell: "[Rn] 5f⁷ 6d¹ 7s²", phase: "Sintetis", melt: "1613 K", boil: "3383 K", valence: 2, shells: [2, 8, 18, 32, 25, 9, 2] },
+  { num: 97, sym: "Bk", name: "Berkelium", latin: "Berkelium", cat: "actinide", row: 9, col: 12, mass: "(247)", config: "2, 8, 18, 32, 27, 8, 2", subshell: "[Rn] 5f⁹ 7s²", phase: "Sintetis", melt: "1259 K", boil: "2900 K", valence: 2, shells: [2, 8, 18, 32, 27, 8, 2] },
+  { num: 98, sym: "Cf", name: "Kalifornium", latin: "Californium", cat: "actinide", row: 9, col: 13, mass: "(251)", config: "2, 8, 18, 32, 28, 8, 2", subshell: "[Rn] 5f¹⁰ 7s²", phase: "Sintetis", melt: "1173 K", boil: "1743 K", valence: 2, shells: [2, 8, 18, 32, 28, 8, 2] },
+  { num: 99, sym: "Es", name: "Einsteinium", latin: "Einsteinium", cat: "actinide", row: 9, col: 14, mass: "(252)", config: "2, 8, 18, 32, 29, 8, 2", subshell: "[Rn] 5f¹¹ 7s²", phase: "Sintetis", melt: "1133 K", boil: "1269 K", valence: 2, shells: [2, 8, 18, 32, 29, 8, 2] },
+  { num: 100, sym: "Fm", name: "Fermium", latin: "Fermium", cat: "actinide", row: 9, col: 15, mass: "(257)", config: "2, 8, 18, 32, 30, 8, 2", subshell: "[Rn] 5f¹² 7s²", phase: "Sintetis", melt: "1800 K", boil: "-", valence: 2, shells: [2, 8, 18, 32, 30, 8, 2] },
+  { num: 101, sym: "Md", name: "Mendelevium", latin: "Mendelevium", cat: "actinide", row: 9, col: 16, mass: "(258)", config: "2, 8, 18, 32, 31, 8, 2", subshell: "[Rn] 5f¹³ 7s²", phase: "Sintetis", melt: "1100 K", boil: "-", valence: 2, shells: [2, 8, 18, 32, 31, 8, 2] },
+  { num: 102, sym: "No", name: "Nobelium", latin: "Nobelium", cat: "actinide", row: 9, col: 17, mass: "(259)", config: "2, 8, 18, 32, 32, 8, 2", subshell: "[Rn] 5f¹⁴ 7s²", phase: "Sintetis", melt: "1100 K", boil: "-", valence: 2, shells: [2, 8, 18, 32, 32, 8, 2] },
+  { num: 103, sym: "Lr", name: "Lawrensium", latin: "Lawrencium", cat: "actinide", row: 9, col: 18, mass: "(266)", config: "2, 8, 18, 32, 32, 8, 3", subshell: "[Rn] 5f¹⁴ 6d¹ 7s²", phase: "Sintetis", melt: "1900 K", boil: "-", valence: 3, shells: [2, 8, 18, 32, 32, 8, 3] },
+  { num: 104, sym: "Rf", name: "Ruterfordium", latin: "Rutherfordium", cat: "transition", row: 7, col: 4, mass: "(267)", config: "2, 8, 18, 32, 32, 10, 2", subshell: "[Rn] 5f¹⁴ 6d² 7s²", phase: "Sintetis", melt: "2400 K", boil: "-", valence: 2, shells: [2, 8, 18, 32, 32, 10, 2] },
+  { num: 105, sym: "Db", name: "Dubnium", latin: "Dubnium", cat: "transition", row: 7, col: 5, mass: "(268)", config: "2, 8, 18, 32, 32, 11, 2", subshell: "[Rn] 5f¹⁴ 6d³ 7s²", phase: "Sintetis", melt: "-", boil: "-", valence: 2, shells: [2, 8, 18, 32, 32, 11, 2] },
+  { num: 106, sym: "Sg", name: "Seaborgium", latin: "Seaborgium", cat: "transition", row: 7, col: 6, mass: "(269)", config: "2, 8, 18, 32, 32, 12, 2", subshell: "[Rn] 5f¹⁴ 6d⁴ 7s²", phase: "Sintetis", melt: "-", boil: "-", valence: 2, shells: [2, 8, 18, 32, 32, 12, 2] },
+  { num: 107, sym: "Bh", name: "Bohrium", latin: "Bohrium", cat: "transition", row: 7, col: 7, mass: "(270)", config: "2, 8, 18, 32, 32, 13, 2", subshell: "[Rn] 5f¹⁴ 6d⁵ 7s²", phase: "Sintetis", melt: "-", boil: "-", valence: 2, shells: [2, 8, 18, 32, 32, 13, 2] },
+  { num: 108, sym: "Hs", name: "Hasium", latin: "Hassium", cat: "transition", row: 7, col: 8, mass: "(270)", config: "2, 8, 18, 32, 32, 14, 2", subshell: "[Rn] 5f¹⁴ 6d⁶ 7s²", phase: "Sintetis", melt: "-", boil: "-", valence: 2, shells: [2, 8, 18, 32, 32, 14, 2] },
+  { num: 109, sym: "Mt", name: "Meitnerium", latin: "Meitnerium", cat: "transition", row: 7, col: 9, mass: "(278)", config: "2, 8, 18, 32, 32, 15, 2", subshell: "[Rn] 5f¹⁴ 6d⁷ 7s²", phase: "Sintetis", melt: "-", boil: "-", valence: 2, shells: [2, 8, 18, 32, 32, 15, 2] },
+  { num: 110, sym: "Ds", name: "Darmstadtium", latin: "Darmstadtium", cat: "transition", row: 7, col: 10, mass: "(281)", config: "2, 8, 18, 32, 32, 17, 1", subshell: "[Rn] 5f¹⁴ 6d⁹ 7s¹", phase: "Sintetis", melt: "-", boil: "-", valence: 1, shells: [2, 8, 18, 32, 32, 17, 1] },
+  { num: 111, sym: "Rg", name: "Roentgenium", latin: "Roentgenium", cat: "transition", row: 7, col: 11, mass: "(282)", config: "2, 8, 18, 32, 32, 18, 1", subshell: "[Rn] 5f¹⁴ 6d¹⁰ 7s¹", phase: "Sintetis", melt: "-", boil: "-", valence: 1, shells: [2, 8, 18, 32, 32, 18, 1] },
+  { num: 112, sym: "Cn", name: "Kopernisium", latin: "Copernicium", cat: "transition", row: 7, col: 12, mass: "(285)", config: "2, 8, 18, 32, 32, 18, 2", subshell: "[Rn] 5f¹⁴ 6d¹⁰ 7s²", phase: "Sintetis", melt: "-", boil: "-", valence: 2, shells: [2, 8, 18, 32, 32, 18, 2] },
+  { num: 113, sym: "Nh", name: "Nihonium", latin: "Nihonium", cat: "post-transition", row: 7, col: 13, mass: "(286)", config: "2, 8, 18, 32, 32, 18, 3", subshell: "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p¹", phase: "Sintetis", melt: "700 K", boil: "1400 K", valence: 3, shells: [2, 8, 18, 32, 32, 18, 3] },
+  { num: 114, sym: "Fl", name: "Flerovium", latin: "Flerovium", cat: "post-transition", row: 7, col: 14, mass: "(289)", config: "2, 8, 18, 32, 32, 18, 4", subshell: "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p²", phase: "Sintetis", melt: "340 K", boil: "420 K", valence: 4, shells: [2, 8, 18, 32, 32, 18, 4] },
+  { num: 115, sym: "Mc", name: "Moskovium", latin: "Moscovium", cat: "post-transition", row: 7, col: 15, mass: "(290)", config: "2, 8, 18, 32, 32, 18, 5", subshell: "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p³", phase: "Sintetis", melt: "670 K", boil: "1400 K", valence: 5, shells: [2, 8, 18, 32, 32, 18, 5] },
+  { num: 116, sym: "Lv", name: "Livermorium", latin: "Livermorium", cat: "post-transition", row: 7, col: 16, mass: "(293)", config: "2, 8, 18, 32, 32, 18, 6", subshell: "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁴", phase: "Sintetis", melt: "709 K", boil: "1085 K", valence: 6, shells: [2, 8, 18, 32, 32, 18, 6] },
+  { num: 117, sym: "Ts", name: "Tenesin", latin: "Tennessine", cat: "halogen", row: 7, col: 17, mass: "(294)", config: "2, 8, 18, 32, 32, 18, 7", subshell: "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁵", phase: "Sintetis", melt: "723 K", boil: "883 K", valence: 7, shells: [2, 8, 18, 32, 32, 18, 7] },
+  { num: 118, sym: "Og", name: "Oganeson", latin: "Oganesson", cat: "noble", row: 7, col: 18, mass: "(294)", config: "2, 8, 18, 32, 32, 18, 8", subshell: "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁶", phase: "Sintetis", melt: "325 K", boil: "350 K", valence: 8, shells: [2, 8, 18, 32, 32, 18, 8] }
+];
+
+const categoryLabels = {
+  'nonmetal': 'Nonlogam Reaktif',
+  'noble': 'Gas Mulia',
+  'alkali': 'Logam Alkali',
+  'alkaline': 'Alkali Tanah',
+  'metalloid': 'Metaloid',
+  'halogen': 'Halogen',
+  'transition': 'Logam Transisi',
+  'post-transition': 'Logam Pasca-Transisi',
+  'lanthanide': 'Lantanida',
+  'actinide': 'Aktinida'
+};
+
+const tableEl = document.getElementById('periodicTable');
+const legendBar = document.getElementById('legendBar');
+const searchInput = document.getElementById('searchInput');
+const filterSelect = document.getElementById('filterSelect');
+const themeToggle = document.getElementById('themeToggle');
+
+let currentSelectedSym = "O";
+
+function initTable() {
+  const grid = Array(9).fill(null).map(() => Array(18).fill(null));
+  elements.forEach(el => { grid[el.row - 1][el.col - 1] = el; });
+
+  tableEl.innerHTML = '';
+
+  for (let r = 0; r < 7; r++) {
+    for (let c = 0; c < 18; c++) {
+      const item = grid[r][c];
+      if (item) {
+        tableEl.appendChild(createElementCell(item));
+      } else if (r === 5 && c === 2) {
+        tableEl.appendChild(createPlaceholderCell("57-71", "La-Lu", "lanthanide"));
+      } else if (r === 6 && c === 2) {
+        tableEl.appendChild(createPlaceholderCell("89-103", "Ac-Lr", "actinide"));
+      } else {
+        tableEl.appendChild(document.createElement('div'));
+      }
+    }
+  }
+
+  const gap = document.createElement('div');
+  gap.className = 'gap-row';
+  tableEl.appendChild(gap);
+
+  for (let r = 7; r < 9; r++) {
+    for (let c = 0; c < 18; c++) {
+      const item = grid[r][c];
+      if (item) {
+        tableEl.appendChild(createElementCell(item));
+      } else {
+        tableEl.appendChild(document.createElement('div'));
+      }
+    }
+  }
+
+  initLegend();
+  updateSidebar(elements.find(e => e.sym === "O"));
+}
+
+function createElementCell(el) {
+  const cell = document.createElement('div');
+  cell.className = `element-cell cat-${el.cat} ${el.sym === currentSelectedSym ? 'selected' : ''}`;
+  cell.dataset.symbol = el.sym.toLowerCase();
+  cell.dataset.name = el.name.toLowerCase();
+  cell.dataset.num = el.num;
+  cell.dataset.cat = el.cat;
+
+  cell.innerHTML = `
+    <span class="element-num">${el.num}</span>
+    <span class="element-symbol">${el.sym}</span>
+    <span class="element-name">${el.name}</span>
+  `;
+
+  cell.addEventListener('click', () => {
+    document.querySelectorAll('.element-cell').forEach(c => c.classList.remove('selected'));
+    cell.classList.add('selected');
+    currentSelectedSym = el.sym;
+    updateSidebar(el);
+  });
+
+  return cell;
+}
+
+function createPlaceholderCell(numText, symText, cat) {
+  const cell = document.createElement('div');
+  cell.className = `element-cell placeholder cat-${cat}`;
+  cell.innerHTML = `
+    <span class="element-num">${numText}</span>
+    <span class="element-symbol" style="font-size: 11px;">${symText}</span>
+    <span></span>
+  `;
+  return cell;
+}
+
+function initLegend() {
+  legendBar.innerHTML = '';
+  Object.keys(categoryLabels).forEach(cat => {
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.innerHTML = `
+      <div class="legend-color cat-${cat}"></div>
+      <span>${categoryLabels[cat]}</span>
+    `;
+    item.addEventListener('click', () => {
+      filterSelect.value = filterSelect.value === cat ? 'all' : cat;
+      filterElements();
+    });
+    legendBar.appendChild(item);
+  });
+}
+
+function updateSidebar(el) {
+  document.getElementById('sideSym').textContent = el.sym;
+  document.getElementById('sideNum').textContent = `Nomor Atom : ${el.num}`;
+  document.getElementById('sideName').textContent = el.name;
+  document.getElementById('sideLatin').textContent = el.latin;
+  document.getElementById('sideCat').textContent = categoryLabels[el.cat];
+  document.getElementById('sideMass').textContent = el.mass + (el.mass.startsWith('(') ? '' : ' u');
+  document.getElementById('sideConfig').textContent = el.config;
+  document.getElementById('sideSubshell').textContent = el.subshell;
+  document.getElementById('sidePerGol').textContent = `${el.row > 7 ? (el.row === 8 ? 6 : 7) : el.row} / ${el.col}`;
+  document.getElementById('sidePhase').textContent = el.phase;
+  document.getElementById('sideMelt').textContent = el.melt;
+  document.getElementById('sideBoil').textContent = el.boil;
+  document.getElementById('sideValence').textContent = el.valence;
+
+  drawBohrModel(el.shells || [2, 6]);
+}
+
+function drawBohrModel(shells) {
+  const canvas = document.getElementById('bohrCanvas');
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Inti Atom
+  ctx.beginPath();
+  ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+  ctx.fillStyle = '#3b82f6';
+  ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 10px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(document.getElementById('sideSym').textContent, cx, cy);
+
+  // Orbit Kulit & Elektron
+  const maxRadius = 75;
+  const step = maxRadius / (shells.length || 1);
+
+  shells.forEach((count, i) => {
+    const r = 24 + (i * step);
+
+    // Garis Orbit
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(100, 116, 139, 0.4)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Elektron
+    for (let e = 0; e < count; e++) {
+      const angle = (e * (2 * Math.PI / count)) - (Math.PI / 2);
+      const ex = cx + r * Math.cos(angle);
+      const ey = cy + r * Math.sin(angle);
+
+      ctx.beginPath();
+      ctx.arc(ex, ey, 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#0284c7';
+      ctx.fill();
+    }
+  });
+}
+
+function filterElements() {
+  const query = searchInput.value.toLowerCase().trim();
+  const catFilter = filterSelect.value;
+
+  document.querySelectorAll('.element-cell').forEach(cell => {
+    if (cell.classList.contains('placeholder')) return;
+    const name = cell.dataset.name || '';
+    const sym = cell.dataset.symbol || '';
+    const num = cell.dataset.num || '';
+    const cat = cell.dataset.cat || '';
+
+    const matchesSearch = !query || name.includes(query) || sym.includes(query) || num.includes(query);
+    const matchesCat = catFilter === 'all' || cat === catFilter;
+
+    if (matchesSearch && matchesCat) {
+      cell.classList.remove('dimmed');
+    } else {
+      cell.classList.add('dimmed');
+    }
+  });
+}
+
+themeToggle.addEventListener('click', () => {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  if (isDark) {
+    document.documentElement.removeAttribute('data-theme');
+    themeToggle.textContent = '🌙 Mode';
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeToggle.textContent = '☀️ Mode';
+  }
+});
+
+searchInput.addEventListener('input', filterElements);
+filterSelect.addEventListener('change', filterElements);
+
+initTable();
+</script>
+</body>
+</html>
