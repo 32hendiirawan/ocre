@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latihan Persamaan Eksponen</title>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #0f172a;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: #e2e8f0;
+            --success-color: #16a34a;
+            --success-bg: #f0fdf4;
+            --danger-color: #dc2626;
+            --danger-bg: #fef2f2;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            padding: 12px 15px;
+            box-sizing: border-box;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2rem;
+            color: var(--text-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+            color: skyblue;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+            -webkit-text-stroke: 0.5px blue;
+            font-family: 'Comic Sans MS', Arial, sans-serif;
+        }
+
+        /* Layout 2 Kolom Ringkas */
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .exercise-card {
+            background-color: white;
+            border: 2px solid skyblue;
+            border-radius: 20px 0 20px 0;
+            padding: 6px 8px;
+            display: flex;
+            flex-direction: row;
+            justify-content: left;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: left;
+            align-items: center;
+            width: 30px;
+            margin-right: 6px;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: white;
+            background-color: blue;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 24px;
+            height: 24px;
+        }
+
+        .math-box {
+            font-size: 0.9rem;
+            margin: 2px 0;
+            text-align: center;
+        }
+
+        .answer-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 3px;
+            margin-top: 2px;
+        }
+
+        .answer-box label {
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        input[type="number"] {
+            width: 35px;
+            padding: 2px 4px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: bold;
+            border: 1px solid skyblue;
+            border-radius: 4px;
+            outline: none;
+            -moz-appearance: textfield;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--primary-color);            
+        }
+
+        input.correct-input {
+            border-color: var(--success-color) !important;
+            background-color: var(--success-bg) !important;
+            color: var(--success-color);
+        }
+
+        input.incorrect-input {
+            border-color: var(--danger-color) !important;
+            background-color: var(--danger-bg) !important;
+            color: var(--danger-color);
+        }
+
+        .feedback-icon {
+            font-size: 0.85rem;
+            font-weight: bold;
+            width: 12px;
+            text-align: center;
+        }
+
+        /* Tombol Aksi */
+        .btn-container {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        button {
+            flex: 1;
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #btn-check {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        #btn-check:hover { background-color: var(--primary-hover); }
+
+        #btn-reset {
+            background-color: #e2e8f0;
+            color: #334155;
+        }
+        #btn-reset:hover { background-color: #cbd5e1; }
+
+        #btn-pdf {
+            background-color: #0d9488;
+            color: white;
+        }
+        #btn-pdf:hover { background-color: #0f766e; }
+
+        /* Kotak Hasil / Skor Ringkas */
+        .result-box {
+            margin-top: 6px;
+            padding: 6px;
+            border-radius: 6px;
+            text-align: center;
+            display: none;
+            font-size: 0.8rem;
+        }
+
+        .result-box.success {
+            background-color: var(--success-bg);
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+
+        .result-box.warning {
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+        }
+
+        .result-box.danger {
+            background-color: var(--danger-bg);
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
+        .result-box h2 {
+            margin: 0;
+            font-size: 0.85rem;
+        }
+
+        /* Pengaturan khusus saat dicetak / simpan PDF */
+        @media print {
+            body {
+                background-color: white;
+            }
+            .container {
+                box-shadow: none;
+                border: none;
+                max-width: 100%;
+            }
+            .btn-container {
+                display: none; /* Sembunyikan tombol saat dicetak ke PDF */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="capture-area">
+        <header>
+            <h1>Latihan Soal<br>Persamaan Eksponen</h1>
+        </header>
+
+        <!-- Container 10 Soal (2 Kolom) -->
+        <div id="quiz-container" class="grid-container">
+            <!-- Soal di-generate otomatis via JS -->
+        </div>
+
+        <!-- Tombol Kontrol -->
+        <div class="btn-container">
+            <button id="btn-check" onclick="checkAllAnswers()">Cek</button>
+            <button id="btn-reset" onclick="generateRandomQuestions()">Reset</button>
+            <button id="btn-pdf" onclick="window.print()">Cetak PDF</button>
+        </div>
+
+        <!-- Kotak Informasi Skor -->
+        <div id="result-summary" class="result-box"></div>
+    </div>
+
+    <script>
+        let answersKey = {};
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateRandomQuestions() {
+            const resultBox = document.getElementById('result-summary');
+            resultBox.style.display = 'none';
+            resultBox.className = 'result-box';
+
+            answersKey = {};
+
+            const base1 = getRandomInt(2, 5);
+            const k1 = getRandomInt(1, 6);
+            const ans1 = getRandomInt(-2, 5);
+            const c1 = ans1 + k1;
+            answersKey[1] = ans1;
+
+            const base2 = getRandomInt(2, 5);
+            const m2 = getRandomInt(1, 5);
+            const n2 = getRandomInt(1, 5);
+            const ans2 = n2 + m2;
+            answersKey[2] = ans2;
+
+            const base3a = getRandomInt(2, 4);
+            const base3b = getRandomInt(5, 8);
+            const k3 = getRandomInt(1, 8);
+            answersKey[3] = k3;
+
+            const base4 = getRandomInt(2, 6);
+            const ans4 = getRandomInt(1, 5);
+            const k4 = ans4 * 2;
+            answersKey[4] = ans4;
+
+            const base5 = getRandomInt(2, 5);
+            const p5 = getRandomInt(2, 3);
+            const n5 = getRandomInt(2, 4);
+            const m5 = getRandomInt(1, 4);
+            const ans5 = (n5 * p5) - m5;
+            answersKey[5] = ans5;
+
+            const k6 = getRandomInt(1, 3);
+            const m6 = getRandomInt(1, 3);
+            const ans6 = (2 * k6) + (3 * m6);
+            answersKey[6] = ans6;
+
+            const base7 = getRandomInt(2, 5);
+            const k7 = getRandomInt(3, 8);
+            const m7 = getRandomInt(1, 3);
+            const ans7 = k7 - m7;
+            answersKey[7] = ans7;
+
+            const base8 = getRandomInt(2, 5);
+            const k8 = getRandomInt(1, 5);
+            const ans8 = getRandomInt(1, 6);
+            const m8 = ans8 + k8;
+            answersKey[8] = ans8;
+
+            const base9 = getRandomInt(2, 5);
+            const ans9 = getRandomInt(1, 4);
+            const k9 = getRandomInt(1, 5);
+            const m9 = (ans9 * ans9) - k9;
+            answersKey[9] = ans9;
+
+            const base10 = getRandomInt(2, 5);
+            const ans10 = getRandomInt(1, 5);
+            const k10 = getRandomInt(1, 4);
+            const m10 = (2 * ans10) - k10;
+            answersKey[10] = ans10;
+
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = `
+                <div class="exercise-card">
+                    <div class="question-header"><span class="question-number">1</span></div>
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                        <div class="math-box"><math><msup><mn>${base1}</mn><mrow><mi>x</mi><mo>+</mo><mn>${k1}</mn></mrow></msup><mo>=</mo><msup><mn>${base1}</mn><mn>${c1}</mn></msup></math></div>
+                        <div class="answer-box"><label for="ans1"><math><mi>x</mi><mo>=</mo></math></label><div class="input-group"><input type="number" id="ans1"><span id="feedback1" class="feedback-icon"></span></div></div>
+                    </div>
+                </div>
+                <div class="exercise-card">
+                    <div class="question-header"><span class="question-number">2</span></div>
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                        <div class="math-box"><math><msup><mn>${base2}</mn><mrow><mn>2</mn><mi>x</mi><mo>-</mo><mn>${m2}</mn></mrow></msup><mo>=</mo><msup><mn>${base2}</mn><mrow><mi>x</mi><mo>+</mo><mn>${n2}</mn></mrow></msup></math></div>
+                        <div class="answer-box"><label for="ans2"><math><mi>x</mi><mo>=</mo></math></label><div class="input-group"><input type="number" id="ans2"><span id="feedback2" class="feedback-icon"></span></div></div>
+                    </div>
+                </div>
+                <div class="exercise-card">
+                    <div class="question-header"><span class="question-number">3</span></div>
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                        <div class="math-box"><math><msup><mn>${base3a}</mn><mrow><mi>x</mi><mo>-</mo><mn>${k3}</mn></mrow></msup><mo>=</mo><msup><mn>${base3b}</mn><mrow><mi>x</mi><mo>-</mo><mn>${k3}</mn></mrow></msup></math></div>
+                        <div class="answer-box"><label for="ans3"><math><mi>x</mi><mo>=</mo></math></label><div class="input-group"><input type="number" id="ans3"><span id="feedback3" class="feedback-icon"></span></div></div>
+                    </div>
+                </div>
+                <div class="exercise-card">
+                    <div class="question-header"><span class="question-number">4</span></div>
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                        <div class="math-box"><math><msup><mn>${base4}</mn><mrow><mn>2</mn><mi>x</mi><mo>-</mo><mn>${k4}</mn></mrow></msup><mo>=</mo><mn>1</mn></math></div>
+                        <div class="answer-box"><label for="ans4"><math><mi>x</mi><mo>=</mo></math></label><div class="input-group"><input type="number" id="ans4"><span id="feedback4" class="feedback-icon"></span></div></div>
+                    </div>
+                </div>
+                <div class="exercise-card">
+                    <div class="question-header"><span class="question-number">5</span></div>
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                        <div class="math-box"><math><mroot><mrow><msup><mn>${base5}</mn><mrow><mi>x</mi><mo>+</mo><mn>${m5}</mn></mrow></msup></mrow><mn>${p5}</mn></mroot><mo>=</mo><msup><mn>${base5}</mn><mn>${n5}</mn></msup></math></div>
+                        <div class="answer-box"><label for="ans5"><math><mi>x</mi><mo>=</mo></math></label><div class="input-group"><input type="number" id="ans5"><span id="feedback5" class="feedback-icon"></span></div></div>
+                    </div>
+                </div>
+                <div class="exercise-card">
+                    <div class="question-header"><span class="question-number">6</span></div>
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                        <div class="math-box"><math><msup><mn>4</mn><mrow><mi>x</mi><mo>+</mo><mn>${k6}</mn></mrow></msup><mo>=</mo><msup><mn>8</mn><mrow><mi>x</mi><mo>-</mo><mn>${m6}</mn></mrow></msup></math></div>
+                        <div class="answer-box"><label for="ans6"><math><mi>x</mi><mo>=</mo></math></label><div class="input-group"><input type="number" id="ans6"><span id="feedback6" class="feedback-icon"></span></div></div>
+                    </div>
+                </div>
+                <div class="exercise-card">
+                    <div class="question-header"><span class="question-number">7</span></div>
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                        <div class="math-box"><math><msup><mrow><mo>(</mo><mfrac><mn>1</mn><mn>${base7}</mn></mfrac><mo>)</mo></mrow><mrow><mi>x</mi><mo>-</mo><mn>${k7}</mn></mrow></msup><mo>=</mo><msup><mn>${base7}</mn><mn>${m7}</mn></msup></math></div>
+                        <div class="answer-box"><label for="ans7"><math><mi>x</mi><mo>=</mo></math></label><div class="input-group"><input type="number" id="ans7"><span id="feedback7" class="feedback-icon"></span></div></div>
+                    </div>
+                </div>
+                <div class="exercise-card">
+                    <div class="question-header"><span class="question-number">8</span></div>
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                        <div class="math-box"><math><msup><mn>${base8}</mn><mi>x</mi></msup><mo>&times;</mo><msup><mn>${base8}</mn><mn>${k8}</mn></msup><mo>=</mo><msup><mn>${base8}</mn><mn>${m8}</mn></msup></math></div>
+                        <div class="answer-box"><label for="ans8"><math><mi>x</mi><mo>=</mo></math></label><div class="input-group"><input type="number" id="ans8"><span id="feedback8" class="feedback-icon"></span></div></div>
+                    </div>
+                </div>
+                <div class="exercise-card">
+                    <div class="question-header"><span class="question-number">9</span></div>
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                        <div class="math-box"><math><msup><mn>${base9}</mn><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>-</mo><mn>${k9}</mn></mrow></msup><mo>=</mo><msup><mn>${base9}</mn><mn>${m9}</mn></msup><mo>;</mo><mi>x</mi><mo>&gt;</mo><mn>0</mn></math></div>
+                        <div class="answer-box"><label for="ans9"><math><mi>x</mi><mo>=</mo></math></label><div class="input-group"><input type="number" id="ans9"><span id="feedback9" class="feedback-icon"></span></div></div>
+                    </div>
+                </div>
+                <div class="exercise-card">
+                    <div class="question-header"><span class="question-number">10</span></div>
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                        <div class="math-box">
+                            <math>
+                                <mfrac><msup><mn>${base10}</mn><mrow><mn>3</mn><mi>x</mi><mo>-</mo><mn>${k10}</mn></mrow></msup><msup><mn>${base10}</mn><mi>x</mi></msup></mfrac>
+                                <mo>=</mo><msup><mn>${base10}</mn><mn>${m10}</mn></msup>
+                            </math>
+                        </div>
+                        <div class="answer-box"><label for="ans10"><math><mi>x</mi><mo>=</mo></math></label><div class="input-group"><input type="number" id="ans10"><span id="feedback10" class="feedback-icon"></span></div></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkAllAnswers() {
+            const totalQuestions = 10;
+            let correctCount = 0;
+
+            for (let i = 1; i <= totalQuestions; i++) {
+                const inputEl = document.getElementById(`ans${i}`);
+                const feedbackEl = document.getElementById(`feedback${i}`);
+                const userVal = parseFloat(inputEl.value);
+                const correctVal = answersKey[i];
+
+                if (!isNaN(userVal) && userVal === correctVal) {
+                    correctCount++;
+                    inputEl.className = "correct-input";
+                    feedbackEl.textContent = "✓";
+                    feedbackEl.style.color = "var(--success-color)";
+                } else {
+                    inputEl.className = "incorrect-input";
+                    feedbackEl.textContent = "✕";
+                    feedbackEl.style.color = "var(--danger-color)";
+                }
+            }
+
+            const percentage = Math.round((correctCount / totalQuestions) * 100);
+            const resultBox = document.getElementById('result-summary');
+            resultBox.style.display = 'block';
+
+            if (percentage === 100) {
+                resultBox.className = "result-box success";
+                resultBox.innerHTML = `<h2>Sempurna! 🎉 (${percentage}%)</h2>`;
+            } else if (percentage >= 70) {
+                resultBox.className = "result-box warning";
+                resultBox.innerHTML = `<h2>Bagus! 👍 (${percentage}%)</h2>`;
+            } else {
+                resultBox.className = "result-box danger";
+                resultBox.innerHTML = `<h2>Ayo Coba Lagi! 💪 (${percentage}%)</h2>`;
+            }
+        }
+
+        window.onload = function() {
+            generateRandomQuestions();
+        };
+
+        (function() {
+            window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+            window.addEventListener('keydown', function(e) {
+                if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            }, true);
+        })();
+        
+    </script>
+</body>
+</html>

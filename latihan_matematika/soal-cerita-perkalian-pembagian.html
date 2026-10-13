@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Soal Cerita Perkalian & Pembagian</title>
+    <!-- Include html2canvas library for saving page as image -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border: 2px solid #6c5ce7;
+            border-radius: 15px;
+            padding: 12px 10px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Container Pembungkus Khusus untuk Hasil Tangkapan Gambar (Rasio 3:4) */
+        .export-wrapper {
+            background-color: #ffffff;
+            padding: 5px; /* Border margin 5px */
+            box-sizing: border-box;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Posisi vertikal di tengah */
+            align-items: center;     /* Posisi horizontal di tengah */
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            border-bottom: 2px dashed #6c5ce7;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #5f27cd;
+            margin: 0;
+            font-size: 16px;
+            text-align: center;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 11px;
+            font-weight: bold;
+            color: #636e72;
+            margin-top: -3px;
+        }
+
+        .name-field {
+            font-size: 12px;
+            font-weight: bold;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .name-field input {
+            border: none;
+            border-bottom: 1.5px solid #333;
+            outline: none;
+            font-size: 12px;
+            padding: 2px 4px;
+            width: 160px;
+            text-align: center;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+
+        .quiz-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .question-card {
+            border-radius: 12px;
+            padding: 10px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        /* Variasi Tema Warna Tiap Soal */
+        .theme-0 { background-color: #ffeaa7; border-color: #fdcb6e; }
+        .theme-1 { background-color: #e0f2fe; border-color: #38bdf8; }
+        .theme-2 { background-color: #fce7f3; border-color: #f472b6; }
+        .theme-3 { background-color: #dcfce7; border-color: #4ade80; }
+        .theme-4 { background-color: #f3e8ff; border-color: #c084fc; }
+
+        .q-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .q-number {
+            font-size: 11px;
+            color: #2d3436;
+            font-weight: 800;
+        }
+
+        .status-icon {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .story-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .item-icon {
+            font-size: 28px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+        }
+
+        .story-text {
+            font-size: 12px;
+            color: #2d3436;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .answer-block {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-left: 4px;
+        }
+
+        .answer-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #2d3436;
+        }
+
+        .input-expr {
+            width: 90px;
+            height: 28px;
+            border: 1.5px solid #b2bec3;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            outline: none;
+            background-color: #fff;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+
+        .input-result {
+            width: 55px;
+            height: 28px;
+            border: 1.5px solid #b2bec3;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            outline: none;
+            background-color: #fff;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+
+        .input-expr:focus, .input-result:focus {
+            border-color: #6c5ce7;
+            background-color: #f8f7ff;
+        }
+
+        /* Status jawaban saat diperiksa */
+        .question-card.correct {
+            border-color: #10b981 !important;
+            background-color: #f0fdf4 !important;
+        }
+
+        .question-card.correct .status-icon {
+            display: block;
+            color: #10b981;
+        }
+
+        .question-card.incorrect {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+        }
+
+        .question-card.incorrect .status-icon {
+            display: block;
+            color: #ef4444;
+        }
+
+        .correct-answer-text {
+            font-size: 11px;
+            color: #d63031;
+            font-weight: bold;
+            display: none;
+            margin-top: 2px;
+            padding-left: 4px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            width: 100%;
+        }
+
+        button.action-btn {
+            flex: 1 1 calc(50% - 4px);
+            padding: 10px 4px;
+            font-size: 12px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button.action-btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-submit {
+            background-color: #6c5ce7;
+            color: white;
+        }
+
+        .btn-reset {
+            background-color: #f59e0b;
+            color: white;
+        }
+
+        .btn-save {
+            background-color: #10b981;
+            color: white;
+            flex: 1 1 100%;
+        }
+
+        .result-box {
+            font-size: 14px;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+            display: none;
+            padding: 8px;
+            background-color: #eef2f5;
+            border-radius: 6px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="export-wrapper" id="printableArea">
+        <div class="header">
+            <h1>SOAL CERITA MATEMATIKA</h1>
+            <div class="subtitle">Perkalian & Pembagian Dasar</div>
+            <div class="name-field">
+                NAMA: <input type="text" id="studentName" placeholder=" ">
+            </div>
+        </div>
+
+        <div class="quiz-list" id="quizList"></div>
+
+        <div class="controls">
+            <div class="button-group" data-html2canvas-ignore="true">
+                <button class="action-btn btn-submit" id="btnSubmit" onclick="checkAnswers()">Periksa</button>
+                <button class="action-btn btn-reset" onclick="generateQuiz()">Acak Soal</button>
+                <button class="action-btn btn-save" onclick="saveAsImage()">Simpan (Gambar)</button>
+            </div>
+            <div class="result-box" id="resultBox"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let questionsData = [];
+
+    const itemContexts = [
+        {
+            name: 'buah apel',
+            unitTarget: 'buah apel',
+            icon: '🍎',
+            mulStories: [
+                "Ada {n1} kantong {item}. Setiap kantong berisi {n2} buah. Berapa jumlah seluruh {item}?",
+                "Ibu membeli {n1} kotak {item}. Masing-masing kotak berisi {n2} buah. Berapa total {item} yang dibeli Ibu?"
+            ],
+            divStories: [
+                "Paman mempunyai {total} {item}. Apel tersebut dibagi rata ke dalam {n2} kantong. Berapa isi {item} dalam setiap kantong?",
+                "Ada {total} {item} yang akan dimasukkan ke dalam {n2} piring sama banyak. Berapa {item} di setiap piring?"
+            ]
+        },
+        {
+            name: 'kelereng',
+            unitTarget: 'kelereng',
+            icon: '🔮',
+            mulStories: [
+                "{nama} memiliki {n1} kotak {item}. Setiap kotak berisi {n2} butir. Berapa jumlah kelereng {nama} seluruhnya?",
+                "Ada {n1} anak yang masing-masing membawa {n2} {item}. Berapa jumlah total {item} yang mereka bawa?"
+            ],
+            divStories: [
+                "{nama} mempunyai {total} {item}. Kelereng tersebut dibagikan sama banyak kepada {n2} temannya. Berapa {item} yang diterima setiap teman?",
+                "Sebanyak {total} {item} dimasukkan ke dalam {n2} botol secara merata. Berapa {item} di dalam setiap botol?"
+            ]
+        },
+        {
+            name: 'pensil',
+            unitTarget: 'batang pensil',
+            icon: '✏️',
+            mulStories: [
+                "Di toko ada {n1} pak {item}. Setiap pak berisi {n2} batang. Berapa jumlah seluruh {item} di toko?",
+                "Pak Guru membagikan {n2} {item} kepada masing-masing dari {n1} siswa. Berapa total {item} yang dibagikan?"
+            ],
+            divStories: [
+                "Ibu guru memiliki {total} {item}. Pensil tersebut dibagikan sama banyak kepada {n2} kelompok siswa. Berapa {item} yang didapat setiap kelompok?",
+                "Sebanyak {total} {item} dikemas ke dalam {n2} kotak sama banyak. Berapa {item} dalam setiap kotak?"
+            ]
+        },
+        {
+            name: 'buku',
+            unitTarget: 'buku',
+            icon: '📚',
+            mulStories: [
+                "Perpustakaan menerima {n1} tumpukan {item}. Setiap tumpukan terdiri dari {n2} buku. Berapa total {item} yang diterima?",
+                "{nama} membeli {n1} paket {item}. Setiap paket berisi {n2} buku. Berapa jumlah {item} yang dibeli {nama}?"
+            ],
+            divStories: [
+                "Ada {total} {item} yang akan ditata merata di {n2} rak buku. Berapa {item} pada setiap rak?",
+                "Sebanyak {total} {item} dibagikan sama rata kepada {n2} anak. Berapa {item} yang diperoleh masing-masing anak?"
+            ]
+        },
+        {
+            name: 'permen',
+            unitTarget: 'butir permen',
+            icon: '🍬',
+            mulStories: [
+                "Ibu membawa {n1} bungkus {item}. Setiap bungkus berisi {n2} butir. Berapa jumlah seluruh {item} Ibu?",
+                "Terdapat {n1} toples {item}. Setiap toples berisi {n2} permen. Berapa total {item} seluruhnya?"
+            ],
+            divStories: [
+                "Kakak mempunyai {total} {item}. Permen tersebut dibagikan sama banyak kepada {n2} adiknya. Berapa {item} yang didapat setiap adik?",
+                "Sebanyak {total} {item} dimasukkan secara merata ke dalam {n2} kantong plastik. Berapa {item} dalam setiap kantong?"
+            ]
+        }
+    ];
+
+    const names = ['Siti', 'Budi', 'Ani', 'Rina', 'Dodi'];
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function generateQuiz() {
+        const quizList = document.getElementById('quizList');
+        const resultBox = document.getElementById('resultBox');
+        
+        quizList.innerHTML = '';
+        resultBox.style.display = 'none';
+        
+        const submitBtn = document.getElementById('btnSubmit');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.style.cursor = 'pointer';
+        }
+
+        questionsData = [];
+
+        const types = ['mul', 'mul', 'div', 'div', Math.random() < 0.5 ? 'mul' : 'div'];
+        types.sort(() => Math.random() - 0.5);
+
+        for (let i = 0; i < 5; i++) {
+            const isMul = types[i] === 'mul';
+            const context = itemContexts[i];
+            const personName = names[i];
+
+            let n1, n2, total, answer, primaryExpr, altExpr, storyTemplate, storyText;
+
+            if (isMul) {
+                n1 = getRandomInt(6, 25);
+                n2 = getRandomInt(3, 12);
+                answer = n1 * n2;
+                
+                primaryExpr = `${n1}x${n2}`;
+                altExpr = `${n2}x${n1}`;
+
+                storyTemplate = context.mulStories[getRandomInt(0, context.mulStories.length - 1)];
+                storyText = storyTemplate
+                    .replace(/{nama}/g, personName)
+                    .replace(/{item}/g, context.name)
+                    .replace(/{n1}/g, n1)
+                    .replace(/{n2}/g, n2);
+            } else {
+                n2 = getRandomInt(2, 9);
+                answer = getRandomInt(10, 95);
+                total = answer * n2;
+
+                primaryExpr = `${total}:${n2}`;
+                altExpr = `${total}/${n2}`;
+
+                storyTemplate = context.divStories[getRandomInt(0, context.divStories.length - 1)];
+                storyText = storyTemplate
+                    .replace(/{nama}/g, personName)
+                    .replace(/{item}/g, context.name)
+                    .replace(/{total}/g, total)
+                    .replace(/{n2}/g, n2);
+            }
+
+            questionsData.push({
+                id: i,
+                isMul: isMul,
+                primaryExpr: primaryExpr,
+                altExpr: altExpr,
+                answer: answer,
+                unitTarget: context.unitTarget
+            });
+
+            const card = document.createElement('div');
+            card.className = `question-card theme-${i}`;
+            card.id = `card-${i}`;
+
+            card.innerHTML = `
+                <div class="q-header">
+                    <span class="q-number">Soal #${i + 1}</span>
+                </div>
+                <span class="status-icon" id="icon-${i}"></span>
+                
+                <div class="story-content">
+                    <div class="item-icon">${context.icon}</div>
+                    <div class="story-text">${storyText}</div>
+                </div>
+
+                <div class="answer-block">
+                    <div class="answer-row">
+                        <span>Jawaban :</span>
+                        <input type="text" class="input-expr" id="expr-${i}" placeholder="misal: ${isMul ? '12x5' : '60:5'}" autocomplete="off">
+                        <span> = </span>
+                        <input type="number" class="input-result" id="input-${i}" placeholder="0" autocomplete="off">
+                        <span>${context.unitTarget}</span>
+                    </div>
+                </div>
+                <div class="correct-answer-text" id="correct-ans-${i}"></div>
+            `;
+
+            quizList.appendChild(card);
+        }
+    }
+
+    function checkAnswers() {
+        const submitBtn = document.getElementById('btnSubmit');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.6';
+            submitBtn.style.cursor = 'not-allowed';
+        }
+
+        let correctCount = 0;
+        const total = questionsData.length;
+
+        questionsData.forEach((q, i) => {
+            const cardEl = document.getElementById(`card-${i}`);
+            const iconEl = document.getElementById(`icon-${i}`);
+            const ansTextEl = document.getElementById(`correct-ans-${i}`);
+            const exprEl = document.getElementById(`expr-${i}`);
+            const inputEl = document.getElementById(`input-${i}`);
+
+            let userExpr = exprEl.value.toLowerCase().replace(/\s+/g, '');
+            userExpr = userExpr.replace(/\*/g, 'x').replace(/\//g, ':');
+            
+            const userVal = parseInt(inputEl.value, 10);
+
+            const targetPrimary = q.primaryExpr.toLowerCase().replace(/\*/g, 'x').replace(/\//g, ':');
+            const targetAlt = q.altExpr.toLowerCase().replace(/\*/g, 'x').replace(/\//g, ':');
+
+            const isExprCorrect = (userExpr === targetPrimary || userExpr === targetAlt);
+            const isValCorrect = userVal === q.answer;
+            const isCorrect = isExprCorrect && isValCorrect;
+
+            cardEl.classList.remove('correct', 'incorrect');
+
+            if (isCorrect) {
+                correctCount++;
+                cardEl.classList.add('correct');
+                iconEl.innerText = '✓';
+                ansTextEl.style.display = 'none';
+            } else {
+                cardEl.classList.add('incorrect');
+                iconEl.innerText = '✗';
+                ansTextEl.style.display = 'block';
+                ansTextEl.innerHTML = `Jawaban Benar : <b>${q.primaryExpr} = ${q.answer}</b> ${q.unitTarget}`;
+            }
+        });
+
+        const score = Math.round((correctCount / total) * 100);
+        const name = document.getElementById('studentName').value || '';
+        
+        const resultBox = document.getElementById('resultBox');
+        resultBox.style.display = 'block';
+        resultBox.innerHTML = `Nilai ${name ? name : 'Siswa'}: <span style="color: ${score >= 70 ? '#10b981' : '#ef4444'}">${score}</span> / 100<br><small>(Benar ${correctCount} dari ${total} soal)</small>`;
+    }
+
+    // Fungsi Ekspor Gambar Rasio 3:4 dengan Elemen Terpusat di Tengah
+    function saveAsImage() {
+        const area = document.getElementById('printableArea');
+        const nameInput = document.getElementById('studentName').value.trim() || 'Siswa';
+        const fileName = `Hasil_Soal_Cerita_${nameInput.replace(/\s+/g, '_')}.png`;
+
+        // 1. Ambil screenshot asli dari elemen web tanpa mengubah dimensinya
+        html2canvas(area, {
+            scale: 2, // Kualitas gambar tinggi
+            useCORS: true,
+            logging: false,
+            backgroundColor: '#ffffff'
+        }).then(contentCanvas => {
+            // Tinggi gambar disesuaikan dengan tinggi asli tampilan web
+            const H = contentCanvas.height;
+            // Lebar gambar dibuat persis 3/4 dari tinggi (Rasio 3:4)
+            const W = Math.round(H * (3 / 4));
+
+            // 2. Buat Kanvas Baru berukuran W x H (Rasio 3:4)
+            const targetCanvas = document.createElement('canvas');
+            targetCanvas.width = W;
+            targetCanvas.height = H;
+            const ctx = targetCanvas.getContext('2d');
+
+            // =========================================================
+            // PILIHAN BACKGROUND UNTUK BAGIAN KOSONG (SISI KANAN & KIRI)
+            // =========================================================
+
+            // [OPSI A] Background Polos Putih (Default)
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, W, H);
+
+            /* 
+            // [OPSI B] Background Polos Warna Lembut (opsional)
+            // ctx.fillStyle = '#f0f4f8';
+            // ctx.fillRect(0, 0, W, H);
+
+            // [OPSI C] Motif Polka Dot Ringan (opsional)
+            // ctx.fillStyle = '#f8fafc';
+            // ctx.fillRect(0, 0, W, H);
+            // ctx.fillStyle = '#cbd5e1';
+            // const dotSpacing = 20;
+            // for (let x = 10; x < W; x += dotSpacing) {
+            //     for (let y = 10; y < H; y += dotSpacing) {
+            //         ctx.beginPath();
+            //         ctx.arc(x, y, 2, 0, Math.PI * 2);
+            //         ctx.fill();
+            //     }
+            // }
+            */
+
+            // 3. Hitung Posisi Tengah (Center Offset)
+            // Jika konten lebih lebar dari kanvas W, konten disesuaikan (fit)
+            let renderWidth = contentCanvas.width;
+            let renderHeight = contentCanvas.height;
+
+            if (renderWidth > W) {
+                const scaleFactor = W / renderWidth;
+                renderWidth = W;
+                renderHeight = renderHeight * scaleFactor;
+            }
+
+            const offsetX = Math.round((W - renderWidth) / 2);
+            const offsetY = Math.round((H - renderHeight) / 2);
+
+            // 4. Tempelkan Konten Web Tepat di Tengah Kanvas
+            ctx.drawImage(contentCanvas, offsetX, offsetY, renderWidth, renderHeight);
+
+            // 5. Unduh Gambar PNG
+            const link = document.createElement('a');
+            link.download = fileName;
+            link.href = targetCanvas.toDataURL('image/png');
+            link.click();
+        });
+    }
+    window.onload = generateQuiz;
+    (function() {
+        window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+        }, true);
+    })();    
+</script>
+
+</body>
+</html>

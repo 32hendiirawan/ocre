@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Latihan Mengurutkan Bilangan - Ukuran A4</title>
+    <!-- Include html2canvas library for saving page as image -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Kontainer Fit A4 (210mm x 297mm) */
+        .container {
+            background-color: #ffffff;
+            border: 2px solid #222;
+            border-radius: 8px;
+            padding: 10px 8px;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+            margin-bottom: 4px;
+        }
+
+        .name-field {
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            width: 100%;
+        }
+
+        .name-field input {
+            border: none;
+            border-bottom: 1.5px dotted #000;
+            outline: none;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 1px 4px;
+            width: 180px;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+
+        .title-container {
+            text-align: center;
+            width: 100%;
+            margin-top: 2px;
+            margin-bottom: 6px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .quiz-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex-grow: 1;
+        }
+
+        /* Section Banner Header (Petunjuk Khusus) */
+        .section-header {
+            width: 100%;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 3px;
+            margin-bottom: 1px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .section-header.asc {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: 1px solid #047857;
+        }
+
+        .section-header.desc {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: 1px solid #b91c1c;
+        }
+
+        .question-block {
+            border: 1.5px solid #ccc;
+            border-radius: 8px;
+            padding: 4px 6px;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        /* Theme Multicolor untuk Blok Soal */
+        .theme-0 { background-color: #f0f9ff; border-color: #bae6fd; }
+        .theme-1 { background-color: #f0fdf4; border-color: #bbf7d0; }
+        .theme-2 { background-color: #fdf2f8; border-color: #fbcfe8; }
+        .theme-3 { background-color: #fefce8; border-color: #fef08a; }
+        .theme-4 { background-color: #faf5ff; border-color: #e9d5ff; }
+
+        .question-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4px;
+        }
+
+        .q-title {
+            font-size: 11px;
+            font-weight: bold;
+            color: #1e293b;
+            min-width: 22px;
+        }
+
+        /* Sisi Kiri: Bulatan Angka Acak */
+        .source-container {
+            display: flex;
+            gap: 3px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 3px;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .source-card {
+            width: 30px;
+            height: 30px;
+            color: white;
+            font-weight: 800;
+            font-size: 12px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: grab;
+            touch-action: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+            transition: all 0.2s;
+        }
+
+        /* Variasi Warna Kartu Angka Kiri (Multicolor) */
+        .card-clr-0 { background-color: #2563eb; }
+        .card-clr-1 { background-color: #d97706; }
+        .card-clr-2 { background-color: #059669; }
+        .card-clr-3 { background-color: #dc2626; }
+        .card-clr-4 { background-color: #7c3aed; }
+        .card-clr-5 { background-color: #0891b2; }
+        .card-clr-6 { background-color: #db2777; }
+
+        .source-card.disabled {
+            background-color: #cbd5e1 !important;
+            color: #94a3b8 !important;
+            cursor: not-allowed !important;
+            box-shadow: none !important;
+            opacity: 0.6;
+        }
+
+        /* Panah Penunjuk */
+        .arrow-icon {
+            font-size: 12px;
+            font-weight: bold;
+            color: #64748b;
+        }
+
+        /* Sisi Kanan: Slot Lingkaran Garis Putus-putus */
+        .target-container {
+            display: flex;
+            gap: 3px;
+        }
+
+        .slot-wrapper {
+            width: 30px;
+            height: 30px;
+            position: relative;
+        }
+
+        .slot {
+            width: 30px;
+            height: 30px;
+            background-color: #ffffff;
+            border: 1.5px dashed #475569;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .slot.drag-over {
+            background-color: #e2e8f0;
+            border-color: #2563eb;
+        }
+
+        .target-card {
+            width: 30px;
+            height: 30px;
+            background-color: #10b981;
+            color: white;
+            font-weight: 800;
+            font-size: 12px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+
+        /* Icon Status Jawaban */
+        .status-icon {
+            position: absolute;
+            top: 4px;
+            right: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .question-block.correct {
+            border-color: #10b981 !important;
+            background-color: #ecfdf5 !important;
+        }
+        .question-block.correct .status-icon {
+            display: block;
+            color: #10b981;
+        }
+
+        .question-block.incorrect {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+        }
+        .question-block.incorrect .status-icon {
+            display: block;
+            color: #ef4444;
+        }
+
+        /* Bottom Section / Controls */
+        .bottom-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 8px;
+            margin-top: 6px;
+            align-items: center;
+        }
+
+        .score-card {
+            background-color: #f8fafc;
+            border: 1.5px dashed #334155;
+            border-radius: 8px;
+            padding: 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .score-title {
+            font-size: 10px;
+            font-weight: bold;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .score-val {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e293b;
+            line-height: 1.1;
+        }
+
+        .predicate-val {
+            font-size: 10px;
+            font-weight: bold;
+            margin-top: 1px;
+            padding: 1px 5px;
+            border-radius: 4px;
+            background-color: #e2e8f0;
+            color: #475569;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+        }
+
+        button {
+            width: 100%;
+            padding: 6px 2px;
+            font-size: 10px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        .btn-submit { background-color: #2563eb; color: white; }
+        .btn-reset { background-color: #f59e0b; color: #000; }
+        .btn-save { background-color: #10b981; color: white; }
+
+        @media print {
+            body { background: none; padding: 0; }
+            .container { box-shadow: none; border: none; width: 210mm; height: 297mm; padding: 8mm; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="printableArea">
+    <div>
+        <div class="header">
+            <div class="name-field">
+                Nama : <input type="text" id="studentName" placeholder=" ">
+            </div>
+            <div class="name-field">
+                Kelas : <input type="text" id="studentClass" placeholder=" ">
+            </div>
+        </div>
+
+        <div class="title-container">
+            <h1>MENGURUTKAN BILANGAN</h1>
+        </div>
+
+        <div class="quiz-list" id="quizList"></div>
+    </div>
+
+    <div class="bottom-section">
+        <div class="score-card" id="scoreCard">
+            <div class="score-title">NILAI & PREDIKAT</div>
+            <div class="score-val" id="scoreDisplay">-</div>
+            <div class="predicate-val" id="predicateDisplay">Predikat: -</div>
+        </div>
+
+        <div class="button-group" data-html2canvas-ignore="true">
+            <button class="btn-submit" id="btnSubmit" onclick="checkAnswers()">Periksa</button>
+            <button class="btn-reset" onclick="generateQuiz()">Reset</button>
+            <button class="btn-save" onclick="saveAsImage()">Simpan</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let questionsData = [];
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function generate5UniqueNumbers() {
+        const set = new Set();
+        while (set.size < 5) {
+            set.add(getRandomInt(1, 99));
+        }
+        return Array.from(set);
+    }
+
+    function generateQuiz() {
+        const quizList = document.getElementById('quizList');
+        quizList.innerHTML = '';
+
+        const submitBtn = document.getElementById('btnSubmit');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.style.cursor = 'pointer';
+        }
+
+        document.getElementById('scoreDisplay').innerText = '-';
+        document.getElementById('scoreDisplay').style.color = '#1e293b';
+        document.getElementById('predicateDisplay').innerText = 'Predikat: -';
+        document.getElementById('predicateDisplay').style.backgroundColor = '#e2e8f0';
+        document.getElementById('predicateDisplay').style.color = '#475569';
+
+        questionsData = [];
+
+        for (let i = 0; i < 10; i++) {
+            // Sisipkan Header Petunjuk Sekali Saja di Atas Soal 1 dan Soal 6
+            if (i === 0) {
+                const headerAsc = document.createElement('div');
+                headerAsc.className = 'section-header asc';
+                headerAsc.innerHTML = '<span>▲</span> Urutkan dari TERKECIL ke TERBESAR <span>▲</span>';
+                quizList.appendChild(headerAsc);
+            } else if (i === 5) {
+                const headerDesc = document.createElement('div');
+                headerDesc.className = 'section-header desc';
+                headerDesc.innerHTML = '<span>▼</span> Urutkan dari TERBESAR ke TERKECIL <span>▼</span>';
+                quizList.appendChild(headerDesc);
+            }
+
+            const rawNumbers = generate5UniqueNumbers();
+            const mode = i < 5 ? 'asc' : 'desc';
+            let sortedNumbers = [...rawNumbers];
+            if (mode === 'asc') {
+                sortedNumbers.sort((a, b) => a - b);
+            } else {
+                sortedNumbers.sort((a, b) => b - a);
+            }
+
+            questionsData.push({
+                id: i,
+                mode: mode,
+                originalNumbers: rawNumbers,
+                correctOrder: sortedNumbers
+            });
+
+            const block = document.createElement('div');
+            block.className = `question-block theme-${i % 5}`;
+            block.id = `block-${i}`;
+
+            let leftHTML = '';
+            rawNumbers.forEach((num, s) => {
+                // Kombinasi warna acak dinamis untuk bulatan kiri
+                const colorClass = `card-clr-${(i + s) % 7}`;
+                leftHTML += `
+                    <div class="source-card ${colorClass}" draggable="true" id="src-${i}-${s}" data-q="${i}" data-val="${num}">
+                        ${num}
+                    </div>
+                `;
+            });
+
+            let rightHTML = '';
+            for (let s = 0; s < 5; s++) {
+                rightHTML += `
+                    <div class="slot-wrapper">
+                        <div class="slot" data-q="${i}" data-slot="${s}"></div>
+                    </div>
+                `;
+            }
+
+            block.innerHTML = `
+                <div class="question-row">
+                    <div class="q-title">${i + 1}.</div>
+                    <div class="source-container" id="src-container-${i}">${leftHTML}</div>
+                    <div class="arrow-icon">➔</div>
+                    <div class="target-container" id="target-container-${i}">${rightHTML}</div>
+                </div>
+                <span class="status-icon" id="icon-${i}"></span>
+            `;
+
+            quizList.appendChild(block);
+        }
+
+        initDragAndDrop();
+    }
+
+    let draggedElement = null;
+    let activeTouchElement = null;
+    let touchStartData = null;
+
+    function initDragAndDrop() {
+        const sourceCards = document.querySelectorAll('.source-card');
+        const slots = document.querySelectorAll('.slot');
+
+        sourceCards.forEach(card => {
+            card.addEventListener('dragstart', handleDragStart);
+            card.addEventListener('dragend', handleDragEnd);
+
+            card.addEventListener('touchstart', handleTouchStart, { passive: false });
+            card.addEventListener('touchmove', handleTouchMove, { passive: false });
+            card.addEventListener('touchend', handleTouchEnd);
+        });
+
+        slots.forEach(slot => {
+            slot.addEventListener('dragover', handleDragOver);
+            slot.addEventListener('dragenter', handleDragEnter);
+            slot.addEventListener('dragleave', handleDragLeave);
+            slot.addEventListener('drop', handleDrop);
+            slot.addEventListener('click', handleSlotClick);
+        });
+    }
+
+    function handleDragStart(e) {
+        if (this.classList.contains('disabled')) {
+            e.preventDefault();
+            return;
+        }
+        draggedElement = this;
+        e.dataTransfer.setData('text/plain', '');
+    }
+
+    function handleDragEnd() {
+        draggedElement = null;
+    }
+
+    function handleDragOver(e) { e.preventDefault(); }
+    function handleDragEnter(e) { e.preventDefault(); this.classList.add('drag-over'); }
+    function handleDragLeave() { this.classList.remove('drag-over'); }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        this.classList.remove('drag-over');
+        if (!draggedElement) return;
+
+        const targetSlot = this;
+        const qIndex = targetSlot.getAttribute('data-q');
+
+        if (draggedElement.getAttribute('data-q') !== qIndex) return;
+
+        placeNumberInSlot(draggedElement, targetSlot);
+    }
+
+    function handleTouchStart(e) {
+        if (this.classList.contains('disabled')) return;
+
+        const touch = e.touches[0];
+        activeTouchElement = this;
+        touchStartData = {
+            q: this.getAttribute('data-q'),
+            val: this.getAttribute('data-val'),
+            id: this.id
+        };
+
+        this.style.position = 'fixed';
+        this.style.zIndex = '1000';
+        moveAt(touch.clientX, touch.clientY);
+    }
+
+    function handleTouchMove(e) {
+        if (!activeTouchElement) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        moveAt(touch.clientX, touch.clientY);
+    }
+
+    function moveAt(pageX, pageY) {
+        if (activeTouchElement) {
+            activeTouchElement.style.left = pageX - 15 + 'px';
+            activeTouchElement.style.top = pageY - 15 + 'px';
+        }
+    }
+
+    function handleTouchEnd(e) {
+        if (!activeTouchElement) return;
+
+        activeTouchElement.style.position = 'static';
+        activeTouchElement.style.zIndex = 'auto';
+
+        const touch = e.changedTouches[0];
+        activeTouchElement.style.display = 'none';
+        let elemBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+        activeTouchElement.style.display = 'flex';
+
+        let targetSlot = elemBelow ? elemBelow.closest('.slot') : null;
+
+        if (targetSlot && targetSlot.getAttribute('data-q') === touchStartData.q) {
+            placeNumberInSlot(activeTouchElement, targetSlot);
+        }
+
+        activeTouchElement = null;
+        touchStartData = null;
+    }
+
+    function placeNumberInSlot(sourceCard, slot) {
+        if (slot.children.length > 0) {
+            removeNumberFromSlot(slot);
+        }
+
+        const val = sourceCard.getAttribute('data-val');
+        const srcId = sourceCard.id;
+
+        const targetCard = document.createElement('div');
+        targetCard.className = 'target-card';
+        targetCard.innerText = val;
+        targetCard.setAttribute('data-src-id', srcId);
+        targetCard.setAttribute('data-val', val);
+
+        slot.appendChild(targetCard);
+
+        sourceCard.classList.add('disabled');
+        sourceCard.setAttribute('draggable', 'false');
+    }
+
+    function handleSlotClick() {
+        removeNumberFromSlot(this);
+    }
+
+    function removeNumberFromSlot(slot) {
+        if (slot.children.length > 0) {
+            const targetCard = slot.children[0];
+            const srcId = targetCard.getAttribute('data-src-id');
+            const sourceCard = document.getElementById(srcId);
+
+            if (sourceCard) {
+                sourceCard.classList.remove('disabled');
+                sourceCard.setAttribute('draggable', 'true');
+            }
+            slot.innerHTML = '';
+        }
+    }
+
+    function checkAnswers() {
+        const submitBtn = document.getElementById('btnSubmit');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.6';
+            submitBtn.style.cursor = 'not-allowed';
+        }
+
+        let correctCount = 0;
+        const total = questionsData.length;
+
+        questionsData.forEach((q, i) => {
+            const blockEl = document.getElementById(`block-${i}`);
+            const iconEl = document.getElementById(`icon-${i}`);
+
+            const slots = document.querySelectorAll(`.slot[data-q="${i}"]`);
+            let userOrder = [];
+
+            slots.forEach(slot => {
+                if (slot.children.length > 0) {
+                    const val = slot.children[0].getAttribute('data-val');
+                    userOrder.push(parseInt(val, 10));
+                }
+            });
+
+            const isCorrect = userOrder.length === 5 && userOrder.every((val, idx) => val === q.correctOrder[idx]);
+
+            blockEl.classList.remove('correct', 'incorrect');
+
+            if (isCorrect) {
+                correctCount++;
+                blockEl.classList.add('correct');
+                iconEl.innerText = '✓';
+            } else {
+                blockEl.classList.add('incorrect');
+                iconEl.innerText = '✗';
+            }
+        });
+
+        const score = Math.round((correctCount / total) * 100);
+
+        let predicate = '';
+        let predColor = '#475569';
+        let predBg = '#e2e8f0';
+
+        if (score >= 90) {
+            predicate = 'A (Sangat Baik)';
+            predColor = '#15803d';
+            predBg = '#dcfce7';
+        } else if (score >= 80) {
+            predicate = 'B (Baik)';
+            predColor = '#1d4ed8';
+            predBg = '#dbeafe';
+        } else if (score >= 70) {
+            predicate = 'C (Cukup)';
+            predColor = '#b45309';
+            predBg = '#fef3c7';
+        } else {
+            predicate = 'D (Perlu Bimbingan)';
+            predColor = '#b91c1c';
+            predBg = '#fee2e2';
+        }
+
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const predicateDisplay = document.getElementById('predicateDisplay');
+
+        scoreDisplay.innerText = score;
+        scoreDisplay.style.color = score >= 70 ? '#10b981' : '#ef4444';
+
+        predicateDisplay.innerText = predicate;
+        predicateDisplay.style.color = predColor;
+        predicateDisplay.style.backgroundColor = predBg;
+    }
+
+    function saveAsImage() {
+        const area = document.getElementById('printableArea');
+        const nameInput = document.getElementById('studentName').value.trim() || 'Siswa';
+        const fileName = `Hasil_Mengurutkan_${nameInput.replace(/\s+/g, '_')}.png`;
+
+        html2canvas(area, {
+            scale: 2,
+            useCORS: true,
+            logging: false
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = fileName;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    }
+
+    window.onload = generateQuiz;
+    (function() {
+        window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+        }, true);
+    })();
+</script>
+
+</body>
+</html>
