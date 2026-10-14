@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Luas & Keliling Bangun Datar</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: #1e293b;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            max-height: 800px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .svg-container {
+            width: 100%;
+            height: 62px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8fafc;
+            border-radius: 6px;
+            margin-bottom: 2px;
+        }
+
+        .input-compact {
+            font-size: 11px;
+            padding: 2px 4px;
+            height: 22px;
+            border-radius: 4px;
+            border: 1px solid #cbd5e1;
+            outline: none;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .input-compact:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 1px #3b82f6;
+        }
+
+        .input-correct {
+            border-color: #22c55e !important;
+            background-color: #f0fdf4 !important;
+            color: #15803d !important;
+            font-weight: 600;
+        }
+
+        .input-incorrect {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+            color: #b91c1c !important;
+            font-weight: 600;
+        }
+
+        /* Print styling for A4 export */
+        @media print {
+            body {
+                background: none;
+                display: block;
+            }
+            .app-container {
+                max-width: 100% !important;
+                max-height: none !important;
+                height: auto !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .grid-container {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 12px !important;
+            }
+            .card-item {
+                border: 1px solid #cbd5e1 !important;
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container p-2 flex flex-col justify-between">
+        
+        <!-- Header Section -->
+        <header class="text-center py-1 border-b border-slate-200 flex-shrink-0">
+            <h1 class="text-base font-bold text-slate-800 leading-tight">LUAS DAN KELILING BANGUN DATAR</h1>
+            <p class="text-[10px] text-slate-500">Hitung Luas dan Keliling, gunakan titik (.) untuk angka desimal</p>
+            
+            <!-- Result Banner -->
+            <div id="scoreBanner" class="hidden mt-1 py-0.5 px-2 bg-blue-50 border border-blue-200 rounded text-[11px] font-semibold text-blue-800 flex justify-between items-center">
+                <span>Skor Anda: <span id="scoreVal">0</span> / 100</span>
+                <span id="scoreText" class="text-[10px] text-blue-600 font-normal"></span>
+            </div>
+        </header>
+
+        <!-- Main Content Grid 2x4 -->
+        <main class="grid grid-cols-3 gap-1.5 my-1.5 flex-grow overflow-y-auto px-0.5 grid-container" id="quizGrid">
+            <!-- Cards will be populated by JavaScript dynamically -->
+        </main>
+
+        <!-- Footer / Action Buttons -->
+        <footer class="pt-1.5 border-t border-slate-200 flex-shrink-0 no-print">
+            <div class="grid grid-cols-3 gap-1.5">
+                <button onclick="checkAnswers()" class="bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-medium text-[11px] py-1.5 px-1 rounded shadow-sm transition flex items-center justify-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    Periksa
+                </button>
+                <button onclick="resetQuiz()" class="bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-medium text-[11px] py-1.5 px-1 rounded shadow-sm transition flex items-center justify-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    Acak/Reset
+                </button>
+                <button onclick="exportPDF()" class="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-medium text-[11px] py-1.5 px-1 rounded shadow-sm transition flex items-center justify-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    Cetak / PDF
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Data State for 8 Shapes
+        let shapesData = [];
+
+        // Helper: Generate random integer between min and max
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // Initialize / Generate Quiz Data
+        function generateQuizData() {
+            // 1. Persegi
+            const s = getRandomInt(3, 12);
+            
+            // 2. Persegi Panjang
+            const p = getRandomInt(5, 14);
+            const l = getRandomInt(2, p - 1);
+
+            // 3. Segitiga Siku-siku (Pythagorean Triplets for clean numbers)
+            const triplets = [[3, 4, 5], [6, 8, 10], [5, 12, 13], [9, 12, 15], [8, 15, 17]];
+            const tSel = triplets[getRandomInt(0, triplets.length - 1)];
+            const sa = tSel[0]; // alas
+            const st = tSel[1]; // tinggi
+            const sm = tSel[2]; // sisi miring
+
+            // 4. Jajar Genjang
+            const ja = getRandomInt(6, 12);
+            const jt = getRandomInt(4, 9);
+            const jb = jt + getRandomInt(1, 3); // sisi miring
+
+            // 5. Trapesium Sama Kaki
+            const ta = getRandomInt(10, 16); // alas bawah
+            const tb = getRandomInt(4, ta - 4); // alas atas (harus selisih genap)
+            const tt = getRandomInt(4, 8); // tinggi
+            const halfDiff = (ta - tb) / 2;
+            const tc = Math.round(Math.sqrt(tt * tt + halfDiff * halfDiff) * 10) / 10; // sisi miring
+
+            // 6. Belah Ketupat
+            const d1 = getRandomInt(3, 8) * 2;
+            const d2 = getRandomInt(3, 8) * 2;
+            const bs = Math.round(Math.sqrt(Math.pow(d1/2, 2) + Math.pow(d2/2, 2)) * 10) / 10;
+
+            // 7. Layang-layang
+            const ld1 = getRandomInt(3, 6) * 2;
+            const ld2 = getRandomInt(4, 8) * 2;
+            const la = getRandomInt(4, 7);
+            const lb = getRandomInt(8, 12);
+
+            // 8. Lingkaran
+            const rList = [7, 14, 21, 3.5, 10, 5];
+            const r = rList[getRandomInt(0, rList.length - 1)];
+
+            shapesData = [
+                {
+                    id: 1,
+                    name: 'Persegi',
+                    svg: `<svg viewBox="0 0 100 60" class="w-full h-full">
+                        <rect x="25" y="5" width="45" height="45" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+                        <text x="50" y="58" font-size="8" text-anchor="middle" fill="#0369a1">s = ${s}</text>
+                    </svg>`,
+                    area: s * s,
+                    perimeter: 4 * s
+                },
+                {
+                    id: 2,
+                    name: 'Persegi Panjang',
+                    svg: `<svg viewBox="0 0 100 60" class="w-full h-full">
+                        <rect x="15" y="10" width="70" height="40" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+                        <text x="50" y="58" font-size="8" text-anchor="middle" fill="#15803d">p = ${p}</text>
+                        <text x="4" y="30" font-size="8" text-anchor="middle" fill="#15803d">l = ${l}</text>
+                    </svg>`,
+                    area: p * l,
+                    perimeter: 2 * (p + l)
+                },
+                {
+                    id: 3,
+                    name: 'Segitiga',
+                    svg: `<svg viewBox="0 0 100 60" class="w-full h-full">
+                        <polygon points="20,50 80,50 20,10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+                        <text x="50" y="58" font-size="8" text-anchor="middle" fill="#b45309">a = ${sa}</text>
+                        <text x="4" y="30" font-size="8" text-anchor="middle" fill="#b45309">t = ${st}</text>
+                        <text x="63" y="30" font-size="8" text-anchor="middle" fill="#b45309">c = ${sm}</text>
+                    </svg>`,
+                    area: 0.5 * sa * st,
+                    perimeter: sa + st + sm
+                },
+                {
+                    id: 4,
+                    name: 'Jajar Genjang',
+                    svg: `<svg viewBox="0 0 100 60" class="w-full h-full">
+                        <polygon points="25,48 85,48 70,12 10,12" fill="#fce7f3" stroke="#db2777" stroke-width="2"/>
+                        <line x1="25" y1="48" x2="25" y2="12" stroke="#db2777" stroke-width="1" stroke-dasharray="2,2"/>
+                        <text x="50" y="57" font-size="8" text-anchor="middle" fill="#be185d">a = ${ja}</text>
+                        <text x="37" y="32" font-size="8" text-anchor="middle" fill="#be185d">t = ${jt}</text>
+                        <text x="90" y="30" font-size="8" text-anchor="middle" fill="#be185d">b = ${jb}</text>
+                    </svg>`,
+                    area: ja * jt,
+                    perimeter: 2 * (ja + jb)
+                },
+                {
+                    id: 5,
+                    name: 'Trapesium',
+                    svg: `<svg viewBox="0 0 100 60" class="w-full h-full">
+                        <polygon points="15,48 85,48 70,12 30,12" fill="#f3e8ff" stroke="#9333ea" stroke-width="2"/>
+                        <line x1="30" y1="48" x2="30" y2="12" stroke="#9333ea" stroke-width="1" stroke-dasharray="2,2"/>
+                        <text x="50" y="57" font-size="8" text-anchor="middle" fill="#7e22ce">a = ${ta}</text>
+                        <text x="50" y="9" font-size="8" text-anchor="middle" fill="#7e22ce">b = ${tb}</text>
+                        <text x="40" y="30" font-size="8" text-anchor="middle" fill="#7e22ce">t = ${tt}</text>
+                        <text x="92" y="30" font-size="8" text-anchor="middle" fill="#7e22ce">c = ${tc}</text>
+                    </svg>`,
+                    area: 0.5 * (ta + tb) * tt,
+                    perimeter: ta + tb + (2 * tc)
+                },
+                {
+                    id: 6,
+                    name: 'Belah Ketupat',
+                    svg: `<svg viewBox="0 0 100 60" class="w-full h-full">
+                        <polygon points="50,5 85,30 50,55 15,30" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+                        <line x1="15" y1="30" x2="85" y2="30" stroke="#0d9488" stroke-width="1" stroke-dasharray="2,2"/>
+                        <line x1="50" y1="5" x2="50" y2="55" stroke="#0d9488" stroke-width="1" stroke-dasharray="2,2"/>
+                        <text x="50" y="25" font-size="8" text-anchor="middle" fill="#0f766e">d1 = ${d1}</text>
+                        <text x="50" y="40" font-size="8" text-anchor="middle" fill="#0f766e">d2 = ${d2}</text>
+                        <text x="80" y="15" font-size="8" text-anchor="middle" fill="#0f766e">s = ${bs}</text>
+                    </svg>`,
+                    area: 0.5 * d1 * d2,
+                    perimeter: 4 * bs
+                },
+                {
+                    id: 7,
+                    name: 'Layang-Layang',
+                    svg: `<svg viewBox="0 0 100 60" class="w-full h-full">
+                        <polygon points="50,2 80,22 50,58 20,22" fill="#ffedd5" stroke="#ea580c" stroke-width="2"/>
+                        <line x1="20" y1="22" x2="80" y2="22" stroke="#ea580c" stroke-width="1" stroke-dasharray="2,2"/>
+                        <line x1="50" y1="2" x2="50" y2="58" stroke="#ea580c" stroke-width="1" stroke-dasharray="2,2"/>
+                        <text x="80" y="12" font-size="8" text-anchor="middle" fill="#c2410c">a = ${la}</text>
+                        <text x="80" y="42" font-size="8" text-anchor="middle" fill="#c2410c">b = ${lb}</text>
+                        <text x="50" y="20" font-size="8" text-anchor="middle" fill="#c2410c">d1 = ${ld1}</text>
+                        <text x="50" y="35" font-size="8" text-anchor="middle" fill="#c2410c">d2 = ${ld2}</text>
+                    </svg>`,
+                    area: 0.5 * ld1 * ld2,
+                    perimeter: 2 * (la + lb)
+                },
+                {
+                    id: 8,
+                    name: 'Lingkaran',
+                    svg: `<svg viewBox="0 0 100 60" class="w-full h-full">
+                        <circle cx="50" cy="30" r="24" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+                        <line x1="50" y1="30" x2="74" y2="30" stroke="#dc2626" stroke-width="1.5"/>
+                        <circle cx="50" cy="30" r="2" fill="#dc2626"/>
+                        <text x="62" y="26" font-size="8" text-anchor="middle" fill="#b91c1c">r = ${r}</text>
+                    </svg>`,
+                    area: Math.round((r % 7 === 0 ? (22/7) * r * r : 3.14 * r * r) * 100) / 100,
+                    perimeter: Math.round((r % 7 === 0 ? 2 * (22/7) * r : 2 * 3.14 * r) * 100) / 100
+                }
+            ];
+        }
+
+        function renderQuiz() {
+            const grid = document.getElementById('quizGrid');
+            grid.innerHTML = '';
+
+            shapesData.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = 'card-item border border-slate-200 rounded-lg p-1.5 bg-white flex flex-col justify-between shadow-xs';
+                card.innerHTML = `
+                    <div class="flex justify-between items-center mb-0.5">
+                        <span class="text-[11px] font-bold text-slate-700">${idx + 1}. ${item.name}</span>
+                    </div>
+                    <div class="svg-container">
+                        ${item.svg}
+                    </div>
+                    <div class="space-y-1 mt-1">
+                        <div class="flex items-center gap-1">
+                            <span class="text-[10px] w-full font-medium text-slate-500 w-4">Luas :</span>
+                            <input type="number" step="any" id="area_${item.id}" placeholder="......" class="input-compact" />
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <span class="text-[10px] w-full font-medium text-slate-500 w-4">Keliling :</span>
+                            <input type="number" step="any" id="peri_${item.id}" placeholder="......" class="input-compact" />
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function checkAnswers() {
+            let correctCount = 0;
+            const totalInputs = shapesData.length * 2;
+
+            shapesData.forEach((item) => {
+                const areaInput = document.getElementById(`area_${item.id}`);
+                const periInput = document.getElementById(`peri_${item.id}`);
+
+                const userArea = parseFloat(areaInput.value);
+                const userPeri = parseFloat(periInput.value);
+
+                // Check Area with small tolerance for decimals
+                if (!isNaN(userArea) && Math.abs(userArea - item.area) <= 0.2) {
+                    areaInput.className = 'input-compact input-correct';
+                    correctCount++;
+                } else {
+                    areaInput.className = 'input-compact input-incorrect';
+                }
+
+                // Check Perimeter with small tolerance for decimals
+                if (!isNaN(userPeri) && Math.abs(userPeri - item.perimeter) <= 0.2) {
+                    periInput.className = 'input-compact input-correct';
+                    correctCount++;
+                } else {
+                    periInput.className = 'input-compact input-incorrect';
+                }
+            });
+
+            // Calculate Score (out of 100)
+            const score = Math.round((correctCount / totalInputs) * 100);
+            const scoreBanner = document.getElementById('scoreBanner');
+            const scoreVal = document.getElementById('scoreVal');
+            const scoreText = document.getElementById('scoreText');
+
+            scoreBanner.classList.remove('hidden');
+            scoreVal.innerText = score;
+
+            if (score === 100) {
+                scoreText.innerText = 'Sempurna! 🎉';
+            } else if (score >= 75) {
+                scoreText.innerText = 'Bagus Sekali! 👍';
+            } else if (score >= 50) {
+                scoreText.innerText = 'Cukup Baik 🙂';
+            } else {
+                scoreText.innerText = 'Coba Lagi! 💪';
+            }
+        }
+
+        function resetQuiz() {
+            document.getElementById('scoreBanner').classList.add('hidden');
+            generateQuizData();
+            renderQuiz();
+        }
+
+        function exportPDF() {
+            window.print();
+        }
+
+        window.onload = function() {
+            generateQuizData();
+            renderQuiz();
+        };
+
+        (function() {
+            window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+            window.addEventListener('keydown', function(e) {
+                if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            }, true);
+        })();        
+    </script>
+</body>
+</html>
