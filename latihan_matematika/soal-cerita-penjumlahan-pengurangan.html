@@ -43,12 +43,13 @@
         }
 
         h1 {
-            color: #d63031;
+            color: skyblue;
             margin: 0;
-            font-size: 16px;
+            font-size: 20px;
             text-align: center;
             letter-spacing: 0.5px;
             text-transform: uppercase;
+            -webkit-text-stroke: 1px navy;
         }
 
         .subtitle {
@@ -456,9 +457,9 @@
                 <div class="answer-block">
                     <div class="answer-row">
                         <span>Jawaban :</span>
-                        <input type="text" class="input-expr" id="expr-${i}" placeholder="misal: 25+5" autocomplete="off">
+                        <input type="text" class="input-expr" id="expr-${i}" placeholder="... ... ..." autocomplete="off">
                         <span> = </span>
-                        <input type="number" class="input-result" id="input-${i}" placeholder="0" autocomplete="off">
+                        <input type="number" class="input-result" id="input-${i}" placeholder="...." autocomplete="off">
                         <span>${context.name}</span>
                     </div>
                 </div>
