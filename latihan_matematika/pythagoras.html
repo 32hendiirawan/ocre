@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Latihan Teorema Pythagoras</title>
+    <!-- Include html2canvas library for saving page as image -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border: 2px solid #4a90e2;
+            border-radius: 15px;
+            padding: 12px 10px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            border-bottom: 2px dashed #4a90e2;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 16px;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        .name-field {
+            font-size: 13px;
+            font-weight: bold;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .name-field input {
+            border: none;
+            border-bottom: 1.5px solid #333;
+            outline: none;
+            font-size: 13px;
+            padding: 2px 4px;
+            width: 160px;
+            text-align: center;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+
+        .quiz-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+
+        .question-card {
+            border-radius: 12px;
+            padding: 5px 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        /* Variasi Tema Warna Tiap Soal */
+        .theme-0 { background-color: #e0f2fe; border-color: #38bdf8; }
+        .theme-1 { background-color: #fce7f3; border-color: #f472b6; }
+        .theme-2 { background-color: #dcfce7; border-color: #4ade80; }
+        .theme-3 { background-color: #fef3c7; border-color: #facc15; }
+        .theme-4 { background-color: #f3e8ff; border-color: #c084fc; }
+
+        .q-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .q-number {
+            font-size: 12px;
+            color: #1e293b;
+            font-weight: 800;
+        }
+
+        .status-icon {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .svg-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            padding: 5px;
+        }
+
+        .answer-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            color: #1e293b;
+        }
+
+        .answer-input {
+            width: 70px;
+            height: 32px;
+            border: 1.5px solid #94a3b8;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            outline: none;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+
+        .answer-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        /* Status jawaban saat diperiksa */
+        .question-card.correct {
+            border-color: #10b981 !important;
+            background-color: #f0fdf4 !important;
+        }
+
+        .question-card.correct .status-icon {
+            display: block;
+            color: #10b981;
+        }
+
+        .question-card.incorrect {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+        }
+
+        .question-card.incorrect .status-icon {
+            display: block;
+            color: #ef4444;
+        }
+
+        .correct-answer-text {
+            font-size: 11px;
+            color: #dc2626;
+            font-weight: bold;
+            display: none;
+            text-align: center;
+            margin-top: 2px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            width: 100%;
+        }
+
+        button.action-btn {
+            flex: 1;
+            padding: 10px 4px;
+            font-size: 12px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button.action-btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-submit {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .btn-reset {
+            background-color: #f59e0b;
+            color: white;
+        }
+
+        .btn-save {
+            background-color: #10b981;
+            color: white;
+            flex: 1;
+        }
+
+        .result-box {
+            font-size: 14px;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+            display: none;
+            padding: 8px;
+            background-color: #eef2f5;
+            border-radius: 6px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="printableArea">
+    <div class="header">
+        <h1>LATIHAN TEOREMA PYTHAGORAS</h1>
+        <div class="name-field">
+            NAMA: <input type="text" id="studentName" placeholder="Tulis nama disini">
+        </div>
+    </div>
+
+    <div class="quiz-list" id="quizList"></div>
+
+    <div class="controls">
+        <div class="button-group" data-html2canvas-ignore="true">
+            <button class="action-btn btn-submit" id="btnSubmit" onclick="checkAnswers()">Periksa</button>
+            <button class="action-btn btn-reset" onclick="generateQuiz()">Reset</button>
+            <button class="action-btn btn-save" onclick="saveAsImage()">Simpan (Gambar)</button>
+        </div>
+        <div class="result-box" id="resultBox"></div>
+    </div>
+</div>
+
+<script>
+    let questionsData = [];
+
+    // Basis Tripel Pythagoras
+    const pythagoreanTriples = [
+        [3, 4, 5],
+        [5, 12, 13],
+        [8, 15, 17],
+        [7, 24, 25],
+        [9, 40, 41]
+    ];
+
+    const vertexNamesList = [
+        ['A', 'B', 'C'],
+        ['P', 'Q', 'R'],
+        ['U', 'V', 'W'],
+        ['X', 'Y', 'Z'],
+        ['E', 'F', 'G']
+    ];
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function generateQuiz() {
+        const quizList = document.getElementById('quizList');
+        const resultBox = document.getElementById('resultBox');
+        
+        quizList.innerHTML = '';
+        resultBox.style.display = 'none';
+        
+        const submitBtn = document.getElementById('btnSubmit');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.style.cursor = 'pointer';
+        }
+
+        questionsData = [];
+
+        for (let i = 0; i < 5; i++) {
+            // Pick a random base triple and multiplier
+            const baseTriple = pythagoreanTriples[getRandomInt(0, pythagoreanTriples.length - 1)];
+            const multiplier = getRandomInt(1, 4);
+            
+            const a = baseTriple[0] * multiplier; // Sisi tegak / alas
+            const b = baseTriple[1] * multiplier; // Sisi alas / tegak
+            const c = baseTriple[2] * multiplier; // Hipotenusa
+
+            // Pilih sisi mana yang ditanyakan (?) -> 0: Sisi A, 1: Sisi B, 2: Sisi C
+            const missingIndex = i % 3; // Menjamin variasi posisi ditanyakan di antara 5 soal
+
+            const vNames = vertexNamesList[i]; // Misal A, B, C
+            // Struktur Segitiga Siku-siku standar di B:
+            // Sisi Tegak: AB = a
+            // Sisi Alas: BC = b
+            // Sisi Miring: AC = c
+
+            let valAB = (missingIndex === 0) ? '?' : `${a} cm`;
+            let valBC = (missingIndex === 1) ? '?' : `${b} cm`;
+            let valAC = (missingIndex === 2) ? '?' : `${c} cm`;
+
+            let targetSideName = '';
+            let correctAnswer = 0;
+
+            if (missingIndex === 0) {
+                targetSideName = `${vNames[0]}${vNames[1]}`; // AB
+                correctAnswer = a;
+            } else if (missingIndex === 1) {
+                targetSideName = `${vNames[1]}${vNames[2]}`; // BC
+                correctAnswer = b;
+            } else {
+                targetSideName = `${vNames[0]}${vNames[2]}`; // AC
+                correctAnswer = c;
+            }
+
+            questionsData.push({
+                id: i,
+                targetSideName: targetSideName,
+                correctAnswer: correctAnswer
+            });
+
+            const card = document.createElement('div');
+            card.className = `question-card theme-${i}`;
+            card.id = `card-${i}`;
+
+            // Gambar Segitiga Siku-siku SVG dengan Bentuk Tetap
+            card.innerHTML = `
+                <div class="q-header">
+                    <span class="q-number">Soal #${i + 1}</span>
+                </div>
+                <span class="status-icon" id="icon-${i}"></span>
+                
+                <div class="svg-container">
+                    <svg width="150" height="100" viewBox="0 0 150 100">
+                        <!-- Siku-siku Symbol di titik B (20, 80) -->
+                        <path d="M 20 70 L 30 70 L 30 80" fill="none" stroke="#334155" stroke-width="1.5"/>
+
+                        <!-- Segitiga Siku-siku A(20,20), B(20,80), C(120,80) -->
+                        <polygon points="20,20 20,80 120,80" fill="none" stroke="#1e293b" stroke-width="2.5" stroke-linejoin="round"/>
+
+                        <!-- Nama Titik Sudut -->
+                        <text x="10" y="15" font-size="13" font-weight="bold" fill="#0f172a">${vNames[0]}</text>
+                        <text x="10" y="92" font-size="13" font-weight="bold" fill="#0f172a">${vNames[1]}</text>
+                        <text x="125" y="92" font-size="13" font-weight="bold" fill="#0f172a">${vNames[2]}</text>
+
+                        <!-- Label Panjang Sisi -->
+                        <!-- Sisi Tegak (AB) -->
+                        <text x="00" y="50" font-size="12" font-weight="bold" fill="#0284c7" text-anchor="start">${valAB}</text>
+                        <!-- Sisi Alas (BC) -->
+                        <text x="75" y="92" font-size="12" font-weight="bold" fill="#0284c7" text-anchor="middle">${valBC}</text>
+                        <!-- Sisi Miring (AC) -->
+                        <text x="94" y="52" font-size="12" font-weight="bold" fill="#d97706" text-anchor="middle">${valAC}</text>
+                    </svg>
+                </div>
+
+                <div class="answer-row">
+                    <span>${targetSideName} =</span>
+                    <input type="number" class="answer-input" id="input-${i}" placeholder="0" autocomplete="off">
+                    <span>cm</span>
+                </div>
+                <div class="correct-answer-text" id="correct-ans-${i}"></div>
+            `;
+
+            quizList.appendChild(card);
+        }
+    }
+
+    function checkAnswers() {
+        const submitBtn = document.getElementById('btnSubmit');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.6';
+            submitBtn.style.cursor = 'not-allowed';
+        }
+
+        let correctCount = 0;
+        const total = questionsData.length;
+
+        questionsData.forEach((q, i) => {
+            const cardEl = document.getElementById(`card-${i}`);
+            const iconEl = document.getElementById(`icon-${i}`);
+            const ansTextEl = document.getElementById(`correct-ans-${i}`);
+            const inputEl = document.getElementById(`input-${i}`);
+
+            const userVal = parseInt(inputEl.value, 10);
+            const isCorrect = userVal === q.correctAnswer;
+
+            cardEl.classList.remove('correct', 'incorrect');
+
+            if (isCorrect) {
+                correctCount++;
+                cardEl.classList.add('correct');
+                iconEl.innerText = '✓';
+                ansTextEl.style.display = 'none';
+            } else {
+                cardEl.classList.add('incorrect');
+                iconEl.innerText = '✗';
+                ansTextEl.style.display = 'block';
+                ansTextEl.innerHTML = `Jawaban Benar: ${q.targetSideName} = ${q.correctAnswer} cm`;
+            }
+        });
+
+        const score = Math.round((correctCount / total) * 100);
+        const name = document.getElementById('studentName').value || '';
+        
+        const resultBox = document.getElementById('resultBox');
+        resultBox.style.display = 'block';
+        resultBox.innerHTML = `Nilai ${name ? name : 'Siswa'}: <span style="color: ${score >= 70 ? '#10b981' : '#ef4444'}">${score}</span> / 100<br><small>(Benar ${correctCount} dari ${total} soal)</small>`;
+    }
+
+    function saveAsImage() {
+        const area = document.getElementById('printableArea');
+        const nameInput = document.getElementById('studentName').value.trim() || 'Siswa';
+        const fileName = `Hasil_Latihan_Pythagoras_${nameInput.replace(/\s+/g, '_')}.png`;
+
+        html2canvas(area, {
+            scale: 2,
+            useCORS: true,
+            logging: false
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = fileName;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    }
+
+    window.onload = generateQuiz;
+    (function() {
+        window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+        }, true);
+    })();    
+</script>
+
+</body>
+</html>

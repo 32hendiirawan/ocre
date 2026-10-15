@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latihan Eksponen</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --accent: #0ea5e9;
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border-color: #cbd5e1;
+            --success-bg: #f0fdf4;
+            --success-border: #22c55e;
+            --error-bg: #fef2f2;
+            --error-border: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            padding: 1.5rem 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-main);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background: var(--card-bg);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            border-radius: 1rem;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px dashed #e2e8f0;
+            padding-bottom: 1rem;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            color: var(--primary);
+            text-transform: uppercase;
+        }
+
+        header p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* 2 Column Grid for Questions */
+        #quiz-container {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 640px) {
+            #quiz-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .exercise {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            transition: all 0.2s;
+            min-height: 52px;
+        }
+
+        .exercise:hover {
+            background-color: #f1f5f9;
+            border-color: var(--accent);
+        }
+
+        .exercise-number {
+            font-weight: 700;
+            color: var(--text-muted);
+            min-width: 20px;
+            font-size: 0.85rem;
+        }
+
+        .exercise-content {
+            flex: 1;
+            overflow-x: none;
+        }
+
+        math {
+            font-size: 13px;
+        }
+
+        /* Input Customization */
+        input[type="text"] {
+            width: 25px;
+            padding: 3px;
+            text-align: center;
+            border: 1.5px solid var(--border-color);
+            border-radius: 0.3rem;
+            outline: none;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.2s;
+            background-color: #ffffff;
+            color: var(--text-main);
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        /* Actions / Buttons in 1 Row */
+        .actions {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .actions button {
+            flex: 1;
+            padding: 0.6rem 0.5rem;
+            font-weight: 600;
+            font-size: 0.8rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: #334155;
+        }
+
+        .btn-secondary:hover {
+            background-color: #cbd5e1;
+        }
+
+        .btn-accent {
+            background-color: var(--accent);
+            color: white;
+            box-shadow: 0 2px 4px rgba(14, 165, 233, 0.2);
+        }
+
+        .btn-accent:hover {
+            background-color: #0284c7;
+        }
+
+        /* Result Banners */
+        #global-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            display: none;
+        }
+
+        #global-result.show {
+            display: block;
+        }
+
+        .result-success {
+            background-color: var(--success-bg);
+            border: 1px solid var(--success-border);
+            color: #166534;
+        }
+
+        .result-warning {
+            background-color: #f0f9ff;
+            border: 1px solid #bae6fd;
+            color: #0369a1;
+        }
+
+        .result-danger {
+            background-color: #fff1f2;
+            border: 1px solid var(--error-border);
+            color: #9f1239;
+        }
+
+        .result-title {
+            font-weight: bold;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .result-desc {
+            font-size: 0.85rem;
+            margin-top: 0.2rem;
+            text-align: center;
+        }
+
+        .answer-key-section {
+            margin-top: 0.75rem;
+            padding-top: 0.5rem;
+            border-top: 1px dashed rgba(0,0,0,0.15);
+            font-size: 0.8rem;
+        }
+
+        .answer-key-section ul {
+            list-style-type: none;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 4px 1rem;
+            margin-top: 0.35rem;
+        }
+
+        @media (max-width: 640px) {
+            .answer-key-section ul {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Print Style Optimization - A4 Full Size & Same Web Look */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 15mm;
+            }
+            body {
+                background: none !important;
+                padding: 0 !important;
+                display: block !important;
+                height: auto !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .container {
+                max-width: 100% !important;
+                width: 100% !important;
+                box-shadow: none !important;
+                border: 1px solid #cbd5e1 !important;
+                padding: 2rem !important;
+                margin: 0 auto;
+                background-color: #ffffff !important;
+            }
+            header h1 {
+                font-size: 22px !important;
+            }
+            header p {
+                font-size: 13px !important;
+            }
+            .exercise {
+                padding: 0.75rem 1rem !important;
+                min-height: 65px !important;
+                border: 1px solid #94a3b8 !important;
+                background-color: #f8fafc !important;
+            }
+            math {
+                font-size: 16px !important;
+            }
+            input[type="text"] {
+                width: 25px !important;
+                font-size: 14px !important;
+                border: 1.5px solid #64748b !important;
+                background-color: #ffffff !important;
+            }
+            .actions {
+                display: none !important;
+            }
+            #global-result {
+                border: 1px solid #cbd5e1 !important;
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <header>
+            <h1>Latihan Eksponen</h1>
+            <p>Uji pemahamanmu tentang sifat-sifat eksponen!</p>
+        </header>
+
+        <!-- Form / Questions Container -->
+        <div id="quiz-container">
+            <!-- Soal dimuat secara dinamis via JavaScript -->
+        </div>
+
+        <!-- Global Control Actions in 1 Row -->
+        <div class="actions">
+            <button id="btn-check" onclick="checkAllAnswers()" class="btn-primary">Periksa</button>
+            <button onclick="generateRandomQuestions()" class="btn-secondary">Acak Soal</button>
+            <button onclick="window.print()" class="btn-accent">Simpan / Print</button>
+        </div>
+
+        <!-- Global Result Summary Section -->
+        <div id="global-result">
+            <!-- Ringkasan skor & kunci jawaban diisi melalui JavaScript -->
+        </div>
+
+    </div>
+
+    <script>
+        let answersKey = {};
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateRandomQuestions() {
+            // Aktifkan kembali tombol Cek
+            document.getElementById('btn-check').disabled = false;
+
+            // Sembunyikan hasil sebelumnya
+            const resultBox = document.getElementById('global-result');
+            resultBox.className = "";
+            resultBox.innerHTML = "";
+
+            // 1. a^m * a^n = a^(m+n)[cite: 1]
+            const m1 = getRandomInt(2, 9);
+            const n1 = getRandomInt(2, 9);
+            const ans1 = m1 + n1;
+
+            // 2. a^m / a^n = a^(m-n) (m > n)[cite: 1]
+            const n2 = getRandomInt(2, 4);
+            const m2 = n2 + getRandomInt(5, 8);
+            const ans2 = m2 - n2;
+
+            // 3. (a^m)^n = a^(m*n)[cite: 1]
+            const m3 = getRandomInt(2, 5);
+            const n3 = getRandomInt(2, 5);
+            const ans3 = m3 * n3;
+
+            // 4. a^m * b^m = (a*b)^m[cite: 1]
+            const baseA4 = getRandomInt(2, 5);
+            const baseB4 = getRandomInt(2, 5);
+            const m4 = getRandomInt(2, 4);
+            const ans4_base = baseA4 * baseB4;
+
+            // 5. (a^m / b^m)[cite: 1]
+            const baseB5 = getRandomInt(2, 4);
+            const multiple = getRandomInt(2, 4);
+            const baseA5 = baseB5 * multiple;
+            const m5 = getRandomInt(2, 4);
+            const ans5_base = multiple;
+
+            // 6. a^(-m) = 1 / a^m[cite: 1]
+            const m6 = getRandomInt(2, 9);
+            const ans6 = m6;
+
+            // 7. Fractional exponent a^(p/q) = root(q, a^p) (pastikan p7 tidak sama dengan q7)[cite: 1]
+            const p7 = getRandomInt(2, 4);
+            let q7 = getRandomInt(3, 5);
+            while (p7 === q7) {
+                q7 = getRandomInt(3, 5);
+            }
+            const ans7a = p7;
+            const ans7b = q7;
+
+            // 8. a^0 = 1[cite: 1]
+            const base8 = getRandomInt(2, 9);
+            const ans8 = 1;
+
+            // 9. Varian baru: Perkalian konstanta & basis sama e.g., (2a^m) * (3a^n) -> Koefisien & Pangkat[cite: 1]
+            const coeff9_a = getRandomInt(2, 4);
+            const coeff9_b = getRandomInt(2, 4);
+            const m9 = getRandomInt(2, 4);
+            const n9 = getRandomInt(2, 4);
+            const ans9_coeff = coeff9_a * coeff9_b;
+            const ans9_pow = m9 + n9;
+
+            // 10. Varian baru: Pembagian bentuk aljabar eksponen e.g., (12a^m) / (3a^n) -> Sederhana[cite: 1]
+            const divisor10 = getRandomInt(2, 4);
+            const realCoeff10 = divisor10 * getRandomInt(2, 4);
+            const m10 = getRandomInt(5, 8);
+            const n10 = getRandomInt(2, 4);
+            const ans10_coeff = realCoeff10 / divisor10;
+            const ans10_pow = m10 - n10;
+
+            // Simpan kunci jawaban[cite: 1]
+            answersKey = {
+                1: [String(ans1)],
+                2: [String(ans2)],
+                3: [String(ans3)],
+                4: [String(ans4_base)],
+                5: [String(ans5_base)],
+                6: [String(ans6)],
+                7: [String(ans7a), String(ans7b)],
+                8: [String(ans8)],
+                9: [String(ans9_coeff), String(ans9_pow)],
+                10: [String(ans10_coeff), String(ans10_pow)]
+            };
+
+            // Susun template HTML ke dalam 2 kolom[cite: 1]
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = `
+                <!-- Soal 1 -->
+                <div class="exercise">
+                    <span class="exercise-number">1.</span>
+                    <div class="exercise-content">
+                        <math><msup><mi>a</mi><mn>${m1}</mn></msup><mo>×</mo><msup><mi>a</mi><mn>${n1}</mn></msup><mo>=</mo><msup><mi>a</mi><mtext><input type="text" id="answer1" placeholder="?"></mtext></msup></math>
+                    </div>
+                </div>
+
+                <!-- Soal 2 -->
+                <div class="exercise">
+                    <span class="exercise-number">2.</span>
+                    <div class="exercise-content">
+                        <math>
+                            <mfrac><mrow><msup><mi>a</mi><mn>${m2}</mn></msup></mrow><mrow><msup><mi>a</mi><mn>${n2}</mn></msup></mrow></mfrac>
+                            <mo>=</mo><msup><mi>a</mi><mtext><input type="text" id="answer2" placeholder="?"></mtext></msup>
+                        </math>
+                    </div>
+                </div>
+
+                <!-- Soal 3 -->
+                <div class="exercise">
+                    <span class="exercise-number">3.</span>
+                    <div class="exercise-content">
+                        <math>
+                            <msup><mrow>(<msup><mi>a</mi><mn>${m3}</mn></msup>)</mrow><mn>${n3}</mn></msup><mo>=</mo><msup><mi>a</mi><mtext><input type="text" id="answer3" placeholder="?"></mtext></msup>
+                        </math>
+                    </div>
+                </div>
+
+                <!-- Soal 4 -->
+                <div class="exercise">
+                    <span class="exercise-number">4.</span>
+                    <div class="exercise-content">
+                        <math>
+                            <msup><mn>${baseA4}</mn><mn>${m4}</mn></msup><mo>×</mo><msup><mn>${baseB4}</mn><mn>${m4}</mn></msup><mo>=</mo><msup><mtext><input type="text" id="answer4" placeholder="?"></mtext><mn>${m4}</mn></msup>
+                        </math>
+                    </div>
+                </div>
+
+                <!-- Soal 5 -->
+                <div class="exercise">
+                    <span class="exercise-number">5.</span>
+                    <div class="exercise-content">
+                        <math>
+                            <mfrac><mrow><msup><mn>${baseA5}</mn><mn>${m5}</mn></msup></mrow><mrow><msup><mn>${baseB5}</mn><mn>${m5}</mn></msup></mrow></mfrac>
+                            <mo>=</mo><msup><mtext><input type="text" id="answer5" placeholder="?"></mtext><mn>${m5}</mn></msup>
+                        </math>
+                    </div>
+                </div>
+
+                <!-- Soal 6 -->
+                <div class="exercise">
+                    <span class="exercise-number">6.</span>
+                    <div class="exercise-content">
+                        <math>
+                            <msup><mi>a</mi><mrow><mo>-</mo><mn>${m6}</mn></mrow></msup><mo>=</mo>
+                            <mfrac><mn>1</mn><msup><mi>a</mi><mtext><input type="text" id="answer6" placeholder="?"></mtext></msup></mfrac>
+                        </math>
+                    </div>
+                </div>
+
+                <!-- Soal 7 -->
+                <div class="exercise">
+                    <span class="exercise-number">7.</span>
+                    <div class="exercise-content">
+                        <math>
+                            <msup><mi>a</mi><mfrac><mn>${p7}</mn><mn>${q7}</mn></mfrac></msup><mo>=</mo><mroot><mrow><msup><mi>a</mi><mtext><input type="text" id="answer7a" placeholder="?"></mtext></msup></mrow><mtext><input type="text" id="answer7b" placeholder="?"></mtext></mroot>
+                        </math>
+                    </div>
+                </div>
+
+                <!-- Soal 8 -->
+                <div class="exercise">
+                    <span class="exercise-number">8.</span>
+                    <div class="exercise-content">
+                        <math>
+                            <msup><mn>${base8}</mn><mn>0</mn></msup><mo>=</mo><mtext><input type="text" id="answer8" placeholder="?"></mtext>
+                        </math>
+                    </div>
+                </div>
+
+                <!-- Soal 9 -->
+                <div class="exercise">
+                    <span class="exercise-number">9.</span>
+                    <div class="exercise-content">
+                        <math>
+                            <mo stretchy="false"></mo><mn>${coeff9_a}</mn><msup><mi>a</mi><mn>${m9}</mn></msup><mo stretchy="false"></mo><mo>×</mo><mo stretchy="false"></mo><mn>${coeff9_b}</mn><msup><mi>a</mi><mn>${n9}</mn></msup><mo stretchy="false"></mo><mo>=</mo>
+                            <mtext><input type="text" id="answer9a" placeholder="?"></mtext><msup><mi>a</mi><mtext><input type="text" id="answer9b" placeholder="?"></mtext></msup>
+                        </math>
+                    </div>
+                </div>
+
+                <!-- Soal 10 -->
+                <div class="exercise">
+                    <span class="exercise-number">10.</span>
+                    <div class="exercise-content">
+                        <math>
+                            <mfrac><mrow><mn>${realCoeff10}</mn><msup><mi>a</mi><mn>${m10}</mn></msup></mrow><mrow><mn>${divisor10}</mn><msup><mi>a</mi><mn>${n10}</mn></msup></mrow></mfrac>
+                            <mo>=</mo>
+                            <mtext><input type="text" id="answer10a" placeholder="?"></mtext><msup><mi>a</mi><mtext><input type="text" id="answer10b" placeholder="?"></mtext></msup>
+                        </math>
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkAllAnswers() {
+            let correctQuestionsCount = 0;
+            const totalQuestions = 10;
+
+            // Periksa setiap soal dari 1 sampai 10[cite: 1]
+            for (let i = 1; i <= totalQuestions; i++) {
+                const expectedArr = answersKey[String(i)];
+                let isQuestionCorrect = true;
+
+                if (expectedArr.length === 1) {
+                    // Soal dengan 1 input[cite: 1]
+                    const inputEl = document.getElementById(`answer${i}`);
+                    const val = inputEl.value.trim();
+                    if (val === expectedArr[0]) {
+                        inputEl.style.borderColor = "var(--success-border)";
+                        inputEl.style.backgroundColor = "var(--success-bg)";
+                    } else {
+                        isQuestionCorrect = false;
+                        inputEl.style.borderColor = "var(--error-border)";
+                        inputEl.style.backgroundColor = "var(--error-bg)";
+                    }
+                } else {
+                    // Soal dengan 2 input (7, 9, 10)[cite: 1]
+                    const inputEl1 = document.getElementById(`answer${i}a`);
+                    const inputEl2 = document.getElementById(`answer${i}b`);
+                    const val1 = inputEl1.value.trim();
+                    const val2 = inputEl2.value.trim();
+
+                    if (val1 === expectedArr[0] && val2 === expectedArr[1]) {
+                        inputEl1.style.borderColor = "var(--success-border)";
+                        inputEl1.style.backgroundColor = "var(--success-bg)";
+                        inputEl2.style.borderColor = "var(--success-border)";
+                        inputEl2.style.backgroundColor = "var(--success-bg)";
+                    } else {
+                        isQuestionCorrect = false;
+                        if (val1 !== expectedArr[0]) {
+                            inputEl1.style.borderColor = "var(--error-border)";
+                            inputEl1.style.backgroundColor = "var(--error-bg)";
+                        } else {
+                            inputEl1.style.borderColor = "var(--success-border)";
+                            inputEl1.style.backgroundColor = "var(--success-bg)";
+                        }
+                        if (val2 !== expectedArr[1]) {
+                            inputEl2.style.borderColor = "var(--error-border)";
+                            inputEl2.style.backgroundColor = "var(--error-bg)";
+                        } else {
+                            inputEl2.style.borderColor = "var(--success-border)";
+                            inputEl2.style.backgroundColor = "var(--success-bg)";
+                        }
+                    }
+                }
+
+                if (isQuestionCorrect) {
+                    correctQuestionsCount++;
+                }
+            }
+
+            // Hitung nilai (1 soal benar = 10 poin)[cite: 1]
+            const finalScore = correctQuestionsCount * 10;
+
+            // Nonaktifkan tombol cek jawaban[cite: 1]
+            document.getElementById('btn-check').disabled = true;
+
+            // Tampilkan kotak hasil & kunci jawaban[cite: 1]
+            const resultBox = document.getElementById('global-result');
+            resultBox.classList.add('show');
+
+            let bannerClass = "result-success";
+            let bannerTitle = "Luar Biasa! 🎉";
+            if (finalScore < 60) {
+                bannerClass = "result-danger";
+                bannerTitle = "Tetap Semangat! 💪";
+            } else if (finalScore < 100) {
+                bannerClass = "result-warning";
+                bannerTitle = "Kerja Bagus! 👍";
+            }
+
+            resultBox.className = `show ${bannerClass}`;
+            resultBox.innerHTML = `
+                <div class="result-title">${bannerTitle}</div>
+                <div class="result-desc">Soal benar: <strong>${correctQuestionsCount} / ${totalQuestions}</strong> | Nilai Akhir: <strong>${finalScore}</strong></div>
+                
+                <div class="answer-key-section">
+                    <strong>Kunci Jawaban yang Benar:</strong>
+                    <ul>
+                        <li>Soal 1: <strong>${answersKey[1][0]}</strong></li>
+                        <li>Soal 2: <strong>${answersKey[2][0]}</strong></li>
+                        <li>Soal 3: <strong>${answersKey[3][0]}</strong></li>
+                        <li>Soal 4: <strong>${answersKey[4][0]}</strong></li>
+                        <li>Soal 5: <strong>${answersKey[5][0]}</strong></li>
+                        <li>Soal 6: <strong>${answersKey[6][0]}</strong></li>
+                        <li>Soal 7: <strong>p = ${answersKey[7][0]}, q = ${answersKey[7][1]}</strong></li>
+                        <li>Soal 8: <strong>${answersKey[8][0]}</strong></li>
+                        <li>Soal 9: <strong>Koefisien: ${answersKey[9][0]}, Pangkat: ${answersKey[9][1]}</strong></li>
+                        <li>Soal 10: <strong>Koefisien: ${answersKey[10][0]}, Pangkat: ${answersKey[10][1]}</strong></li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        // Inisialisasi soal saat halaman dimuat[cite: 1]
+        window.onload = function() {
+            generateRandomQuestions();
+        };
+        // GLOBAL BULLETPROOF SECURITY LAYER
+        (function() {
+            window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+            window.addEventListener('keydown', function(e) {
+                if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+                if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            }, true);
+        })();        
+    </script>
+</body>
+</html>
