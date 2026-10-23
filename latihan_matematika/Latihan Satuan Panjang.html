@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Latihan Satuan Panjang</title>
+  <!-- html2canvas untuk fitur Simpan Gambar -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background-color: #f0f4f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 10px;
+    }
+
+    /* Container Fit 1 Layar & Max-Width 450px */
+    .worksheet-card {
+      width: 100%;
+      max-width: 450px;
+      height: 600px;
+      background: #ffffff;
+      border: 5px solid #3b82f6;
+      border-radius: 20px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Header Nama & Kelas */
+    .header-info {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 2px solid #1e3a8a;
+      padding-bottom: 4px;
+      margin-bottom: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #1e3a8a;
+    }
+
+    .info-field {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .info-field input {
+      border: none;
+      border-bottom: 1px dashed #1e3a8a;
+      outline: none;
+      width: 50%;
+      font-size: 12px;
+      padding: 0 4px;
+      background: transparent;
+    }
+
+    /* Title Section */
+    .title-section {
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .main-title {
+      color: #1d4ed8;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-shadow: 1px 1px 0px #93c5fd;
+      line-height: 1.1;
+    }
+
+    .instruction {
+      font-size: 9.5px;
+      color: #334155;
+      margin-top: 2px;
+      line-height: 1.2;
+    }
+
+    /* Diagram Tangga Konversi */
+    .stair-container {
+      border: 2px solid #3b82f6;
+      border-radius: 12px;
+      padding: 4px 4px;
+      margin: 4px 0;
+      background: #fafafa;
+      position: relative;
+    }
+
+    .stair-svg {
+      width: 100%;
+      height: 160px;
+      display: block;
+    }
+
+    /* Layout 2 Kolom Soal */
+    .questions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: repeat(5, auto);
+      grid-auto-flow: column; /* Mengatur 1-5 di Kolom Kiri, 6-10 di Kolom Kanan */
+      gap: 12px 14px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .q-item {
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .q-no {
+      width: 24px;
+      height: 24px;
+      font-size: 12px;
+      border-radius: 50%;
+      background-color: blue;
+      align-items: center;
+      text-align: center;
+      padding: 4px;
+      margin-right: 4px;
+      color: white;
+    }
+
+    .q-text {
+      width: 70px;
+      text-align: right;
+      padding-right: 3px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .q-eq {
+      width: 10px;
+    }
+
+    .q-input-wrap {
+      flex: 1;
+      position: relative;
+    }
+
+    .q-input {
+      width: 90%;
+      border: none;
+      border-bottom: 2px solid #64748b;
+      text-align: center;
+      font-size: 12px;
+      font-weight: bold;
+      outline: none;
+      padding: 1px 0;
+      background: transparent;
+      transition: all 0.2s;
+    }
+
+    .q-input.correct {
+      border-bottom: 2px solid #22c55e;
+      background-color: #dcfce7;
+      color: #15803d;
+    }
+
+    .q-input.incorrect {
+      border-bottom: 2px solid #ef4444;
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .q-unit {
+      width: 40px;
+      padding-left: 3px;
+      color: #334155;
+      font-size: 12px;
+    }
+
+    /* Ilustrasi Ringkas di Pojok Kanan Bawah */
+    .illustration-box {
+      width: 80px;
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.85;
+    }
+
+    /* Score Indicator */
+    .score-badge {
+      display: none;
+      text-align: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: #1e3a8a;
+      background: #e0f2fe;
+      padding: 4px;
+      border-radius: 6px;
+      margin-top: 4px;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      width: 100%;
+      max-width: 450px;
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 8px 4px;
+      font-size: 11px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+      transition: opacity 0.2s, transform 0.1s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-check { background-color: #22c55e; }
+    .btn-random { background-color: #3b82f6; }
+    .btn-save { background-color: #8b5cf6; }
+
+  </style>
+</head>
+<body>
+
+  <div class="worksheet-card" id="worksheet">
+    
+    <div>
+      <!-- Header Input -->
+      <div class="header-info">
+        <div class="info-field">
+          <span>Nama :</span>
+          <input type="text" placeholder=" ">
+        </div>
+        <div class="info-field" style="max-width: 110px;">
+          <span>Kelas :</span>
+          <input type="text" placeholder=" ">
+        </div>
+      </div>
+
+      <!-- Title -->
+      <div class="title-section">
+        <h1 class="main-title">SATUAN PANJANG</h1>
+        <p class="instruction">Kerjakan soal dengan tepat menggunakan alat bantu tangga satuan!</p>
+      </div>
+
+      <!-- Tangga Konversi SVG -->
+      <div class="stair-container">
+        <svg class="stair-svg" viewBox="0 0 380 110" preserveAspectRatio="xMidYMid meet">
+          <!-- Panah Turun x10 -->
+          <path d="M 120 40 L 170 80" stroke="#1d4ed8" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+          <text x="110" y="70" font-size="12" font-weight="bold" fill="#1d4ed8">x 10</text>
+
+          <!-- Panah Naik :10 -->
+          <path d="M 270 80 L 220 40" stroke="#1d4ed8" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+          <text x="260" y="60" font-size="12" font-weight="bold" fill="#1d4ed8">: 10</text>
+
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#1d4ed8"/>
+            </marker>
+          </defs>
+
+          <!-- Tangga & Label Satuan -->
+          <path d="M 105 5 H 130 V 25" stroke="#000" stroke-width="1.8" fill="none"/>
+          <text x="110" y="0" font-size="11" font-weight="bold">km</text>
+
+          <path d="M 130 25 H 155 V 45" stroke="#000" stroke-width="1.8" fill="none"/>
+          <text x="135" y="20" font-size="11" font-weight="bold">hm</text>
+
+          <path d="M 155 45 H 180 V 65" stroke="#000" stroke-width="1.8" fill="none"/>
+          <text x="158" y="40" font-size="11" font-weight="bold">dam</text>
+
+          <path d="M 180 65 H 205 V 85" stroke="#000" stroke-width="1.8" fill="none"/>
+          <text x="187" y="60" font-size="11" font-weight="bold">m</text>
+
+          <path d="M 205 85 H 230 V 105" stroke="#000" stroke-width="1.8" fill="none"/>
+          <text x="210" y="80" font-size="11" font-weight="bold">dm</text>
+
+          <path d="M 230 105 H 255 V 125" stroke="#000" stroke-width="1.8" fill="none"/>
+          <text x="235" y="100" font-size="11" font-weight="bold">cm</text>
+
+          <path d="M 255 125 H 280" stroke="#000" stroke-width="1.8" fill="none"/>
+          <text x="260" y="120" font-size="11" font-weight="bold">mm</text>
+        </svg>
+      </div>
+
+      <!-- Area Soal (2 Kolom) -->
+      <div class="questions-grid" id="questionsContainer">
+        <!-- 10 Soal di-generate via JS -->
+      </div>
+    </div>
+
+    <!-- Dekorasi Ilustrasi -->
+    <div class="illustration-box">
+      <svg viewBox="0 0 100 120" width="100%">
+        <rect x="80" y="10" width="6" height="100" fill="#cbd5e1" rx="2"/>
+        <line x1="80" y1="20" x2="84" y2="20" stroke="#475569" stroke-width="1"/>
+        <line x1="80" y1="40" x2="84" y2="40" stroke="#475569" stroke-width="1"/>
+        <line x1="80" y1="60" x2="84" y2="60" stroke="#475569" stroke-width="1"/>
+        <line x1="80" y1="80" x2="84" y2="80" stroke="#475569" stroke-width="1"/>
+
+        <!-- Anak -->
+        <circle cx="62" cy="50" r="8" fill="#fca5a5"/>
+        <path d="M 57 58 L 67 58 L 69 85 L 55 85 Z" fill="#0ea5e9"/>
+        <rect x="57" y="85" width="4" height="25" fill="#1e293b"/>
+        <rect x="63" y="85" width="4" height="25" fill="#1e293b"/>
+
+        <!-- Ibu -->
+        <circle cx="30" cy="40" r="10" fill="#fca5a5"/>
+        <path d="M 22 35 Q 30 25 38 35 Q 38 47 22 47 Z" fill="#7c2d12"/>
+        <path d="M 22 50 L 38 50 L 42 90 L 18 90 Z" fill="#f59e0b"/>
+        <rect x="24" y="90" width="4" height="20" fill="#fca5a5"/>
+        <rect x="32" y="90" width="4" height="20" fill="#fca5a5"/>
+      </svg>
+    </div>
+
+    <div class="score-badge" id="scoreBadge">
+      Skor Anda: <span id="scoreVal">0</span> / 100
+    </div>
+  </div>
+
+  <!-- Tombol Aksi -->
+  <div class="action-buttons">
+    <button class="btn btn-check" onclick="checkAnswers()">Periksa</button>
+    <button class="btn btn-random" onclick="generateQuestions()">Acak Soal</button>
+    <button class="btn btn-save" onclick="saveAsImage()">Simpan Gambar</button>
+  </div>
+
+  <script>
+    const units = ['km', 'hm', 'dam', 'm', 'dm', 'cm', 'mm'];
+    let currentQuestions = [];
+
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // Generate 10 soal dengan syarat:
+    // 1. Dibuat 2 Kolom (5 kiri, 5 kanan)
+    // 2. Tidak ada jenis konversi yang berulang (misal: km -> m hanya muncul 1x per sesi)
+    // 3. Perpindahan tangga <= 3
+    // 4. Hasil HARUS angka bulat
+    function generateQuestions() {
+      currentQuestions = [];
+      const container = document.getElementById('questionsContainer');
+      container.innerHTML = '';
+      document.getElementById('scoreBadge').style.display = 'none';
+
+      const usedPairs = new Set(); // Melacak jenis konversi yang sudah dipakai
+
+      for (let i = 0; i < 10; i++) {
+        let fromIdx, toIdx, diff, pairKey;
+        let attempts = 0;
+
+        // Cari kombinasi konversi unik yang belum digunakan
+        do {
+          fromIdx = getRandomInt(0, units.length - 1);
+          let step = getRandomInt(-3, 3);
+          while (step === 0 || (fromIdx + step < 0) || (fromIdx + step >= units.length)) {
+            step = getRandomInt(-3, 3);
+          }
+          toIdx = fromIdx + step;
+          diff = toIdx - fromIdx;
+          pairKey = `${units[fromIdx]}->${units[toIdx]}`;
+          attempts++;
+        } while (usedPairs.has(pairKey) && attempts < 100);
+
+        usedPairs.add(pairKey);
+
+        let value;
+        if (diff > 0) {
+          // Turun tangga (dikali) -> angka 1-50
+          value = getRandomInt(1, 50);
+        } else {
+          // Naik tangga (dibagi) -> angka kelipatan 10^|diff| agar hasil bulat
+          let factor = Math.pow(10, Math.abs(diff));
+          let multiplier = getRandomInt(1, 25);
+          value = multiplier * factor;
+        }
+
+        let answer = diff > 0 ? value * Math.pow(10, diff) : value / Math.pow(10, Math.abs(diff));
+
+        currentQuestions.push({
+          num: i + 1,
+          val: value,
+          fromUnit: units[fromIdx],
+          toUnit: units[toIdx],
+          correctAnswer: answer
+        });
+
+        // Render HTML
+        const qEl = document.createElement('div');
+        qEl.className = 'q-item';
+        qEl.innerHTML = `
+          <span class="q-no">${i + 1}</span>
+          <span class="q-text">${value} ${units[fromIdx]}</span>
+          <span class="q-eq">=</span>
+          <div class="q-input-wrap">
+            <input type="number" class="q-input" id="input-${i}" autocomplete="off">
+          </div>
+          <span class="q-unit">${units[toIdx]}</span>
+        `;
+        container.appendChild(qEl);
+      }
+    }
+
+    function checkAnswers() {
+      let correctCount = 0;
+
+      currentQuestions.forEach((q, idx) => {
+        const inputEl = document.getElementById(`input-${idx}`);
+        const userAns = parseFloat(inputEl.value);
+
+        inputEl.classList.remove('correct', 'incorrect');
+
+        if (!isNaN(userAns) && userAns === q.correctAnswer) {
+          inputEl.classList.add('correct');
+          correctCount++;
+        } else {
+          inputEl.classList.add('incorrect');
+        }
+      });
+
+      const scoreBadge = document.getElementById('scoreBadge');
+      const scoreVal = document.getElementById('scoreVal');
+      scoreVal.innerText = correctCount * 10;
+      scoreBadge.style.display = 'block';
+    }
+
+    function saveAsImage() {
+      const worksheet = document.getElementById('worksheet');
+      
+      html2canvas(worksheet, {
+        scale: 2,
+        backgroundColor: null,
+        useCORS: true
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'latihan-satuan-panjang.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+
+    window.onload = generateQuestions;
+    // GLOBAL BULLETPROOF SECURITY LAYER
+    (function() {
+        window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+        }, true);
+    })();    
+  </script>
+</body>
+</html>

@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Ocre - Latihan Satuan Berat (Massa)</title>
+  <!-- html2canvas untuk fitur Simpan Gambar -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background-color: #f0f4f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 8px;
+    }
+
+    /* Container Fit 1 Layar & Max-Width 450px */
+    .worksheet-card {
+      width: 100%;
+      max-width: 450px;
+      height: 600px;
+      background: #ffffff;
+      border: 5px solid #3b82f6;
+      border-radius: 20px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Header Nama & Kelas */
+    .header-info {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 2px solid #1e3a8a;
+      padding-bottom: 2px;
+      margin-bottom: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #1e3a8a;
+    }
+
+    .info-field {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .info-field input {
+      border: none;
+      border-bottom: 1px dashed #1e3a8a;
+      outline: none;
+      width: 50%;
+      font-size: 12px;
+      padding: 0 4px;
+      background: transparent;
+    }
+
+    /* Title Section */
+    .title-section {
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .main-title {
+      color: #1d4ed8;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      text-shadow: 1px 1px 0px #93c5fd;
+      line-height: 1.1;
+    }
+
+    .instruction {
+      font-size: 9.5px;
+      color: #334155;
+      margin-top: 2px;
+      line-height: 1.2;
+    }
+
+    /* Diagram Tangga Konversi & Box Catatan */
+    .stair-container {
+      border: 2px solid #3b82f6;
+      border-radius: 12px;
+      padding: 4px;
+      margin: 4px 0;
+      background: #fafafa;
+      position: relative;
+    }
+
+    .stair-svg {
+      width: 100%;
+      height: 145px;
+      display: block;
+    }
+
+    /* Info Box Satuan Lain */
+    .extra-info-box {
+      background: #eff6ff;
+      border: 1px dashed #3b82f6;
+      border-radius: 8px;
+      padding: 4px 8px;
+      margin-top: 2px;
+      display: flex;
+      justify-content: space-around;
+      font-size: 10px;
+      font-weight: bold;
+      color: #1e3a8a;
+    }
+
+    /* Layout 2 Kolom Soal (1-5 Kiri, 6-10 Kanan) */
+    .questions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: repeat(5, auto);
+      grid-auto-flow: column;
+      gap: 10px 12px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .q-item {
+      display: flex;
+      align-items: center;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .q-no {
+      width: 20px;
+      height: 20px;
+      font-size: 11px;
+      border-radius: 50%;
+      background-color: #1d4ed8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 4px;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .q-text {
+      width: 54px;
+      text-align: right;
+      padding-right: 3px;
+      font-size: 11.5px;
+      white-space: nowrap;
+    }
+
+    .q-eq {
+      width: 8px;
+    }
+
+    .q-input-wrap {
+      flex: 1;
+      position: relative;
+    }
+
+    .q-input {
+      width: 90%;
+      border: none;
+      border-bottom: 2px solid #64748b;
+      text-align: center;
+      font-size: 11.5px;
+      font-weight: bold;
+      outline: none;
+      padding: 1px 0;
+      background: transparent;
+      transition: all 0.2s;
+    }
+
+    .q-input.correct {
+      border-bottom: 2px solid #22c55e;
+      background-color: #dcfce7;
+      color: #15803d;
+    }
+
+    .q-input.incorrect {
+      border-bottom: 2px solid #ef4444;
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .q-unit {
+      width: 42px;
+      padding-left: 2px;
+      color: #334155;
+      font-size: 11.5px;
+    }
+
+    /* Dekorasi Ilustrasi Timbangan */
+    .illustration-box {
+      width: 70px;
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.8;
+    }
+
+    /* Score Indicator */
+    .score-badge {
+      display: none;
+      text-align: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: #1e3a8a;
+      background: #e0f2fe;
+      padding: 4px;
+      border-radius: 6px;
+      margin-top: 4px;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      width: 100%;
+      max-width: 450px;
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 8px 4px;
+      font-size: 11px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+      transition: opacity 0.2s, transform 0.1s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-check { background-color: #22c55e; }
+    .btn-random { background-color: #3b82f6; }
+    .btn-save { background-color: #8b5cf6; }
+
+  </style>
+</head>
+<body>
+
+  <div class="worksheet-card" id="worksheet">
+    
+    <div>
+      <!-- Header Input -->
+      <div class="header-info">
+        <div class="info-field">
+          <span>Nama :</span>
+          <input type="text" placeholder=" ">
+        </div>
+        <div class="info-field" style="max-width: 110px;">
+          <span>Kelas :</span>
+          <input type="text" placeholder=" ">
+        </div>
+      </div>
+
+      <!-- Title -->
+      <div class="title-section">
+        <h1 class="main-title">SATUAN BERAT (MASSA)</h1>
+        <p class="instruction">Kerjakan soal dengan tepat menggunakan alat bantu tangga satuan!</p>
+      </div>
+
+      <!-- Tangga Konversi SVG -->
+      <div class="stair-container">
+        <svg class="stair-svg" viewBox="0 0 380 120" preserveAspectRatio="xMidYMid meet">
+          <!-- Panah Turun x10 -->
+          <path d="M 120 30 L 170 70" stroke="#1d4ed8" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+          <text x="110" y="60" font-size="11" font-weight="bold" fill="#1d4ed8">x 10</text>
+
+          <!-- Panah Naik :10 -->
+          <path d="M 270 70 L 220 30" stroke="#1d4ed8" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+          <text x="260" y="50" font-size="11" font-weight="bold" fill="#1d4ed8">: 10</text>
+
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#1d4ed8"/>
+            </marker>
+          </defs>
+
+          <!-- Tangga & Label Satuan Berat -->
+          <path d="M 105 5 H 130 V 25" stroke="#000" stroke-width="1.8" fill="none"/>
+          <text x="110" y="0" font-size="11" font-weight="bold">kg</text>
+
+          <path d="M 130 25 H 155 V 45" stroke="#000" stroke-width="1.8" fill="none"/>
+          <text x="135" y="20" font-size="11" font-weight="bold">hg</text>
+
+          <path d="M 155 45 H 180 V 65" stroke="#000" stroke-width="1.8" fill="none"/>
+          <text x="158" y="40" font-size="11" font-weight="bold">dag</text>
+
+          <path d="M 180 65 H 205 V 85" stroke="#000" stroke-width="1.8" fill="none"/>
+          <text x="187" y="60" font-size="11" font-weight="bold">g</text>
+
+          <path d="M 205 85 H 230 V 105" stroke="#000" stroke-width="1.8" fill="none"/>
+          <text x="210" y="80" font-size="11" font-weight="bold">dg</text>
+
+          <path d="M 230 105 H 255 V 125" stroke="#000" stroke-width="1.8" fill="none"/>
+          <text x="235" y="100" font-size="11" font-weight="bold">cg</text>
+
+          <path d="M 255 125 H 280" stroke="#000" stroke-width="1.8" fill="none"/>
+          <text x="260" y="120" font-size="11" font-weight="bold">mg</text>
+        </svg>
+
+        <!-- Keterangan Satuan Lain -->
+        <div class="extra-info-box">
+          <span>1 ton = 1000 kg</span>
+          <span>1 kuintal = 100 kg</span>
+          <span>1 ons = 1 hg</span>
+        </div>
+      </div>
+
+      <!-- Area Soal (2 Kolom) -->
+      <div class="questions-grid" id="questionsContainer">
+        <!-- 10 Soal di-generate via JS -->
+      </div>
+    </div>
+
+    <!-- Ilustrasi Timbangan Dekoratif -->
+    <div class="illustration-box">
+      <svg viewBox="0 0 100 100" width="100%">
+        <!-- Base Timbangan -->
+        <path d="M 20 85 L 80 85 L 70 70 L 30 70 Z" fill="#94a3b8"/>
+        <rect x="46" y="40" width="8" height="30" fill="#64748b"/>
+        <!-- Jarum / Piringan -->
+        <circle cx="50" cy="35" r="22" fill="#e2e8f0" stroke="#334155" stroke-width="2"/>
+        <line x1="50" y1="35" x2="62" y2="25" stroke="#ef4444" stroke-width="2"/>
+        <circle cx="50" cy="35" r="3" fill="#1e293b"/>
+      </svg>
+    </div>
+
+    <div class="score-badge" id="scoreBadge">
+      Skor Anda: <span id="scoreVal">0</span> / 100
+    </div>
+  </div>
+
+  <!-- Tombol Aksi -->
+  <div class="action-buttons">
+    <button class="btn btn-check" onclick="checkAnswers()">Periksa</button>
+    <button class="btn btn-random" onclick="generateQuestions()">Acak Soal</button>
+    <button class="btn btn-save" onclick="saveAsImage()">Simpan Gambar</button>
+  </div>
+
+  <script>
+    const stairUnits = ['kg', 'hg', 'dag', 'g', 'dg', 'cg', 'mg'];
+    let currentQuestions = [];
+
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // Menghasilkan daftar seluruh kemungkinan jenis pasangan konversi
+    function getAllPossiblePairs() {
+      const pairs = [];
+
+      // 1. Antar Tangga Satuan (Perpindahan <= 3)
+      for (let i = 0; i < stairUnits.length; i++) {
+        for (let step = -3; step <= 3; step++) {
+          if (step === 0) continue;
+          let targetIdx = i + step;
+          if (targetIdx >= 0 && targetIdx < stairUnits.length) {
+            pairs.push({
+              type: 'stair',
+              from: stairUnits[i],
+              to: stairUnits[targetIdx],
+              fromIdx: i,
+              toIdx: targetIdx,
+              diff: targetIdx - i
+            });
+          }
+        }
+      }
+
+      // 2. Satuan Khusus (ton, kuintal, ons)
+      // Konversi ton & kuintal & ons
+      pairs.push({ type: 'special', from: 'ton', to: 'kg', ratio: 1000 });
+      pairs.push({ type: 'special', from: 'kg', to: 'ton', ratio: 1/1000 });
+      pairs.push({ type: 'special', from: 'kuintal', to: 'kg', ratio: 100 });
+      pairs.push({ type: 'special', from: 'kg', to: 'kuintal', ratio: 1/100 });
+      pairs.push({ type: 'special', from: 'ton', to: 'kuintal', ratio: 10 });
+      pairs.push({ type: 'special', from: 'kuintal', to: 'ton', ratio: 1/10 });
+      pairs.push({ type: 'special', from: 'ons', to: 'hg', ratio: 1 });
+      pairs.push({ type: 'special', from: 'ons', to: 'g', ratio: 100 });
+      pairs.push({ type: 'special', from: 'g', to: 'ons', ratio: 1/100 });
+
+      return pairs;
+    }
+
+    // Generate 10 soal unik tanpa varian sama, hasil max 10.000
+    function generateQuestions() {
+      currentQuestions = [];
+      const container = document.getElementById('questionsContainer');
+      container.innerHTML = '';
+      document.getElementById('scoreBadge').style.display = 'none';
+
+      const allPairs = getAllPossiblePairs();
+      // Acak urutan pasangan konversi agar soal selalu variatif
+      allPairs.sort(() => Math.random() - 0.5);
+
+      let selectedCount = 0;
+
+      for (let pair of allPairs) {
+        if (selectedCount >= 10) break;
+
+        let value, answer;
+
+        if (pair.type === 'stair') {
+          let diff = pair.diff;
+          if (diff > 0) {
+            // Turun tangga (dikali 10^diff). Hasil max 10.000
+            let maxVal = Math.floor(10000 / Math.pow(10, diff));
+            if (maxVal < 1) continue;
+            value = getRandomInt(1, Math.min(maxVal, 50));
+            answer = value * Math.pow(10, diff);
+          } else {
+            // Naik tangga (dibagi 10^|diff|). Nilai input dibuat sedemikian rupa agar hasil <= 10.000
+            let factor = Math.pow(10, Math.abs(diff));
+            let maxMultiplier = Math.floor(10000 / 1); // Jawaban <= 10.000
+            let multiplier = getRandomInt(1, Math.min(maxMultiplier, 25));
+            value = multiplier * factor;
+            answer = multiplier;
+          }
+        } else {
+          // Satuan khusus
+          let ratio = pair.ratio;
+          if (ratio >= 1) {
+            let maxVal = Math.floor(10000 / ratio);
+            if (maxVal < 1) maxVal = 1;
+            value = getRandomInt(1, Math.min(maxVal, 20));
+            answer = value * ratio;
+          } else {
+            let factor = Math.round(1 / ratio);
+            let multiplier = getRandomInt(1, Math.min(10000, 25));
+            value = multiplier * factor;
+            answer = multiplier;
+          }
+        }
+
+        // Syarat Tambahan: Hasil jawaban <= 10.000 dan nilai input <= 10.000
+        if (answer <= 10000 && value <= 10000 && Number.isInteger(answer)) {
+          currentQuestions.push({
+            num: selectedCount + 1,
+            val: value,
+            fromUnit: pair.from,
+            toUnit: pair.to,
+            correctAnswer: answer
+          });
+          selectedCount++;
+        }
+      }
+
+      // Render 10 Soal ke DOM
+      currentQuestions.forEach((q, i) => {
+        const qEl = document.createElement('div');
+        qEl.className = 'q-item';
+        qEl.innerHTML = `
+          <span class="q-no">${q.num}</span>
+          <span class="q-text">${q.val} ${q.fromUnit}</span>
+          <span class="q-eq">=</span>
+          <div class="q-input-wrap">
+            <input type="number" class="q-input" id="input-${i}" autocomplete="off">
+          </div>
+          <span class="q-unit">${q.toUnit}</span>
+        `;
+        container.appendChild(qEl);
+      });
+    }
+
+    function checkAnswers() {
+      let correctCount = 0;
+
+      currentQuestions.forEach((q, idx) => {
+        const inputEl = document.getElementById(`input-${idx}`);
+        const userAns = parseFloat(inputEl.value);
+
+        inputEl.classList.remove('correct', 'incorrect');
+
+        if (!isNaN(userAns) && userAns === q.correctAnswer) {
+          inputEl.classList.add('correct');
+          correctCount++;
+        } else {
+          inputEl.classList.add('incorrect');
+        }
+      });
+
+      const scoreBadge = document.getElementById('scoreBadge');
+      const scoreVal = document.getElementById('scoreVal');
+      scoreVal.innerText = correctCount * 10;
+      scoreBadge.style.display = 'block';
+    }
+
+    function saveAsImage() {
+      const worksheet = document.getElementById('worksheet');
+      
+      html2canvas(worksheet, {
+        scale: 2,
+        backgroundColor: null,
+        useCORS: true
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'latihan-satuan-berat.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+
+    window.onload = generateQuestions;
+    // GLOBAL BULLETPROOF SECURITY LAYER
+    (function() {
+        window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+        }, true);
+    })();    
+  </script>
+</body>
+</html>

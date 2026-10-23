@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Lembar Kerja Satuan Waktu - Tahap Dasar</title>
+  <!-- html2canvas untuk fitur Simpan Gambar -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background-color: #f0f4f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 8px;
+    }
+
+    /* Container Fit 1 Layar & Max-Width 450px */
+    .worksheet-card {
+      width: 100%;
+      max-width: 450px;
+      height: 600px;
+      background: #ffffff;
+      border: 5px solid #3b82f6;
+      border-radius: 20px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Header Nama & Kelas */
+    .header-info {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 2px solid #1e3a8a;
+      padding-bottom: 2px;
+      margin-bottom: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #1e3a8a;
+    }
+
+    .info-field {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .info-field input {
+      border: none;
+      border-bottom: 1px dashed #1e3a8a;
+      outline: none;
+      width: 50%;
+      font-size: 12px;
+      padding: 0 4px;
+      background: transparent;
+    }
+
+    /* Title Section */
+    .title-section {
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .main-title {
+      color: #1d4ed8;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      text-shadow: 1px 1px 0px #93c5fd;
+      line-height: 1.1;
+    }
+
+    .instruction {
+      font-size: 9.5px;
+      color: #334155;
+      margin-top: 2px;
+      line-height: 1.2;
+    }
+
+    /* Diagram / Box Keterangan Satuan Waktu */
+    .info-container {
+      border: 2px solid #3b82f6;
+      border-radius: 12px;
+      padding: 6px;
+      margin: 4px 0;
+      background: #fafafa;
+      position: relative;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 4px;
+      font-size: 11px;
+      color: #1e293b;
+    }
+
+    .info-col {
+      background: #eff6ff;
+      border: 1px dashed #93c5fd;
+      border-radius: 6px;
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .info-col-title {
+      font-weight: bold;
+      color: #1e3a8a;
+      border-bottom: 1px solid #bfdbfe;
+      padding-bottom: 1px;
+      margin-bottom: 2px;
+      text-align: center;
+    }
+
+    /* Layout 2 Kolom Soal (1-5 Kiri, 6-10 Kanan) */
+    .questions-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: repeat(10, auto);
+      grid-auto-flow: column;
+      gap: 8px;
+      position: relative;
+      z-index: 2;
+      margin-top: 4px;
+    }
+
+    .q-item {
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .q-no {
+      width: 20px;
+      height: 20px;
+      font-size: 11px;
+      border-radius: 50%;
+      background-color: #1d4ed8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 4px;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .q-text {
+      width: 82px;
+      text-align: right;
+      padding-right: 3px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .q-eq {
+      width: 8px;
+    }
+
+    .q-input-wrap {
+      flex: 1;
+      position: relative;
+    }
+
+    .q-input {
+      width: 90%;
+      border: none;
+      border-bottom: 2px solid #64748b;
+      text-align: center;
+      font-size: 12px;
+      font-weight: bold;
+      outline: none;
+      padding: 1px 0;
+      background: transparent;
+      transition: all 0.2s;
+    }
+
+    .q-input.correct {
+      border-bottom: 2px solid #22c55e;
+      background-color: #dcfce7;
+      color: #15803d;
+    }
+
+    .q-input.incorrect {
+      border-bottom: 2px solid #ef4444;
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .q-unit {
+      width: 58px;
+      padding-left: 2px;
+      color: #334155;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    /* Dekorasi Ilustrasi Jam */
+    .illustration-box {
+      width: 65px;
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.8;
+    }
+
+    /* Score Indicator */
+    .score-badge {
+      display: none;
+      text-align: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: #1e3a8a;
+      background: #e0f2fe;
+      padding: 4px;
+      border-radius: 6px;
+      margin-top: 4px;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      width: 100%;
+      max-width: 450px;
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 8px 4px;
+      font-size: 11px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+      transition: opacity 0.2s, transform 0.1s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-check { background-color: #22c55e; }
+    .btn-random { background-color: #3b82f6; }
+    .btn-save { background-color: #8b5cf6; }
+
+  </style>
+</head>
+<body>
+
+  <div class="worksheet-card" id="worksheet">
+    
+    <div>
+      <!-- Header Input -->
+      <div class="header-info">
+        <div class="info-field">
+          <span>Nama :</span>
+          <input type="text" placeholder=" ">
+        </div>
+        <div class="info-field" style="max-width: 110px;">
+          <span>Kelas :</span>
+          <input type="text" placeholder=" ">
+        </div>
+      </div>
+
+      <!-- Title -->
+      <div class="title-section">
+        <h1 class="main-title">SATUAN WAKTU</h1>
+        <p class="instruction">Kerjakan soal dengan tepat!</p>
+      </div>
+
+      <!-- Box Keterangan Satuan Waktu (Dasar) -->
+      <div class="info-container">
+        <div class="info-grid">
+          <!-- Kelompok 1 -->
+          <div class="info-col">
+            <div>1 abad = 100 thn</div>
+            <div>1 dasawarsa = 10 thn</div>
+            <div>1 windu = 8 thn</div>
+            <div>1 abad = 10 dsw</div>
+          </div>
+          <!-- Kelompok 2 -->
+          <div class="info-col">
+            <div>1 tahun = 12 bln</div>
+            <div>1 bulan = 4 mgg</div>
+            <div>1 minggu = 7 hari</div>
+            <div>1 bulan = 30 hari</div>
+          </div>
+          <!-- Kelompok 3 -->
+          <div class="info-col">
+            <div>1 hari = 24 jam</div>
+            <div>1 jam = 60 menit</div>
+            <div>1 menit = 60 detik</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Area Soal (2 Kolom) -->
+      <div class="questions-grid" id="questionsContainer">
+        <!-- 10 Soal di-generate via JS -->
+      </div>
+    </div>
+
+    <!-- Ilustrasi Jam Dekoratif -->
+    <div class="illustration-box">
+      <svg viewBox="0 0 100 100" width="100%">
+        <circle cx="50" cy="50" r="42" fill="#ffffff" stroke="#1d4ed8" stroke-width="5"/>
+        <circle cx="50" cy="50" r="3" fill="#1e293b"/>
+        <!-- Angka Jam -->
+        <line x1="50" y1="12" x2="50" y2="17" stroke="#3b82f6" stroke-width="3"/>
+        <line x1="50" y1="83" x2="50" y2="88" stroke="#3b82f6" stroke-width="3"/>
+        <line x1="12" y1="50" x2="17" y2="50" stroke="#3b82f6" stroke-width="3"/>
+        <line x1="83" y1="50" x2="88" y2="50" stroke="#3b82f6" stroke-width="3"/>
+        <!-- Jarum Jam -->
+        <line x1="50" y1="50" x2="50" y2="28" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>
+        <line x1="50" y1="50" x2="68" y2="50" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <div class="score-badge" id="scoreBadge">
+      Skor Anda: <span id="scoreVal">0</span> / 100
+    </div>
+  </div>
+
+  <!-- Tombol Aksi -->
+  <div class="action-buttons">
+    <button class="btn btn-check" onclick="checkAnswers()">Periksa</button>
+    <button class="btn btn-random" onclick="generateQuestions()">Acak Soal</button>
+    <button class="btn btn-save" onclick="saveAsImage()">Simpan Gambar</button>
+  </div>
+
+  <script>
+    let currentQuestions = [];
+
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // Pasangan konversi TAHAP DASAR (HANYA 1 LANGKAH dari tabel)
+    function getBasicTimePairs() {
+      return {
+        // Kelompok 1 (3 soal): abad, dasawarsa, windu, tahun
+        group1: [
+          { from: 'abad', to: 'tahun', mult: 100 },
+          { from: 'tahun', to: 'abad', div: 100 },
+          { from: 'dasawarsa', to: 'tahun', mult: 10 },
+          { from: 'tahun', to: 'dasawarsa', div: 10 },
+          { from: 'windu', to: 'tahun', mult: 8 },
+          { from: 'tahun', to: 'windu', div: 8 },
+          { from: 'abad', to: 'dasawarsa', mult: 10 },
+          { from: 'dasawarsa', to: 'abad', div: 10 }
+        ],
+        // Kelompok 2 (4 soal): tahun, bulan, minggu, hari
+        group2: [
+          { from: 'tahun', to: 'bulan', mult: 12 },
+          { from: 'bulan', to: 'tahun', div: 12 },
+          { from: 'bulan', to: 'minggu', mult: 4 },
+          { from: 'minggu', to: 'bulan', div: 4 },
+          { from: 'minggu', to: 'hari', mult: 7 },
+          { from: 'hari', to: 'minggu', div: 7 },
+          { from: 'bulan', to: 'hari', mult: 30 },
+          { from: 'hari', to: 'bulan', div: 30 }
+        ],
+        // Kelompok 3 (3 soal): hari, jam, menit, detik
+        group3: [
+          { from: 'hari', to: 'jam', mult: 24 },
+          { from: 'jam', to: 'hari', div: 24 },
+          { from: 'jam', to: 'menit', mult: 60 },
+          { from: 'menit', to: 'jam', div: 60 },
+          { from: 'menit', to: 'detik', mult: 60 },
+          { from: 'detik', to: 'menit', div: 60 }
+        ]
+      };
+    }
+
+    // Mengambil N pasangan acak tanpa varian konversi sama
+    function selectPairsFromGroup(pairsList, count) {
+      const shuffled = [...pairsList].sort(() => Math.random() - 0.5);
+      const selected = [];
+
+      for (let pair of shuffled) {
+        if (selected.length >= count) break;
+
+        let value, answer;
+
+        if (pair.mult) {
+          // Perkalian (Turun 1 Tahap)
+          let maxVal = Math.floor(10000 / pair.mult);
+          value = getRandomInt(1, Math.min(maxVal, 40));
+          answer = value * pair.mult;
+        } else if (pair.div) {
+          // Pembagian (Naik 1 Tahap) -> Angka dibuat kelipatan pembagi
+          let maxAns = Math.min(10000, 50);
+          let ansMultiplier = getRandomInt(1, maxAns);
+          answer = ansMultiplier;
+          value = ansMultiplier * pair.div;
+        }
+
+        if (answer <= 10000 && value <= 10000 && Number.isInteger(answer) && value > 0) {
+          selected.push({
+            val: value,
+            fromUnit: pair.from,
+            toUnit: pair.to,
+            correctAnswer: answer
+          });
+        }
+      }
+      return selected;
+    }
+
+    // Generate 10 Soal (3 K1, 4 K2, 3 K3)
+    function generateQuestions() {
+      currentQuestions = [];
+      const container = document.getElementById('questionsContainer');
+      container.innerHTML = '';
+      document.getElementById('scoreBadge').style.display = 'none';
+
+      const groups = getBasicTimePairs();
+
+      // Pilih secara proporsional
+      const qK1 = selectPairsFromGroup(groups.group1, 3);
+      const qK2 = selectPairsFromGroup(groups.group2, 4);
+      const qK3 = selectPairsFromGroup(groups.group3, 3);
+
+      let rawQuestions = [...qK1, ...qK2, ...qK3];
+      
+      // Acak posisi nomor soal
+      rawQuestions.sort(() => Math.random() - 0.5);
+
+      currentQuestions = rawQuestions.map((q, idx) => ({
+        num: idx + 1,
+        ...q
+      }));
+
+      // Render Soal ke DOM
+      currentQuestions.forEach((q, i) => {
+        const qEl = document.createElement('div');
+        qEl.className = 'q-item';
+        qEl.innerHTML = `
+          <span class="q-no">${q.num}</span>
+          <span class="q-text">${q.val} ${q.fromUnit}</span>
+          <span class="q-eq">=</span>
+          <div class="q-input-wrap">
+            <input type="number" class="q-input" id="input-${i}" autocomplete="off">
+          </div>
+          <span class="q-unit">${q.toUnit}</span>
+        `;
+        container.appendChild(qEl);
+      });
+    }
+
+    function checkAnswers() {
+      let correctCount = 0;
+
+      currentQuestions.forEach((q, idx) => {
+        const inputEl = document.getElementById(`input-${idx}`);
+        const userAns = parseFloat(inputEl.value);
+
+        inputEl.classList.remove('correct', 'incorrect');
+
+        if (!isNaN(userAns) && userAns === q.correctAnswer) {
+          inputEl.classList.add('correct');
+          correctCount++;
+        } else {
+          inputEl.classList.add('incorrect');
+        }
+      });
+
+      const scoreBadge = document.getElementById('scoreBadge');
+      const scoreVal = document.getElementById('scoreVal');
+      scoreVal.innerText = correctCount * 10;
+      scoreBadge.style.display = 'block';
+    }
+
+    function saveAsImage() {
+      const worksheet = document.getElementById('worksheet');
+      
+      html2canvas(worksheet, {
+        scale: 2,
+        backgroundColor: null,
+        useCORS: true
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'lembar-kerja-satuan-waktu-dasar.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+
+    window.onload = generateQuestions;
+
+    (function() {
+        window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+            if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+        }, true);
+    })();
+  </script>
+</body>
+</html>
