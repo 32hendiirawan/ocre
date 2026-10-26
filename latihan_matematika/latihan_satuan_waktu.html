@@ -28,7 +28,7 @@
     .worksheet-card {
       width: 100%;
       max-width: 450px;
-      height: 600px;
+      height: 560px;
       background: #ffffff;
       border: 5px solid #3b82f6;
       border-radius: 20px;
@@ -45,12 +45,14 @@
     .header-info {
       display: flex;
       justify-content: space-between;
-      border-bottom: 2px solid #1e3a8a;
-      padding-bottom: 2px;
+      padding: 4px;
       margin-bottom: 4px;
       font-size: 12px;
       font-weight: bold;
       color: #1e3a8a;
+      background-color: lightcyan;
+      border-radius: 12px;
+      border: 1px solid blue;
     }
 
     .info-field {
@@ -132,21 +134,24 @@
     /* Layout 2 Kolom Soal (1-5 Kiri, 6-10 Kanan) */
     .questions-grid {
       display: grid;
-      grid-template-columns: 1fr;
-      grid-template-rows: repeat(10, auto);
-      grid-auto-flow: column;
-      gap: 8px;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: repeat(5, auto);
+      grid-auto-flow: column; /* Mengatur 1-5 di Kolom Kiri, 6-10 di Kolom Kanan */
+      gap: 12px 20px;
       position: relative;
       z-index: 2;
-      margin-top: 4px;
+      margin-top: 10px;
     }
 
     .q-item {
       display: flex;
       align-items: center;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       color: #1e293b;
+      background-color: lightcyan;
+      border-radius: 12px;
+      border: 1px solid blue;
     }
 
     .q-no {
@@ -164,10 +169,10 @@
     }
 
     .q-text {
-      width: 82px;
+      width: 60px;
       text-align: right;
       padding-right: 3px;
-      font-size: 12px;
+      font-size: 11px;
       white-space: nowrap;
     }
 
@@ -181,11 +186,11 @@
     }
 
     .q-input {
-      width: 90%;
+      width: 100%;
       border: none;
       border-bottom: 2px solid #64748b;
       text-align: center;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: bold;
       outline: none;
       padding: 1px 0;
@@ -204,6 +209,17 @@
       background-color: #fee2e2;
       color: #b91c1c;
     }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    /* Untuk Firefox */
+    input[type=number] {
+      -moz-appearance: textfield;
+    }    
 
     .q-unit {
       width: 58px;

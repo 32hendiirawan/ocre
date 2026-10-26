@@ -28,8 +28,8 @@
     .worksheet-card {
       width: 100%;
       max-width: 450px;
-      height: 600px;
-      background: #ffffff;
+      height: 560px;
+      background: white;
       border: 5px solid #3b82f6;
       border-radius: 20px;
       padding: 10px 14px;
@@ -45,12 +45,15 @@
     .header-info {
       display: flex;
       justify-content: space-between;
-      border-bottom: 2px solid #1e3a8a;
+      border-radius: 6px;
       padding-bottom: 4px;
       margin-bottom: 4px;
       font-size: 12px;
       font-weight: bold;
       color: #1e3a8a;
+      background-color: lightcyan;
+      border: 1px solid blue;
+      padding: 4px;
     }
 
     .info-field {
@@ -70,6 +73,17 @@
       background: transparent;
     }
 
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    /* Untuk Firefox */
+    input[type=number] {
+      -moz-appearance: textfield;
+    }    
+
     /* Title Section */
     .title-section {
       text-align: center;
@@ -77,6 +91,7 @@
     }
 
     .main-title {
+      margin-top: 10px;
       color: #1d4ed8;
       font-size: 22px;
       font-weight: 900;
@@ -86,7 +101,7 @@
     }
 
     .instruction {
-      font-size: 9.5px;
+      font-size: 10px;
       color: #334155;
       margin-top: 2px;
       line-height: 1.2;
@@ -117,6 +132,7 @@
       gap: 12px 14px;
       position: relative;
       z-index: 2;
+      margin-top: 10px;
     }
 
     .q-item {
@@ -125,6 +141,9 @@
       font-size: 12px;
       font-weight: 700;
       color: #1e293b;
+      background-color: lightcyan;
+      border-radius: 12px;
+      border: 1px solid blue;
     }
 
     .q-no {
@@ -191,10 +210,9 @@
 
     /* Ilustrasi Ringkas di Pojok Kanan Bawah */
     .illustration-box {
-      width: 80px;
       position: absolute;
-      bottom: 4px;
-      right: 4px;
+      bottom: 10px;
+      right: 10px;
       pointer-events: none;
       z-index: 1;
       opacity: 0.85;
@@ -256,7 +274,7 @@
           <span>Nama :</span>
           <input type="text" placeholder=" ">
         </div>
-        <div class="info-field" style="max-width: 110px;">
+        <div class="info-field" style="max-width: 120px;">
           <span>Kelas :</span>
           <input type="text" placeholder=" ">
         </div>
@@ -272,12 +290,12 @@
       <div class="stair-container">
         <svg class="stair-svg" viewBox="0 0 380 110" preserveAspectRatio="xMidYMid meet">
           <!-- Panah Turun x10 -->
-          <path d="M 120 40 L 170 80" stroke="#1d4ed8" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
-          <text x="110" y="70" font-size="12" font-weight="bold" fill="#1d4ed8">x 10</text>
+          <path d="M 20 40 L 70 80" stroke="#1d4ed8" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+          <text x="10" y="70" font-size="12" font-weight="bold" fill="#1d4ed8">x 10</text>
 
           <!-- Panah Naik :10 -->
-          <path d="M 270 80 L 220 40" stroke="#1d4ed8" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
-          <text x="260" y="60" font-size="12" font-weight="bold" fill="#1d4ed8">: 10</text>
+          <path d="M 170 80 L 120 40" stroke="#1d4ed8" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+          <text x="160" y="60" font-size="12" font-weight="bold" fill="#1d4ed8">: 10</text>
 
           <defs>
             <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -286,26 +304,48 @@
           </defs>
 
           <!-- Tangga & Label Satuan -->
-          <path d="M 105 5 H 130 V 25" stroke="#000" stroke-width="1.8" fill="none"/>
-          <text x="110" y="0" font-size="11" font-weight="bold">km</text>
+          <path d="M 5 5 H 30 V 25" stroke="#000" stroke-width="1.8" fill="none"/>
+          <text x="10" y="0" font-size="11" font-weight="bold">km</text>
+          <text x="220" y="0" font-size="11" font-weight="bold">km</text>
+          <text x="250" y="0" font-size="11" font-weight="bold">=</text>
+          <text x="260" y="0" font-size="11" font-weight="bold">kilometer</text>
 
-          <path d="M 130 25 H 155 V 45" stroke="#000" stroke-width="1.8" fill="none"/>
-          <text x="135" y="20" font-size="11" font-weight="bold">hm</text>
 
-          <path d="M 155 45 H 180 V 65" stroke="#000" stroke-width="1.8" fill="none"/>
-          <text x="158" y="40" font-size="11" font-weight="bold">dam</text>
+          <path d="M 30 25 H 55 V 45" stroke="#000" stroke-width="1.8" fill="none"/>
+          <text x="35" y="20" font-size="11" font-weight="bold">hm</text>
+          <text x="220" y="20" font-size="11" font-weight="bold">hm</text>
+          <text x="250" y="20" font-size="11" font-weight="bold">=</text>
+          <text x="260" y="20" font-size="11" font-weight="bold">hektometer</text>
 
-          <path d="M 180 65 H 205 V 85" stroke="#000" stroke-width="1.8" fill="none"/>
-          <text x="187" y="60" font-size="11" font-weight="bold">m</text>
+          <path d="M 55 45 H 80 V 65" stroke="#000" stroke-width="1.8" fill="none"/>
+          <text x="58" y="40" font-size="11" font-weight="bold">dam</text>
+          <text x="220" y="40" font-size="11" font-weight="bold">dam</text>
+          <text x="250" y="40" font-size="11" font-weight="bold">=</text>
+          <text x="260" y="40" font-size="11" font-weight="bold">dekameter</text>
 
-          <path d="M 205 85 H 230 V 105" stroke="#000" stroke-width="1.8" fill="none"/>
-          <text x="210" y="80" font-size="11" font-weight="bold">dm</text>
+          <path d="M 80 65 H 105 V 85" stroke="#000" stroke-width="1.8" fill="none"/>
+          <text x="87" y="60" font-size="11" font-weight="bold">m</text>
+          <text x="220" y="60" font-size="11" font-weight="bold">m</text>
+          <text x="250" y="60" font-size="11" font-weight="bold">=</text>
+          <text x="260" y="60" font-size="11" font-weight="bold">meter</text>
 
-          <path d="M 230 105 H 255 V 125" stroke="#000" stroke-width="1.8" fill="none"/>
-          <text x="235" y="100" font-size="11" font-weight="bold">cm</text>
+          <path d="M 105 85 H 130 V 105" stroke="#000" stroke-width="1.8" fill="none"/>
+          <text x="110" y="80" font-size="11" font-weight="bold">dm</text>
+          <text x="220" y="80" font-size="11" font-weight="bold">dm</text>
+          <text x="250" y="80" font-size="11" font-weight="bold">=</text>
+          <text x="260" y="80" font-size="11" font-weight="bold">desimeter</text>
 
-          <path d="M 255 125 H 280" stroke="#000" stroke-width="1.8" fill="none"/>
-          <text x="260" y="120" font-size="11" font-weight="bold">mm</text>
+          <path d="M 130 105 H 155 V 125" stroke="#000" stroke-width="1.8" fill="none"/>
+          <text x="135" y="100" font-size="11" font-weight="bold">cm</text>
+          <text x="220" y="100" font-size="11" font-weight="bold">cm</text>
+          <text x="250" y="100" font-size="11" font-weight="bold">=</text>
+          <text x="260" y="100" font-size="11" font-weight="bold">centimeter</text>
+
+          <path d="M 155 125 H 180" stroke="#000" stroke-width="1.8" fill="none"/>
+          <text x="160" y="120" font-size="11" font-weight="bold">mm</text>
+          <text x="220" y="120" font-size="11" font-weight="bold">mm</text>
+          <text x="250" y="120" font-size="11" font-weight="bold">=</text>
+          <text x="260" y="120" font-size="11" font-weight="bold">milimeter</text>
         </svg>
       </div>
 
@@ -315,28 +355,9 @@
       </div>
     </div>
 
-    <!-- Dekorasi Ilustrasi -->
+    <!-- Dekorasi Ilustrasi dengan atribut crossOrigin -->
     <div class="illustration-box">
-      <svg viewBox="0 0 100 120" width="100%">
-        <rect x="80" y="10" width="6" height="100" fill="#cbd5e1" rx="2"/>
-        <line x1="80" y1="20" x2="84" y2="20" stroke="#475569" stroke-width="1"/>
-        <line x1="80" y1="40" x2="84" y2="40" stroke="#475569" stroke-width="1"/>
-        <line x1="80" y1="60" x2="84" y2="60" stroke="#475569" stroke-width="1"/>
-        <line x1="80" y1="80" x2="84" y2="80" stroke="#475569" stroke-width="1"/>
-
-        <!-- Anak -->
-        <circle cx="62" cy="50" r="8" fill="#fca5a5"/>
-        <path d="M 57 58 L 67 58 L 69 85 L 55 85 Z" fill="#0ea5e9"/>
-        <rect x="57" y="85" width="4" height="25" fill="#1e293b"/>
-        <rect x="63" y="85" width="4" height="25" fill="#1e293b"/>
-
-        <!-- Ibu -->
-        <circle cx="30" cy="40" r="10" fill="#fca5a5"/>
-        <path d="M 22 35 Q 30 25 38 35 Q 38 47 22 47 Z" fill="#7c2d12"/>
-        <path d="M 22 50 L 38 50 L 42 90 L 18 90 Z" fill="#f59e0b"/>
-        <rect x="24" y="90" width="4" height="20" fill="#fca5a5"/>
-        <rect x="32" y="90" width="4" height="20" fill="#fca5a5"/>
-      </svg>
+      <img id="decorImage" src="icon-anak-sd.jpg" height="80px" crossorigin="anonymous">
     </div>
 
     <div class="score-badge" id="scoreBadge">
@@ -359,24 +380,18 @@
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    // Generate 10 soal dengan syarat:
-    // 1. Dibuat 2 Kolom (5 kiri, 5 kanan)
-    // 2. Tidak ada jenis konversi yang berulang (misal: km -> m hanya muncul 1x per sesi)
-    // 3. Perpindahan tangga <= 3
-    // 4. Hasil HARUS angka bulat
     function generateQuestions() {
       currentQuestions = [];
       const container = document.getElementById('questionsContainer');
       container.innerHTML = '';
       document.getElementById('scoreBadge').style.display = 'none';
 
-      const usedPairs = new Set(); // Melacak jenis konversi yang sudah dipakai
+      const usedPairs = new Set();
 
       for (let i = 0; i < 10; i++) {
         let fromIdx, toIdx, diff, pairKey;
         let attempts = 0;
 
-        // Cari kombinasi konversi unik yang belum digunakan
         do {
           fromIdx = getRandomInt(0, units.length - 1);
           let step = getRandomInt(-3, 3);
@@ -393,10 +408,8 @@
 
         let value;
         if (diff > 0) {
-          // Turun tangga (dikali) -> angka 1-50
           value = getRandomInt(1, 50);
         } else {
-          // Naik tangga (dibagi) -> angka kelipatan 10^|diff| agar hasil bulat
           let factor = Math.pow(10, Math.abs(diff));
           let multiplier = getRandomInt(1, 25);
           value = multiplier * factor;
@@ -412,7 +425,6 @@
           correctAnswer: answer
         });
 
-        // Render HTML
         const qEl = document.createElement('div');
         qEl.className = 'q-item';
         qEl.innerHTML = `
@@ -451,23 +463,27 @@
       scoreBadge.style.display = 'block';
     }
 
+    // Fungsi menyimpan gambar yang diperbaiki agar gambar dekorasi terikut
     function saveAsImage() {
       const worksheet = document.getElementById('worksheet');
       
       html2canvas(worksheet, {
         scale: 2,
-        backgroundColor: null,
-        useCORS: true
+        backgroundColor: "#ffffff",
+        useCORS: true,
+        allowTaint: true
       }).then(canvas => {
         const link = document.createElement('a');
         link.download = 'latihan-satuan-panjang.png';
         link.href = canvas.toDataURL('image/png');
         link.click();
+      }).catch(err => {
+        console.error("Gagal menyimpan gambar:", err);
       });
     }
 
     window.onload = generateQuestions;
-    // GLOBAL BULLETPROOF SECURITY LAYER
+
     (function() {
         window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
         window.addEventListener('keydown', function(e) {
