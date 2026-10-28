@@ -313,17 +313,18 @@
         <div class="info-grid">
           <!-- Kelompok 1 -->
           <div class="info-col">
-            <div>1 abad = 100 thn</div>
-            <div>1 dasawarsa = 10 thn</div>
-            <div>1 windu = 8 thn</div>
-            <div>1 abad = 10 dsw</div>
+            <div>1 abad = 100 tahun</div>
+            <div>1 dasawarsa = 10 tahun</div>
+            <div>1 windu = 8 tahun</div>
+            <div>1 lustrum = 5 tahun</div>
           </div>
           <!-- Kelompok 2 -->
           <div class="info-col">
-            <div>1 tahun = 12 bln</div>
-            <div>1 bulan = 4 mgg</div>
-            <div>1 minggu = 7 hari</div>
+            <div>1 tahun = 12 bulan</div>
+            <div>1 tahun = 365 hari</div>
+            <div>1 bulan = 4 minggu</div>
             <div>1 bulan = 30 hari</div>
+            <div>1 minggu = 7 hari</div>
           </div>
           <!-- Kelompok 3 -->
           <div class="info-col">
@@ -387,7 +388,9 @@
           { from: 'windu', to: 'tahun', mult: 8 },
           { from: 'tahun', to: 'windu', div: 8 },
           { from: 'abad', to: 'dasawarsa', mult: 10 },
-          { from: 'dasawarsa', to: 'abad', div: 10 }
+          { from: 'dasawarsa', to: 'abad', div: 10 },
+          { from: 'lustrum', to: 'tahun', mult: 5},
+          { from: 'tahun', to: 'lustrum', div: 5},
         ],
         // Kelompok 2 (4 soal): tahun, bulan, minggu, hari
         group2: [
@@ -407,7 +410,9 @@
           { from: 'jam', to: 'menit', mult: 60 },
           { from: 'menit', to: 'jam', div: 60 },
           { from: 'menit', to: 'detik', mult: 60 },
-          { from: 'detik', to: 'menit', div: 60 }
+          { from: 'detik', to: 'menit', div: 60 },
+          { from: 'jam', to: 'detik', mult: 3600 },
+          { from: 'detik', to: 'jam', div: 3600 }
         ]
       };
     }

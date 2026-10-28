@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Lembar Kerja Satuan Suhu</title>
+  <!-- html2canvas untuk fitur Simpan Gambar -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background-color: #f0f4f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 8px;
+    }
+
+    /* Container Fit 1 Layar & Max-Width 450px */
+    .worksheet-card {
+      width: 100%;
+      max-width: 450px;
+      height: 560px;
+      background: #ffffff;
+      border: 5px solid #3b82f6;
+      border-radius: 20px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Header Nama & Kelas */
+    .header-info {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px;
+      margin-bottom: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #1e3a8a;
+      background-color: lightcyan;
+      border-radius: 12px;
+      border: 1px solid blue;
+    }
+
+    .info-field {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .info-field input {
+      border: none;
+      border-bottom: 1px dashed #1e3a8a;
+      outline: none;
+      width: 50%;
+      font-size: 12px;
+      padding: 0 4px;
+      background: transparent;
+    }
+
+    /* Title Section */
+    .title-section {
+      text-align: center;
+      margin-bottom: 2px;
+    }
+
+    .main-title {
+      color: #1d4ed8;
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      text-shadow: 1px 1px 0px #93c5fd;
+      line-height: 1.1;
+    }
+
+    .instruction {
+      font-size: 9px;
+      color: #334155;
+      margin-top: 1px;
+      line-height: 1.1;
+    }
+
+    /* Tabel Rumus Konversi Suhu */
+    .formula-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9px;
+      text-align: center;
+      margin: 3px 0;
+      background: #fafafa;
+    }
+
+    .formula-table th, .formula-table td {
+      border: 1px solid #93c5fd;
+      padding: 3px 2px;
+    }
+
+    .formula-table th {
+      background-color: #e0f2fe;
+      color: #1e3a8a;
+      font-weight: bold;
+    }
+
+    .formula-table td.row-header {
+      background-color: #e0f2fe;
+      color: #1e3a8a;
+      font-weight: bold;
+    }
+
+    .formula-table td.empty-cell {
+      background-color: #fef08a; /* Warna kuning seperti gambar */
+    }
+
+    /* Layout 2 Kolom Soal (1-5 Kiri, 6-10 Kanan) */
+    .questions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: repeat(5, auto);
+      grid-auto-flow: column;
+      gap: 6px 10px;
+      position: relative;
+      z-index: 2;
+      margin-top: 4px;
+    }
+
+    .q-item {
+      display: flex;
+      align-items: center;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #1e293b;
+      background-color: lightcyan;
+      border-radius: 10px;
+      border: 1px solid blue;
+      padding: 2px;
+    }
+
+    .q-no {
+      width: 18px;
+      height: 18px;
+      font-size: 10px;
+      border-radius: 50%;
+      background-color: #1d4ed8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 3px;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .q-text {
+      width: 52px;
+      text-align: right;
+      padding-right: 2px;
+      font-size: 10.5px;
+      white-space: nowrap;
+    }
+
+    .q-eq {
+      width: 6px;
+    }
+
+    .q-input-wrap {
+      flex: 1;
+      position: relative;
+    }
+
+    .q-input {
+      width: 100%;
+      border: none;
+      border-bottom: 2px solid #64748b;
+      text-align: center;
+      font-size: 10.5px;
+      font-weight: bold;
+      outline: none;
+      padding: 1px 0;
+      background: transparent;
+      transition: all 0.2s;
+    }
+
+    .q-input.correct {
+      border-bottom: 2px solid #22c55e;
+      background-color: #dcfce7;
+      color: #15803d;
+    }
+
+    .q-input.incorrect {
+      border-bottom: 2px solid #ef4444;
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type=number] {
+      -moz-appearance: textfield;
+    }    
+
+    .q-unit {
+      width: 30px;
+      padding-left: 2px;
+      color: #334155;
+      font-size: 10.5px;
+      white-space: nowrap;
+    }
+
+    /* Dekorasi Ilustrasi Termometer */
+    .illustration-box {
+      width: 45px;
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.85;
+    }
+
+    /* Score Indicator */
+    .score-badge {
+      display: none;
+      text-align: center;
+      font-size: 11px;
+      font-weight: bold;
+      color: #1e3a8a;
+      background: #e0f2fe;
+      padding: 3px;
+      border-radius: 6px;
+      margin-top: 2px;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      width: 100%;
+      max-width: 450px;
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 7px 4px;
+      font-size: 11px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+      transition: opacity 0.2s, transform 0.1s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-check { background-color: #22c55e; }
+    .btn-random { background-color: #3b82f6; }
+    .btn-save { background-color: #8b5cf6; }
+
+  </style>
+</head>
+<body>
+
+  <div class="worksheet-card" id="worksheet">
+    
+    <div>
+      <!-- Header Input -->
+      <div class="header-info">
+        <div class="info-field">
+          <span>Nama :</span>
+          <input type="text" placeholder=" ">
+        </div>
+        <div class="info-field" style="max-width: 110px;">
+          <span>Kelas :</span>
+          <input type="text" placeholder=" ">
+        </div>
+      </div>
+
+      <!-- Title -->
+      <div class="title-section">
+        <h1 class="main-title">SATUAN SUHU</h1>
+        <p class="instruction">Tabel rumus konversi satuan suhu</p>
+      </div>
+
+      <!-- Tabel Rumus Konversi Suhu Sesuai Gambar -->
+      <table class="formula-table">
+        <tr>
+          <th rowspan="2" style="width: 22%;">Dari</th>
+          <th colspan="4">Ke</th>
+        </tr>
+        <tr>
+          <th style="width: 19.5%;">Celsius</th>
+          <th style="width: 19.5%;">Reamur</th>
+          <th style="width: 19.5%;">Fahrenheit</th>
+          <th style="width: 19.5%;">Kelvin</th>
+        </tr>
+        <tr>
+          <td class="row-header">Celsius</td>
+          <td class="empty-cell"></td>
+          <td><math><mfrac><mn>4</mn><mn>5</mn></mfrac><mi>C</mi></math></td>
+          <td><math><mfrac><mn>9</mn><mn>5</mn></mfrac><mi>C</mi><mo>+</mo><mn>32</mn></math></td>
+          <td><math><mi>C</mi><mo>+</mo><mn>273</mn></math></td>
+        </tr>
+        <tr>
+          <td class="row-header">Reamur</td>
+          <td><math><mfrac><mn>5</mn><mn>4</mn></mfrac><mi>R</mi></math></td>
+          <td class="empty-cell"></td>
+          <td><math><mfrac><mn>9</mn><mn>4</mn></mfrac><mi>R</mi><mo>+</mo><mn>32</mn></math></td>
+          <td><math><mfrac><mn>5</mn><mn>4</mn></mfrac><mi>R</mi><mo>+</mo><mn>273</mn></math></td>
+        </tr>
+        <tr>
+          <td class="row-header">Fahrenheit</td>
+          <td><math><mfrac><mn>5</mn><mn>9</mn></mfrac><mo>(</mo><mi>F</mi><mo>-</mo><mn>32</mn><mo>)</mo></math></td>
+          <td><math><mfrac><mn>4</mn><mn>9</mn></mfrac><mo>(</mo><mi>F</mi><mo>-</mo><mn>32</mn><mo>)</mo></math></td>
+          <td class="empty-cell"></td>
+          <td class="empty-cell"></td>
+        </tr>
+        <tr>
+          <td class="row-header">Kelvin</td>
+          <td><math><mi>K</mi><mo>-</mo><mn>273</mn></math></td>
+          <td><math><mfrac><mn>4</mn><mn>5</mn></mfrac><mo>(</mo><mi>K</mi><mo>-</mo><mn>273</mn><mo>)</mo></math></td>
+          <td class="empty-cell"></td>
+          <td class="empty-cell"></td>
+        </tr>
+      </table>
+
+      <!-- Area Soal (2 Kolom) -->
+      <p class="instruction" style="text-align: center; margin-top: 10px; margin-bottom: 5px;">Kerjakan Soal Berikut!</p>
+
+      <div class="questions-grid" id="questionsContainer">
+        <!-- 10 Soal di-generate via JS -->
+      </div>
+    </div>
+
+    <!-- Ilustrasi Termometer Sederhana -->
+    <div class="illustration-box">
+      <svg viewBox="0 0 60 100" width="100%">
+        <rect x="25" y="10" width="10" height="70" rx="5" fill="#f1f5f9" stroke="#3b82f6" stroke-width="2"/>
+        <circle cx="30" cy="83" rx="10" ry="10" fill="#ef4444"/>
+        <rect x="27" y="35" width="6" height="45" fill="#ef4444"/>
+        <line x1="25" y1="20" x2="20" y2="20" stroke="#64748b" stroke-width="1.5"/>
+        <line x1="25" y1="35" x2="20" y2="35" stroke="#64748b" stroke-width="1.5"/>
+        <line x1="25" y1="50" x2="20" y2="50" stroke="#64748b" stroke-width="1.5"/>
+        <line x1="25" y1="65" x2="20" y2="65" stroke="#64748b" stroke-width="1.5"/>
+      </svg>
+    </div>
+
+    <div class="score-badge" id="scoreBadge">
+      Skor Anda: <span id="scoreVal">0</span> / 100
+    </div>
+  </div>
+
+  <!-- Tombol Aksi -->
+  <div class="action-buttons">
+    <button class="btn btn-check" onclick="checkAnswers()">Periksa</button>
+    <button class="btn btn-random" onclick="generateQuestions()">Acak Soal</button>
+    <button class="btn btn-save" onclick="saveAsImage()">Simpan Gambar</button>
+  </div>
+
+  <script>
+    let currentQuestions = [];
+
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function getTemperaturePairs() {
+      return [
+        { from: '°C', to: '°R', convert: (c) => (4/5) * c, getVal: () => getRandomInt(1, 20) * 5 },
+        { from: '°R', to: '°C', convert: (r) => (5/4) * r, getVal: () => getRandomInt(1, 20) * 4 },
+        { from: '°C', to: '°F', convert: (c) => (9/5) * c + 32, getVal: () => getRandomInt(0, 15) * 5 },
+        { from: '°F', to: '°C', convert: (f) => (5/9) * (f - 32), getVal: () => 32 + getRandomInt(0, 12) * 9 },
+        { from: '°R', to: '°F', convert: (r) => (9/4) * r + 32, getVal: () => getRandomInt(0, 15) * 4 },
+        { from: '°F', to: '°R', convert: (f) => (4/9) * (f - 32), getVal: () => 32 + getRandomInt(0, 12) * 9 },
+        { from: '°C', to: 'K', convert: (c) => c + 273, getVal: () => getRandomInt(0, 50) },
+        { from: 'K', to: '°C', convert: (k) => k - 273, getVal: () => getRandomInt(273, 323) }
+      ];
+    }
+
+    function generateQuestions() {
+      currentQuestions = [];
+      const container = document.getElementById('questionsContainer');
+      container.innerHTML = '';
+      document.getElementById('scoreBadge').style.display = 'none';
+
+      const pairsPool = getTemperaturePairs();
+      pairsPool.sort(() => Math.random() - 0.5);
+
+      const selectedPairs = [];
+      for (let pair of pairsPool) {
+        if (selectedPairs.length >= 10) break;
+        selectedPairs.push(pair);
+      }
+      while (selectedPairs.length < 10) {
+        let randPair = pairsPool[Math.floor(Math.random() * pairsPool.length)];
+        selectedPairs.push(randPair);
+      }
+
+      selectedPairs.sort(() => Math.random() - 0.5);
+
+      selectedPairs.forEach((pair, idx) => {
+        let val = pair.getVal();
+        let ans = pair.convert(val);
+
+        while (!Number.isInteger(ans) || ans > 10000 || ans < 0) {
+          val = pair.getVal();
+          ans = pair.convert(val);
+        }
+
+        currentQuestions.push({
+          num: idx + 1,
+          val: val,
+          fromUnit: pair.from,
+          toUnit: pair.to,
+          correctAnswer: ans
+        });
+
+        const qEl = document.createElement('div');
+        qEl.className = 'q-item';
+        qEl.innerHTML = `
+          <span class="q-no">${idx + 1}</span>
+          <span class="q-text">${val} ${pair.from}</span>
+          <span class="q-eq">=</span>
+          <div class="q-input-wrap">
+            <input type="number" class="q-input" id="input-${idx}" autocomplete="off">
+          </div>
+          <span class="q-unit">${pair.to}</span>
+        `;
+        container.appendChild(qEl);
+      });
+    }
+
+    function checkAnswers() {
+      let correctCount = 0;
+
+      currentQuestions.forEach((q, idx) => {
+        const inputEl = document.getElementById(`input-${idx}`);
+        const userAns = parseFloat(inputEl.value);
+
+        inputEl.classList.remove('correct', 'incorrect');
+
+        if (!isNaN(userAns) && userAns === q.correctAnswer) {
+          inputEl.classList.add('correct');
+          correctCount++;
+        } else {
+          inputEl.classList.add('incorrect');
+        }
+      });
+
+      const scoreBadge = document.getElementById('scoreBadge');
+      const scoreVal = document.getElementById('scoreVal');
+      scoreVal.innerText = correctCount * 10;
+      scoreBadge.style.display = 'block';
+    }
+
+    function saveAsImage() {
+      const worksheet = document.getElementById('worksheet');
+      
+      html2canvas(worksheet, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+        useCORS: true,
+        allowTaint: true
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'lembar-kerja-satuan-suhu.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }).catch(err => {
+        console.error("Gagal menyimpan gambar:", err);
+      });
+    }
+
+    window.onload = generateQuestions;
+
+    // SECURITY LAYER
+//    (function() {
+//        window.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); }, true);
+//        window.addEventListener('keydown', function(e) {
+//            if (e.key === 'F12') { e.preventDefault(); e.stopPropagation(); }
+//            if (e.ctrlKey && e.shiftKey && ['I', 'J', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+//            if (e.ctrlKey && ['U', 'S', 'A', 'C'].includes(e.key.toUpperCase())) { e.preventDefault(); e.stopPropagation(); }
+//        }, true);
+//    })();
+  </script>
+</body>
+</html>
